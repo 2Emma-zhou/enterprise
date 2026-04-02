@@ -1,0 +1,44 @@
+---
+hide_title: true
+sidebar_label: 用户管理
+---
+
+
+在平台中，你可以新增用户并为其分配不同角色，便捷管理模块访问权限。同时，也支持用户自行注册账号。
+
+:::info
+平台采用 Keycloak 实现全面的用户管理功能，你可通过 **系统管理** > **身份与访问管理** 进行自定义配置。
+:::
+
+## 新增用户
+1. 登录平台后，选择 **系统管理** > **用户管理**。
+2. 单击右上角的 **新增用户**。
+
+<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/18-1.png" />
+
+3. 填写用户信息并为其选择角色，单击 **保存**。
+
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/19-1.png" />
+
+- 支持对用户进行禁用、编辑、删除及密码重置操作。
+- Keycloak 中预设的默认用户无法禁用或删除。
+
+## 注册用户
+用户注册需填写邮箱，需先配置邮件服务器以发送验证邮件。
+1. 选择 **系统管理** > **身份与访问管理**，使用账号密码（admin/tier0）登录 Keycloak。
+2. 将 **Realm** 切换至 **tier0**，选择 **Realm settings**。
+
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/20.png" />
+
+3. 单击 **Email**，填写邮件模板及服务器信息。
+
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/26.png" />
+
+4. 保存设置后，单击 **Login**，启用 **User registration** 功能。
+
+<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/27.png" />
+
+5. 进入平台登录页面，单击 **Register**。
+6. 填写相关信息，申请用户账号。
+
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/28-1.png" />

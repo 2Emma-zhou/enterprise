@@ -1,0 +1,64 @@
+---
+hide_title: true
+sidebar_label: 数据可视化
+---
+
+## 如何用事件流程构建数据看板
+采集至平台并经过处理的数据，可在平台中以自定义样式的图表、表格、文本等格式进行可视化展示。
+
+1. 登录平台，选择 **数据管理** > **事件流程**。
+2. 单击 **新建事件流程** 添加一条流。
+3. 单击流名称开始编辑。
+4. 单击右上角 <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/111.png" /> 图标，然后单击 **节点管理**。
+
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/110-1.png" />
+
+5. 在 **安装** 页面搜索并安装 `@flowfuse/node-red-dashboard` 节点。
+
+<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/112-1.png" />
+
+6. 使用 flowfuse 的节点构建数据看板：
+:::tip
+单击右上角 <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/113-1.png" /> 图标，然后单击 **Dashboard2.0** 可调整看板布局。
+
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/113.png" />
+
+:::
+
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/114.png" />
+
+<table>
+  <thead>
+    <tr>
+      <th>序号</th>
+      <th>项目</th>
+      <th>说明</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>节点库</td>
+      <td>Dashboard 2.0 相关节点，包括仪表盘、表单、进度条等。</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>画布</td>
+      <td>拖拽节点构建数据看板的操作区域。</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>操作栏</td>
+      <td>编辑 <code>ui-base</code> 节点及预览数据看板。</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>布局面板</td>
+      <td>按层级布局显示所有已添加的节点。</td>
+    </tr>
+  </tbody>
+</table>
+
+:::info
+各节点详细使用方法请参考 <a href="https://dashboard.flowfuse.com/nodes/config/ui-base">Flowfuse 节点文档</a>。
+:::

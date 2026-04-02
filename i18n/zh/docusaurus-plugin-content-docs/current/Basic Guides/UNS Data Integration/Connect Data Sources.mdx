@@ -1,0 +1,94 @@
+---
+hide_title: true
+sidebar_label: 连接数据源
+---
+
+## 如何添加数据源
+在**数据建模**下完成数据模型构建后，需为模型连接真实数据，以便后续处理和使用。
+
+### 手动添加数据流
+1. 登录平台，进入**数据管理** > **数据连接**。
+
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/108-1.png" />
+
+<table>
+  <thead>
+    <tr>
+      <th>序号</th>
+      <th>项目</th>
+      <th>说明</th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr>
+      <td rowspan="2">1</td>
+      <td>搜索</td>
+      <td>搜索现有数据流。</td>
+    </tr>
+    <tr>
+      <td>新建数据连接</td>
+      <td>添加一条新的数据流。</td>
+    </tr>
+    <tr>
+      <td rowspan="1">2</td>
+      <td>数据流列表</td>
+      <td>显示数据流信息，单击流名称可进入数据流编辑页面。</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>显示方式</td>
+      <td>切换数据流的卡片式/列表式显示。</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>流操作</td>
+      <td>对数据流进行复制/编辑/删除操作。</td>
+    </tr>
+  </tbody>
+</table>
+
+2. 单击**新建数据连接**，输入名称后单击**保存**。
+3. 单击刚创建的数据流，根据数据源类型拖拽对应节点（例如`modbus`节点）至画布。
+4. 拖拽一个 `MQTT输出` 节点，并完成配置：
+
+<ol>
+<ol>
+<li>
+添加内置代理：<code>emqx:1883</code>。
+<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/106.png" />
+</li>
+<li>
+设置订阅主题为 **数据建模** 中的数据模型路径。
+
+例如：数据模型结构为 <code>factory/equipment/cnc</code>，则主题设置为 <code>factory/equipment/cnc</code>。
+<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/107.png" />
+</li>
+</ol>
+</ol>
+
+5. 单击右上角**部署**，触发数据流后，数据将发送至**数据建模**中对应的模型。
+
+### 通过生成的流配置数据源
+:::note
+创建文件时选择**模拟数据**，系统才会自动生成数据流。
+:::
+1. 登录平台，进入**数据管理** > **数据建模**，选择目标文件。
+2. 向下滚动至**拓扑图**区域，单击**数据连接**右侧的图标，跳转至**数据连接**下自动生成的数据流页面。
+
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/49-1.png" />
+
+3. 修改数据源。
+:::info
+确保源节点返回的数据格式为 **JSON对象**，目前平台仅支持解析该数据类型。
+:::
+
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/50.png" />
+
+4. 删除**模拟数据**的函数节点，将源节点与后续流程连接。
+
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/51.png" />
+
+5. 单击右上角**部署**，然后触发数据流。
+6. 返回**数据建模**，检查数据是否已回传至该文件。
+
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/52-1.png" />

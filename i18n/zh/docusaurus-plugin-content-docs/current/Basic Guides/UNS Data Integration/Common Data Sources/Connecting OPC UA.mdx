@@ -1,0 +1,62 @@
+---
+hide_title: true
+sidebar_label: 连接 OPC UA
+---
+
+## 从OPCUA服务器读取数据
+
+1. 在 **数据连接** 中，拖拽一个 `inject` 节点。
+2. 双击该节点，输入 OPC UA 服务器中的 **节点ID**。
+
+<img width={300} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/83.png" />
+
+3. 拖拽一个 `OpcUa-Client` 节点，然后双击该节点。
+4. 单击 **Endpoint** 右侧的 <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/84.png" /> 图标，输入你的 OPC UA 服务器信息。
+
+<img width={300} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/85.png" />
+
+5. 单击 **Add**，将 **Action** 设置为 **READ**。
+6. 其他参数保持默认配置，单击 **Done**。
+
+<img width={300} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/86.png" />
+
+7. 将 `inject` 节点与 `OpcUa-Client` 节点连接，最后在末端连接一个 `debug` 节点。
+8. 单击右上角 **Deploy**，然后单击 `inject` 节点触发流程。
+
+<img width={600} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/87.png" />
+
+## 从OPCUA服务器订阅数据
+
+1. 在 **数据连接** 中，拖拽一个 `inject` 节点。
+2. 双击该节点，输入 OPC UA 服务器中的 **节点ID**。
+- msg.payload:
+```json
+[
+    {
+        "nodeId": "ns=2;i=1001",
+        "datatype": "Int32"
+    },
+    {
+        "nodeId": "ns=2;i=1002",
+        "datatype": "Int32"
+    }
+]
+```
+- msg.topic: multiple
+
+<img width={300} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/83-1.png" />
+
+3. 拖拽一个 `OpcUa-Client` 节点，然后双击该节点。
+4. 单击 **Endpoint** 右侧的 <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/84.png" /> 图标，输入你的 OPC UA 服务器信息。
+
+<img width={300} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/85.png" />
+
+5. 单击 **Add**，将 **Action** 设置为 **SUBSCRIBE**。
+6. 设置订阅间隔，其他参数保持默认配置，单击 **Done**。
+
+<img width={300} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/86-1.png" />
+
+7. 将 `inject` 节点与 `OpcUa-Client` 节点连接，最后在末端连接一个 `debug` 节点。
+8. 单击右上角 **Deploy**，然后单击 `inject` 节点触发流程。
+
+<img width={600} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/87-1.png" />

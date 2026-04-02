@@ -1,0 +1,125 @@
+---
+hide_title: true
+---
+
+## Example
+There are 3 data sources connected to Tier0, and we need to combine them together for the next step.
+
+```json
+{
+  "workshop": {
+    "furnace1": {
+      "temp": 85
+    },
+    "furnace2": {
+      "humidity": 64
+    },
+    "furnace3": {
+      "pressure": 80
+    }
+  }
+}
+
+```
+
+
+## What Node to be Used?
+In this example, we use **join** node to combine previous messages.
+
+<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/129.png" />
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Mode</td>
+      <td>
+        Join mode. <br/>
+        • <b>manual</b>: You configure how to merge messages yourself.<br/>
+        • <b>auto</b>: Automatically reassemble sequences split by a <b>split</b> node, based on <code>msg.parts</code>.<br/>
+        • <b>reduce sequence</b> – Runs a JavaScript reduce function across the sequence to produce a single result.
+      </td>
+    </tr>
+    <tr>
+      <td>Combine each</td>
+      <td>
+        Message part you want to combine.
+        Commonly <code>msg.payload</code>, but can be others (e.g. <code>msg.data.value</code>).
+      </td>
+    </tr>
+    <tr>
+      <td>to create</td>
+      <td>
+        Result type:<br/>
+        • <b>a merged Object</b>: Merge all objects into a single object (later keys overwrite same-name keys).<br/>
+        • <b>a key/value Object</b>: Use a <b>key property</b> (default <code>msg.topic</code>) as the key, and the <b>Combine each</b> property as the value.<br/>
+        • <b>an Array</b>: Append each value to an array in order.<br/>
+        • <b>a String / a Buffer</b>: Concatenate text or binary data (String can use a separator; Buffer is joined as binary).
+      </td>
+    </tr>
+    <tr>
+      <td>Use existing <code>msg.parts</code> property</td>
+      <td>
+        When selected, the node uses the <code>msg.parts</code> from previous nodes
+        (usually created by a <b>split</b> node) to determine grouping and when to send the joined output.
+        Fields like <code>msg.parts.count</code> and <code>msg.parts.index</code> are used.
+      </td>
+    </tr>
+    <tr>
+      <td>Send the message → After a number of message parts</td>
+      <td>
+        Outputs the joined result after receiving the set number of fields.
+      </td>
+    </tr>
+    <tr>
+      <td>Send the message → and every subsequent message</td>
+      <td>
+        When selected, after the initial output, the node outputs an updated result upon new messages arrival.
+      </td>
+    </tr>
+    <tr>
+      <td>Send the message → After a timeout following the first message</td>
+      <td>
+        Optional. Starts a timer when the first message arrives; once the timeout
+        (seconds) is reached, the node outputs whatever has been collected.
+      </td>
+    </tr>
+    <tr>
+      <td>Send the message → After a message with the <code>msg.complete</code> property set</td>
+      <td>
+        Outputs the joined result immediately when a message arrives with
+        <code>msg.complete = true</code>.
+      </td>
+    </tr>
+    <tr>
+      <td>(Advanced) String/Buffer separator</td>
+      <td>
+        For <b>String</b> output, an optional separator can be set.
+        For <b>Buffer</b> output, data is concatenated directly with no separator.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+
+
+## How to Combine Sources?
+1. In **Event Flow**, drag in 3 **mqtt in** nodes, and subscribe to corresponding topics relatively.
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/127.png" />
+
+2. Connect a **join** node to all 3 nodes, and merge them into an object.
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/128.png" />
+
+3. Connect a **debug** node, and trigger the flow to check the results.
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/130.png" />
+
+
+

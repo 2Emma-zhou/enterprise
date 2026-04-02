@@ -1,0 +1,63 @@
+---
+hide_title: true
+sidebar_label: 连接 Modbus
+---
+
+
+1. 在 **数据连接** 中，拖拽一个 `Modbus-Read` 节点。
+2. 双击该节点，单击 **Server** 右侧的 <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/84.png" /> ，输入你的 Modbus 服务器信息。
+
+<img width={300} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/89.png" />
+
+3. 单击 **Add**，输入待连接数据的相关信息。
+
+<img width={300} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/90.png" />
+
+<table>
+  <tr>
+    <th>参数</th>
+    <th>说明</th>
+  </tr>
+  <tr>
+    <td>名称（Name）</td>
+    <td>节点的显示名称（仅用于可视化识别）。</td>
+  </tr>
+  <tr>
+    <td>主题（Topic）</td>
+    <td>可选参数，将传递至输出消息的主题字符串。</td>
+  </tr>
+  <tr>
+    <td>从站地址（Unit-Id）</td>
+    <td>目标设备的 Modbus 从站 ID（通常为 1–247）。</td>
+  </tr>
+  <tr>
+    <td>功能码（FC）</td>
+    <td>指定 Modbus 操作的功能码（例如：功能码 3 = 读取保持寄存器）。</td>
+  </tr>
+  <tr>
+    <td>起始地址（Address）</td>
+    <td>读取的起始寄存器地址（通常为零基地址）。</td>
+  </tr>
+  <tr>
+    <td>读取数量（Quantity）</td>
+    <td>连续读取的寄存器个数。</td>
+  </tr>
+  <tr>
+    <td>轮询频率（Poll Rate）</td>
+    <td>节点轮询 Modbus 设备的间隔时间（例如：每 10 秒一次）。</td>
+  </tr>
+  <tr>
+    <td>输入激活延迟（Delay to activate input）</td>
+    <td>可选参数，轮询输入信号激活前的延迟时间。</td>
+  </tr>
+  <tr>
+    <td>服务器（Server）</td>
+    <td>已配置的 Modbus 服务器引用（包含 IP、端口、协议等信息）。</td>
+  </tr>
+</table>
+
+4. 单击 **Done**。
+5. 在末端连接一个 `debug` 节点。
+6. 单击右上角 **Deploy**，然后单击 `Modbus-Read` 节点触发流程。
+
+<img width={600} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/91.png" />

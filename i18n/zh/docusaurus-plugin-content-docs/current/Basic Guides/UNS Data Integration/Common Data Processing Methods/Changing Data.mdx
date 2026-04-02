@@ -1,0 +1,116 @@
+---
+hide_title: true
+sidebar_label: 更改数据
+---
+
+## 示例
+我们接收到一条消息，需要重命名字段、计算新值并移除无用字段，以便后续流程更简洁地处理数据。
+
+### 输入消息
+
+```json
+{
+  "furnace": {
+    "temp_c": 30.5,
+    "humidity": 64,
+    "pressure": 80
+  },
+  "site": "A1"
+}
+```
+
+### 目标转换要求
+
+- 将 furnace.temp_c 移动至 furnace.temperature.celsius
+- 新增 furnace.temperature.fahrenheit 字段（由摄氏度转换为华氏度）
+- 移除 pressure 字段
+- 将 site 字段值从 A1 修改为 B1
+
+### 输出消息（示例）
+
+```json
+{
+    "furnace":{
+        "humidity":64,
+        "temperature":{
+            "celcius":30.5,
+            "fahrenheit":86.9
+            }
+        },
+    "site":"B1"
+}
+```
+
+## 需使用的节点
+此场景下，我们使用 `change` 节点对消息属性执行 **设置（Set）**、**替换（Change）**、**删除（Delete）** 和 **移动（Move）** 操作。
+
+<img width={300} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/137.png" />
+
+<table>
+  <thead>
+    <tr>
+      <th>参数</th>
+      <th>说明</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>规则（Rules）</td>
+      <td>
+        每条规则按从上到下的顺序执行。<br/>
+        可添加多条规则完成复杂的数据转换。
+      </td>
+    </tr>
+    <tr>
+      <td>规则类型（Rule Type）</td>
+      <td>
+        • <b>设置（Set）</b>：设置或新建属性值。<br/>
+        • <b>替换（Change）</b>：查找并替换值。<br/>
+        • <b>删除（Delete）</b>：移除指定属性。<br/>
+        • <b>移动（Move）</b>：将属性从一个路径移动至另一个路径。
+      </td>
+    </tr>
+    <tr>
+      <td>属性/源/目标（Property/Source/Target）</td>
+      <td>
+        定义要操作的属性路径，例如 <code>msg.payload</code> 或 <code>msg.payload.furnace.temp_c</code>。<br/>
+        也可引用 <code>flow.</code> 或 <code>global.</code> 上下文变量。
+      </td>
+    </tr>
+    <tr>
+      <td>目标值（Target Value）</td>
+      <td>
+        • <b>设置（Set）</b>：要赋值的目标值。<br/>
+        • <b>替换（Change）</b>：要查找并替换的目标值。
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## 如何使用修改节点？
+1. 在 **事件流程** 中拖拽一个 `inject` 节点，添加以下JSON作为输入内容。
+```json
+{
+  "furnace": {
+    "temp_c": 30.5,
+    "humidity": 64,
+    "pressure": 80
+  },
+  "site": "A1"
+}
+```
+
+<img width={300} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/140.png" />
+
+2. 将其与 `change` 节点连接。
+3. 打开 `change` 节点配置面板，添加以下规则：
+- Move: msg.payload.furnace.temp_c → msg.payload.furnace.temperature.celcius
+- Set: msg.payload.furnace.temperature.fahrenheit → payload.furnace.temperature.celcius * 9/5 + 32
+- Delete: msg.payload.pressure
+- Change: 将 msg.payload.site 的值从 A1 改为 B1
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/138.png" />
+
+4. 将 `change` 节点与 `debug` 节点连接，查看转换后的输出结果.
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/139.png" />

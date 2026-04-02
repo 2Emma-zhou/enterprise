@@ -1,0 +1,40 @@
+Tier0 uses Portainer to manage containers, making it easy to deploy, manage, and scale applications.
+:::info
+In this guide, simple operations that relate to general container management are introduced. For detailed Portainer usage, see [Portainer Documentation](https://docs.portainer.io/).
+:::
+
+## Accessing Container Management
+1. Log in to Tier0, and then select **Dev Tools** > **Containers**.
+
+<img width={350} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/183.png" />
+
+2. Click **Login with OAuth**, and then click **Live connect** to start managing containers.
+
+<img width={650} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/184.png" />
+
+## General Operations on Containers
+1. On the dashboard, click **Containers**.
+
+<img width={650} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/185.png" />
+
+2. Select a container, and then you can start, stop, restart, pause, or remove the container.
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/186.png" />
+
+3. (Optional) Click **Console** to access the container terminal for more complex operations.
+
+<img width={650} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/187.png" />
+
+## Accessing Database on Container
+1. On the dashboard, click **Containers**.
+2. On page 2, select **postgresql**, and then click **Console**.
+
+<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/188.png" />
+
+3. Click **Connect**, and then use the following command to access the database.
+
+```bash
+psql -U postgres -d postgres
+```
+
+<img width={650} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/189.png" />

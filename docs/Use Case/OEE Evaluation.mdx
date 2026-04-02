@@ -1,0 +1,219 @@
+---
+sidebar_label: Typical Use Case
+---
+
+Tier0 boasts on the application of **UNS (Unified Namespace)**, and here we use an example to show how Tier0 evaluates equipment performance based on OEE calculated from different types of data.
+
+## Example Description
+We will use Tier0 to connect and format equipment running time, product quantity and product quality data, adopt AI model analyze equipment performance based on the **OEE (Overall Equipment Effectiveness)** metrics and send the result back to Tier0 for subsequent display.
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/81.png" />
+
+
+<img width={700} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/47.png" />
+
+## Data Source
+- CNC running time data connected and monitored by PLC through Modbus
+- Order information from ERP system transmitted by RestAPI
+- Product quality log recorded on an Excel table
+
+:::info
+In this example, we will use simulated data to demonstrate the process.
+:::
+
+## Data Integration
+### Building Data Models
+Build data models to store data in Tier0, and at the same time, MQTT topics with identical name will be created in the embedded MQTT broker.
+1. Log in to Tier0, and then click **Namespace** under **UNS**.
+2. Click <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/5.png" /> to add a path (namespace) named **Equipment**.
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/6.png" />
+
+3. Click <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/7.png" /> to add a topic (data tag) named **CNC** under the **Equipment**, and add attributes to store the actual running time and planned running time data of the equipment.
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/8.png" />
+
+4. Select **Enable History**, and then click **Save**. 
+
+5. Apply the same operation to add relational model **Order/OrderInfo**, **Quality/OrderQualityLog**, 
+**Quality/QualityAnalysis**.
+
+<table>
+        <thead>
+            <tr>
+                <th>Model</th>
+                <th>Attribute</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Order/OrderInfo</td>
+                <td>sum/double, time/double</td>
+                <td>Indicates the quantity of products and the time consumption for making a single product.</td>
+            </tr>
+            <tr>
+                <td>Quality/OrderQualityLog</td>
+                <td>Sum/double, Good/double, Rate/double.</td>
+                <td>Indicates the overall quantity of products, quantity of certified products and certified rate.</td>
+            </tr>
+            <tr>
+                <td>Quality/QualityAnalysis</td>
+                <td>performance/string</td>
+                <td>Indicates the overall equipment performance.</td>
+            </tr>
+        </tbody>
+    </table>
+
+
+<img width={350} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/10.png" />
+
+### Adding Data Sources
+When finishing building data models, NodeRed data flows with mock data will be generated in **Source Flow**. We need to change the data sources of the flows to get real data.
+
+#### Getting Equipment Running Time
+1. Click **Source Flow** under **UNS**, and then click **Equipment/CNC**.
+
+<img width={650} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/11.png" />
+
+2. Change the data source to `Modbus`, add the Modbus server and enter corresponding configurations.
+
+<img width={350} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/11-1.png" />
+
+:::note
+Make sure the output data of `Modbus read` node is an object and matches that in UNS. Otherwise, use a `function` node to do data conversion.
+:::
+
+3. Add `Debug` nodes, and then click the `Modebus` node to trigger the flow.
+
+4. Check whether the data is transmitted to **Namespace**.
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/12-5.png" />
+
+#### Getting Order Information 
+
+1. On the **Sourc Flow** page, click **Order/OrderInfo**.
+2. Change the data source to RestAPI, and enter the API information.
+
+<img width={350} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/11-2.png" />
+
+:::note
+Use a function node for conversion if the API does not transmit `OBJECT` type of data with keys matching the keys in UNS models.
+:::
+3. Add `Debug` nodes, and then trigger the flow.
+
+4. Check whether the data is transmitted to **Namespace**.
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/12-12.png" />
+
+#### Getting Product Quality
+1. On the **Source Flow** page, click **Quality/OrderQualityLog**.
+
+2. Change the data source to excel file.
+
+<ol>
+<ol>
+<li>Save the Excel file to the server where the NodeRed is deployed.</li>
+<li>Use a <code>read file</code> node to access the Excel table.</li>
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/12-13.png" />
+</ol>
+</ol>
+
+3. Extract data from the Excel table.
+:::info
+You need to install `node-red-contrib-spreadsheet-in` node to extract data.
+:::
+4. Add a function node, wirte a script to format the transmitted data to JSON object.
+5. Add `Debug` nodes, and then trigger the flow.
+6. Check whether the data is transmitted to **Namespace**.
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/12-19.png" />
+
+### Analyzing Data
+Integrates all data sources and analyze them with AI models, eventually sends the results back to **Namespace**.
+1. Click **Event Flow** under **UNS**, and then click **New Event Flow** at the upper-right corner to add an event flow.
+2. Click the flow, and then drag 3 `mqtt in` nodes to the canvas.
+3. Double-click the nodes, add the embedded broker named **emqx**, and then subscribe to the topic **Equipment/CNC**, **Order/OrderInfo** and **Quality/OrderQualityLog** from **Namespace**.
+
+<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/15.png" />
+
+4. Install `factory-agent-states` and `factory-agent-deepseek` nodes, and connect all 3 data sources with `factory-agent-states` node to integrate all data.
+
+:::info
+These nodes are customized and uploaded to NodeRed. For details, see <a href="https://flows.nodered.org/node/factory-agent-states">factory-agent-states</a> and <a href="https://flows.nodered.org/node/factory-agent-deepseek">factory-agent-deepseek</a>.
+:::
+
+<ol>
+<ol>
+<li>Set the delay time to more than 10 seconds, and write the prompt for using Deepseek.</li>
+
+:::info
+`factory-agent-states` caches data transmitted to it after receiving all of them. It is better to give a reasonable delay time to receive all data before operation.
+:::
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/15-1.png" />
+<li>Add a function node to write necessary parameters for the <code>factory-agent-states</code> node to output all cached topic messages.</li>
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/15-2.png" />
+</ol>
+</ol>
+
+5. Connect another function node to `factory-agent-states` to calculate OEE and better the prompt.
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/15-3.png" />
+
+6. Connect the `factory-agent-deepseek` node to the function, enter the Deepseek key and select **deepseek-reasoner** model.
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/15-4.png" />
+
+7. Add another funtion node to extract result information from the Deepseek response.
+:::info
+Tier0 **Namespace** has a limit for receiving data volume (256 bytes). We recommend you to split the response.
+:::
+
+<img width={650} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/17-3.png" />
+
+8. Drag an `mqtt out` node, and subscribe to the topic **Quality/QualityAnalysis**.
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/17.png" />
+
+9. Trigger the flow in order and go to **Namespace** to check the result.
+
+<ol>
+<ol>
+<li>Trigger all 3 data source flows under <b>Source Flow</b>.</li>
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/17-1.png" />
+<li>Trigger the flow to send parameter to <code>factory-agent-states</code>.</li>
+</ol>
+</ol>
+
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/17-2.png" />
+
+## Data Display on Dashboard
+Tier0 combines Grafana to complete the flow of data collection, analysis and display.
+1. Add a function node in **Event Flow** to get the AI analysis result.
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/43.png" />
+
+2. Add another data model under **Namespace** to store the result.
+3. Go to **UNS** > **Dashboards**, and then add a new dashboard.
+4. Click the dashboard, and then click **Add visualization**.
+5. Select a data source.
+    - Time series data (**Equipment/CNC**) is stored in TDEngine.
+    - Relational data (**Order/OrderInfo**, **Quality/OrderQualityLog**) is stored in Postgresql.
+    - All data in **Namespace** is transmitted through MQTT broker.
+
+:::info
+If there is no **MQTT**, you can click **Configure a new data source**, search for it and configure it.
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/45.png" />
+
+:::
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/44.png" />
+
+6. Design the dashboard.
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/46.png" />
+
+7. Save the dashaboard and then click **Preview**.
+

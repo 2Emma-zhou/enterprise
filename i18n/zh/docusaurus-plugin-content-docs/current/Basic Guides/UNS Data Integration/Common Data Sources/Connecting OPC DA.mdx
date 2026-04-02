@@ -1,0 +1,41 @@
+---
+hide_title: true
+sidebar_label: 连接 OPC DA
+---
+
+
+1. 在 **数据连接** 中，拖拽一个 `inject` 节点。
+2. 拖拽一个 `opcda-read` 节点，然后双击该节点。
+4. 单击 **服务器** 右侧的 <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/84.png" /> ，输入你的 OPC DA 服务器信息。
+
+<img width={300} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/88.png" />
+
+<table>
+  <tr>
+    <th>参数</th>
+    <th>说明</th>
+  </tr>
+  <tr>
+    <td>地址(Address)</td>
+    <td>OPC DA 服务器的 IP 地址。</td>
+  </tr>
+  <tr>
+    <td>域名(Domain)</td>
+    <td>OPC DA 服务器的域名。</td>
+  </tr>
+  <tr>
+    <td>用户名/密码(Username/Password)</td>
+    <td>登录 DA 服务器所用的用户名和密码。</td>
+  </tr>
+  <tr>
+    <td>应用标识(Clsid)</td>
+    <td>所使用的 DA 连接服务的应用 ID（例如 KepServer）。</td>
+  </tr>
+</table>
+
+5. 单击 **Browse** 查看已连接的通道。
+6. 单击 **Add**，在 **Items** 下添加所需的项目。
+7. 将 `inject` 节点与 `opcda-read` 节点连接，最后在末端连接一个 `debug` 节点。
+8. 单击右上角 **Deploy**，然后单击 `inject` 节点触发流程。
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/88-2.png" />

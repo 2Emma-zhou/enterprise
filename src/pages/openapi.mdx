@@ -1,0 +1,15 @@
+import useBaseUrl from '@docusaurus/useBaseUrl';
+import SwaggerUI from "swagger-ui-react";
+import "swagger-ui-react/swagger-ui.css";
+
+<SwaggerUI
+  url={useBaseUrl('openapi/tier0-en.yaml')}
+  defaultModelsExpandDepth={-1}
+  deepLinking={true}
+  onComplete={() => {
+    // 干掉 Spec URL（最稳）
+    document
+      .querySelectorAll('.swagger-ui .info .url')
+      .forEach(el => el.remove());
+  }}
+/>

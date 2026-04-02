@@ -1,0 +1,35 @@
+1. In **Source Flow**, drag an **inject** node.
+2. Drag an **opcda-read** node, and then double-click it.
+4. Click <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/84.png" /> next to **Server** to enter the information of your OPC DA server.
+
+<img width={300} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/88.png" />
+
+<table>
+  <tr>
+    <th>Parameter</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td>Address</td>
+    <td>OPC DA server IP address.</td>
+  </tr>
+  <tr>
+    <td>Domain</td>
+    <td>The domain name of your OPC DA server.</td>
+  </tr>
+  <tr>
+    <td>User Name/Password</td>
+    <td>The username and password you use to log in to the DA server.</td>
+  </tr>
+  <tr>
+    <td>Clsld</td>
+    <td>The application ID of the DA connetion service you use. For example, KepServer.</td>
+  </tr>
+</table>
+
+5. Click **Browse** to see the connected channels.
+6. Click **Add**, and then under **Items**, add the items needed.
+7. Connect the **inject** node to the **opcda-read** node, and then connect a debug node at the end.
+8. Click **Deploy** at the upper-right corner, and then click **inject** node to trigger the flow.
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/88-1.png" />

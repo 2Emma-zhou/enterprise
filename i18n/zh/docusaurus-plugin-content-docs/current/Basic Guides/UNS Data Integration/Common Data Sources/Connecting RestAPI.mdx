@@ -1,0 +1,19 @@
+---
+hide_title: true
+sidebar_label: 连接 RestAPI
+---
+
+
+1. 在 **数据连接** 中，拖拽一个 `inject` 节点。
+2. 拖拽一个 `http request` 节点，然后双击该节点。
+3. 输入API相关信息。
+:::tip
+需将 **Return** 设置为 **a parsed JSON object**，以便平台的数据建模模块解析。
+:::
+
+<img width={300} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/95.png" />
+
+5. 单击 **完成**，然后在末端连接一个`debug`节点。
+8. 单击右上角 **Deploy**，接着单击 `inject` 节点触发流程。
+
+<img width={600} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/96.png" />

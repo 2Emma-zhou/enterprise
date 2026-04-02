@@ -1,0 +1,58 @@
+1. In **Source Flow**, drag a **Modbus Read** node.
+2. Double-click the node, and then click <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/84.png" /> next to **Server** to enter the information of your modbus server.
+
+<img width={300} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/89.png" />
+
+3. CLick **Add**, and then enter the information of the data to be connected.
+
+<img width={300} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/90.png" />
+
+<table>
+  <tr>
+    <th>Parameter</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td>Name</td>
+    <td>The display name of the node (for visual identification only).</td>
+  </tr>
+  <tr>
+    <td>Topic</td>
+    <td>Optional topic string passed to output messages.</td>
+  </tr>
+  <tr>
+    <td>Unit-Id</td>
+    <td>The Modbus slave ID of the target device (typically 1–247).</td>
+  </tr>
+  <tr>
+    <td>FC</td>
+    <td>Function code that specifies the Modbus action, e.g., FC 3 = Read Holding Registers.</td>
+  </tr>
+  <tr>
+    <td>Address</td>
+    <td>The starting register address to read from (usually zero-based).</td>
+  </tr>
+  <tr>
+    <td>Quantity</td>
+    <td>The number of consecutive registers to read.</td>
+  </tr>
+  <tr>
+    <td>Poll Rate</td>
+    <td>How often the node polls the Modbus device (e.g., every 10 seconds).</td>
+  </tr>
+  <tr>
+    <td>Delay to activate input</td>
+    <td>Optional delay before activating the input signal for polling.</td>
+  </tr>
+  <tr>
+    <td>Server</td>
+    <td>Reference to a configured Modbus server (IP, port, protocol, etc.).</td>
+  </tr>
+</table>
+
+4. Click **Done**.
+5. Connect a debug node at the end.
+6. Click **Deploy** at the upper-right corner, and then click **Modbus Read** node to trigger the flow.
+
+<img width={600} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/91.png" />
+

@@ -1,0 +1,99 @@
+---
+hide_title: true
+---
+
+## Example
+
+The **furnace** data source contains 3 fields, and we want to route messages based on the temperature threshold:
+
+- If **temp > 85** → go to **Output 1**
+- If **temp ≤ 85** → go to **Output 2**
+
+```json
+{
+  "furnace": {
+    "temp": 86,
+    "humidity": 64,
+    "pressure": 80
+  }
+}
+```
+
+
+## What Node to be Used?
+In this example, we use the **switch** node to route messages according to conditions.
+
+<img width={300} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/133.png" />
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Property</td>
+      <td>
+        The property path to evaluate. Commonly <code>msg.payload</code> or a deeper property,
+        such as <code>msg.payload.temp</code> in this example.
+      </td>
+    </tr>
+    <tr>
+      <td>Rules</td>
+      <td>
+        A set of evaluation rules, each corresponding to one output port.
+      </td>
+    </tr>
+    <tr>
+      <td>Type</td>
+      <td>
+        The data type for comparison: number, string, boolean, JSONata, etc.
+
+:::info
+Ensures numeric comparisons are not treated as string comparisons.
+:::
+      </td>
+    </tr>
+    <tr>
+      <td>Value</td>
+      <td>
+        The value to compare against can come from: a constant value (e.g. 85),
+        <code>msg.</code> fields (e.g. <code>msg.threshold</code>),
+        <code>flow.</code> / <code>global.</code> context,
+        or a <code>JSONata</code> expression.
+      </td>
+    </tr>
+        <tr>
+      <td>checking all rules</td>
+      <td>
+        Evaluates all rules in order. If a message matches multiple rules, it will be sent to multiple outputs.
+      </td>
+    </tr>
+    <tr>
+      <td>Stop after first match</td>
+      <td>
+        Stops checking once the first rule matches, so the message is sent to only one output.
+      </td>
+    </tr>
+    <tr>
+      <td>recreate message sequences</td>
+      <td>
+       When enabled, preserves and rebuilds message sequence metadata (msg.parts)—usually created by a split node—so that the sequence is maintained even after branching.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## How to Filter Data?
+
+1. In **Event Flow**, add an **mqtt in** node to get the data from Tier0.
+2. Drag in a **switch** node and configure its properties.
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/134.png" />
+
+3. Connect a **debug** node to each output of the **switch** node.
+4. Trigger the flow and check the results.
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/135.png" />

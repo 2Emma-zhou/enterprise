@@ -1,0 +1,71 @@
+---
+hide_title: true
+---
+
+Tier0 adopts Marimo for easy python script usage. For example, you can train models, run SQL queries and design dashboards with data connected in **Namespace**.
+
+## Using Notebook to Run SQL Queries
+
+:::note
+Tier0 databases are initially connected.
+:::
+1. Log in to Tier0, and then select **Dev Tools** > **Notebook**.
+
+<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/164.png" />
+
+2. Click **Create a new notebook**, and then click <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/165.png" /> to run the first cell.
+
+<img width={750} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/166.png" />
+
+3. Click **SQL** to add a new cell, and then select a connected database to run SQL statements.
+
+<img width={750} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/167.png" />
+
+4. Get the table name from topic **Details** under **Namespace**, and then write SQL statements.
+
+<img width={650} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/168.png" />
+
+:::tip
+- Click <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/169.png" /> on the left panel to view the list of connected databases.
+- Find the table you need, click <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/170.png" /> next to the table name to generate SQL statements automatically.
+:::
+
+## Using Notebook to Draw Charts
+1. Log in to Tier0, and then select **Dev Tools** > **Notebook**.
+2. Click **Create a new notebook**, and then add the following 3 cells to draw a simple line chart.
+- Cell 1: Import libraries
+```python
+import marimo as mo
+```
+- Cell 2: Query data from the database
+```python
+_df = mo.sql(
+    f"""
+    SELECT *
+    FROM "table_name"
+    LIMIT 100
+    """,
+    engine=tsdb_engine
+)
+data = _df
+```
+
+:::tip
+Use a SQL cell to write queries and then click <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/171.png" /> on the cell end to switch the cell to Python. Make sure you assign the query result to a variable (e.g. `data`).
+:::
+
+- Cell 3: Draw a line chart
+```python
+import matplotlib.pyplot as plt
+
+plt.figure(figsize=(10,5))
+plt.plot(data["actual_runtime"])
+plt.title("Actual Runtime")
+plt.xlabel("Index")
+plt.ylabel("actual_runtime")
+plt.grid(True)
+plt.show()
+```
+3. Click <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/172.png" /> at the lower-right corner to run all cells and view the chart.
+
+<img width={650} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/173.png" />

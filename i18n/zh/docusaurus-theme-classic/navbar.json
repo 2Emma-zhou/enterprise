@@ -1,0 +1,22 @@
+{
+  "logo.alt": {
+    "message": "Tier0",
+    "description": "The alt text of navbar logo"
+  },
+  "item.label.Doc": {
+    "message": "文档",
+    "description": "Navbar item with label Doc"
+  },
+  "item.label.Use Case": {
+    "message": "用例",
+    "description": "Navbar item with label Use Case"
+  },
+  "item.label.Open API": {
+    "message": "Open API",
+    "description": "Navbar item with label Open API"
+  },
+  "item.label.Official Site": {
+    "message": "官网",
+    "description": "Navbar item with label Official Site"
+  }
+}

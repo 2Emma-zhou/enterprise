@@ -1,0 +1,122 @@
+---
+hide_title: true
+sidebar_label: 整合多源数据
+---
+
+## 示例
+平台已连接3个数据源，需将这些数据源的数据合并后用于后续处理。
+
+```json
+{
+  "workshop": {
+    "furnace1": {
+      "temp": 85
+    },
+    "furnace2": {
+      "humidity": 64
+    },
+    "furnace3": {
+      "pressure": 80
+    }
+  }
+}
+
+```
+
+
+## 需使用的节点
+本示例中，我们使用 `join` 节点来整合之前接收的多条消息。
+
+<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/129.png" />
+
+<table>
+  <thead>
+    <tr>
+      <th>参数（Parameter）</th>
+      <th>说明（Description）</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>模式（Mode）</td>
+      <td>
+        合并模式。<br/>
+        • <b>手动（manual）</b>：自行配置消息的合并方式。<br/>
+        • <b>自动（auto）</b>：基于 <code>msg.parts</code> 自动重组由 <b>拆分（split）</b> 节点拆分的消息序列。<br/>
+        • <b>归约序列（reduce sequence）</b>：对消息序列执行 JavaScript 归约函数，生成单个结果。
+      </td>
+    </tr>
+    <tr>
+      <td>合并对象（Combine each）</td>
+      <td>
+        想要合并的消息部分。
+        常用为 <code>msg.payload</code>，也可选择其他（如 <code>msg.data.value</code>）。
+      </td>
+    </tr>
+    <tr>
+      <td>生成结果类型（to create）</td>
+      <td>
+        合并后的结果类型：<br/>
+        • <b>合并对象（a merged Object）</b>：将所有对象合并为单个对象（后接收的同名字段会覆盖先接收的）。<br/>
+        • <b>键值对象（a key/value Object）</b>：以 <b>键属性（key property）</b>（默认 <code>msg.topic</code>）为键，<b>合并对象（Combine each）</b> 对应的内容为值。<br/>
+        • <b>数组（an Array）</b>：按接收顺序将每个值追加到数组中。<br/>
+        • <b>字符串/二进制缓存（a String / a Buffer）</b>：拼接文本或二进制数据（字符串可设置分隔符；二进制缓存直接以二进制形式拼接）。
+      </td>
+    </tr>
+    <tr>
+      <td>使用已有的 <code>msg.parts</code> 属性（Use existing <code>msg.parts</code> property）</td>
+      <td>
+        勾选后，节点会使用前置节点传入的 <code>msg.parts</code> 属性
+        （通常由 <b>拆分（split）</b> 节点生成）来确定消息分组规则，以及何时输出合并后的结果。
+        会用到 <code>msg.parts.count</code>、<code>msg.parts.index</code> 等字段。
+      </td>
+    </tr>
+    <tr>
+      <td>发送消息 → 接收指定数量的消息片段后（After a number of message parts）</td>
+      <td>
+        接收到设定数量的消息片段后，输出合并后的结果。
+      </td>
+    </tr>
+    <tr>
+      <td>发送消息 → 以及后续每条新消息到达时（and every subsequent message）</td>
+      <td>
+        勾选后，首次输出合并结果后，每有新消息到达，节点都会输出更新后的合并结果。
+      </td>
+    </tr>
+    <tr>
+      <td>发送消息 → 第一条消息到达后超时触发（After a timeout following the first message）</td>
+      <td>
+        可选配置。第一条消息到达时启动计时器，超时（单位：秒）后，
+        节点输出当前已收集到的所有内容的合并结果。
+      </td>
+    </tr>
+    <tr>
+      <td>发送消息 → 收到含 <code>msg.complete</code> 属性的消息时（After a message with the <code>msg.complete</code> property set）</td>
+      <td>
+        当收到携带 <code>msg.complete = true</code> 的消息时，立即输出合并后的结果。
+      </td>
+    </tr>
+    <tr>
+      <td>（高级）字符串/二进制缓存分隔符（String/Buffer separator）</td>
+      <td>
+        若结果类型为 <b>字符串（String）</b>，可设置可选的分隔符；
+        若为 <b>二进制缓存（Buffer）</b>，则直接拼接数据，无分隔符。
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## 如何合并多数据源？
+1. 在 **事件流程** 中拖拽 3 个 `mqtt in` 节点，分别订阅对应的主题。
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/127.png" />
+
+2. 将 3 个节点都连接到同一个 `join` 节点，并配置为合并生成一个对象。
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/128.png" />
+
+3. 连接 `debug` 节点，触发流程后查看合并结果。
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/130.png" />
+
+

@@ -1,0 +1,66 @@
+1. In **Source Flow**, drag an **mqtt in** node.
+2. Double-click the node, and then click <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/84.png" /> next to **Server**.
+
+<img width={300} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/92.png" />
+
+<table>
+  <tr>
+    <th>Parameter</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td>Name</td>
+    <td>Optional name for the MQTT broker configuration (for internal reference).</td>
+  </tr>
+  <tr>
+    <td>Server</td>
+    <td>The hostname or IP address of the MQTT broker (e.g., <code>localhost</code> or <code>broker.hivemq.com</code>).</td>
+  </tr>
+  <tr>
+    <td>Port</td>
+    <td>The port used to connect to the MQTT broker (default is <code>1883</code> for non-TLS, <code>8883</code> for TLS).</td>
+  </tr>
+  <tr>
+    <td>Connect automatically</td>
+    <td>If enabled, Node-RED will try to connect to the broker automatically when the flow starts.</td>
+  </tr>
+  <tr>
+    <td>Use TLS</td>
+    <td>Enable this option if the broker requires a secure TLS/SSL connection.</td>
+  </tr>
+  <tr>
+    <td>Protocol</td>
+    <td>The MQTT protocol version to use for connection (e.g., MQTT v3.1.1 or v5.0).</td>
+  </tr>
+  <tr>
+    <td>Client ID</td>
+    <td>Optional client ID. If blank, a unique one will be auto-generated. Must be unique per client.</td>
+  </tr>
+  <tr>
+    <td>Keep Alive</td>
+    <td>The maximum period (in seconds) between communications with the broker. Helps detect dropped connections.</td>
+  </tr>
+  <tr>
+    <td>Use clean session</td>
+    <td>If enabled, no persistent session is maintained with the broker; otherwise, session state (like subscriptions) is retained.</td>
+  </tr>
+  <tr>
+    <td><strong>Username</strong> (Security tab)</td>
+    <td>Username for authenticating with the MQTT broker, if required.</td>
+  </tr>
+  <tr>
+    <td><strong>Password</strong> (Security tab)</td>
+    <td>Password corresponding to the username for broker authentication. Stored securely.</td>
+  </tr>
+</table>
+
+3. Click **Add**, and then enter the topic to be subscribed.
+4. Click **Done**.
+
+<img width={300} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/93.png" />
+
+5. Connect a debug node at the end.
+6. Click **Deploy** at the upper-right corner, and then once the topic receives data, the flow will be triggered.
+
+<img width={600} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/94.png" />
+

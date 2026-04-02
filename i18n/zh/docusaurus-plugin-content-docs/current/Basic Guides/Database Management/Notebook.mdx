@@ -1,0 +1,71 @@
+---
+hide_title: true
+---
+
+平台集成了 Marimo 工具，可便捷地使用 Python 脚本。例如，你可基于**数据建模** 中已连接的数据，完成模型训练、SQL 查询执行、仪表盘设计等操作。
+
+## 借助 Notebook 运行 SQL 查询
+
+:::note
+平台数据库已连接至Notebook，可直接访问使用。
+:::
+1. 登录平台后，选择 **工具集** > **Notebook**。
+
+<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/164.png" />
+
+2. 单击 **Create a new notebook**，再单击 <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/165.png" /> 运行首个代码单元格。
+
+<img width={750} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/166.png" />
+
+3. 单击 **SQL** 新增一个SQL单元格，选择已连接的数据库后执行 SQL 语句。
+
+<img width={750} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/167.png" />
+
+4. 从**数据建模** 下的文件 **明细** 中获取数据表名称（即文件别名），开始编写 SQL 语句。
+
+<img width={650} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/168.png" />
+
+:::tip
+- 单击左侧面板的 <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/169.png" />，可查看已连接的数据库列表。
+- 找到所需的数据表后，单击表名旁的 <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/170.png" />，可自动生成 SQL 语句。
+:::
+
+## 借助 Notebook 绘制图表
+1. 登录平台后，选择 **工具集** > **Notebook**。
+2. 单击 **Create a new notebook**，新增以下 3 个单元格，绘制简易折线图。
+- 单元格 1：导入相关库
+```python
+import marimo as mo
+```
+- 单元格 2：从数据库中查询数据
+```python
+_df = mo.sql(
+    f"""
+    SELECT *
+    FROM "CNC3_b9d4aee89fba481aaf8f"
+    LIMIT 100
+    """,
+    engine=tsdb_engine
+)
+data = _df
+```
+
+:::tip
+使用 SQL 单元格编写查询语句，然后单击单元格末尾的 <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/171.png" />，将该单元格切换为 Python 模式。务必将查询结果赋值给一个变量（例如 `data`）。
+:::
+
+- 单元格 3：绘制折线图
+```python
+import matplotlib.pyplot as plt
+
+plt.figure(figsize=(10,5))
+plt.plot(data["actual_runtime"])
+plt.title("Actual Runtime")
+plt.xlabel("Index")
+plt.ylabel("actual_runtime")
+plt.grid(True)
+plt.show()
+```
+3. 单击右下角的 <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/172.png" />，运行所有代码单元格并查看生成的折线图。
+
+<img width={650} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/173.png" />

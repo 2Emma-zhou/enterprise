@@ -1,0 +1,169 @@
+
+
+<img width={750} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/4.png" />
+
+<table>
+        <caption>Homepage</caption>
+        <thead>
+            <tr>
+                <th>No.</th>
+                <th>Name</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>1</td>
+                <td>Menu Bar</td>
+                <td>Lists the function menus of the platform, enabling quick access to various function modules.</td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>Tool Bar</td>
+                <td>Common operations on the platform, including search and user information.</td>
+            </tr>
+            <tr>
+                <td rowspan="2">3</td>
+                <td>Import/Export</td>
+                <td>Integrate the data import/export function from <b>Namespace/Source Flow/Event Flow/Dashboard</b> together.</td>
+            </tr>
+            <tr>
+                <td><img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/4-2.png" /></td>
+                <td>Go back to the homepage.</td>
+            </tr>
+            <tr>
+      <td rowspan="3">4</td>
+      <td>Topic</td>
+      <td>Tree view of data models already built in UNS</td>
+    </tr>
+    <tr>
+      <td>Template</td>
+      <td>Tree view of data model templates already built in UNS</td>
+    </tr>
+    <tr>
+      <td>Label</td>
+      <td>Displays labels, and models under each label</td>
+    </tr>
+    <tr>
+      <td rowspan="3">5</td>
+      <td><img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/103.png" /></td>
+      <td>Displays data models by category: <b>Text/Template/Label</b>.</td>
+    </tr>
+    <tr>
+      <td><img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/104.png" />/<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/105.png" /></td>
+      <td>Search data models / Refresh data model list.</td>
+    </tr>
+    <tr>
+      <td><img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/75.png" /></td>
+      <td>Create folder-file structured data models based on data hierarchy.</td>
+    </tr>
+            <tr>
+      <td>6</td>
+      <td>Overview</td>
+      <td>Number of connections between data sources and the internal MQTT broker and messages in/out.</td>
+    </tr>
+    <tr>
+      <td>7</td>
+      <td>Functions</td>
+      <td>Lists all function modules of the platform.</td>
+    </tr>
+    <tr>
+      <td>8</td>
+      <td>MQTT Access</td>
+      <td>Detailed information of the internal MQTT broker. Select existing topics to see detailed payload.</td>
+    </tr>
+        </tbody>
+    </table>
+
+ <table>
+        <caption>Function Module Description</caption>
+        <thead>
+            <tr>
+                <th>Module</th>
+                <th>Name</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td rowspan="4">UNS</td>
+                <td>Namespace(homepage)</td>
+                <td>Builds data models for subsequent data integration and usage.</td>
+            </tr>
+            <tr>
+                <td>Source Flow</td>
+                <td>Uses NodeRed to define the data source of the created model.</td>
+            </tr>
+            <tr>
+                <td>Event Flow</td>
+                <td>Customizes data flows using NodeRed, integrating both <b>Source Flow</b> and <b>Namespace</b> modules.</td>
+            </tr>
+            <tr>
+                <td>Dashboards</td>
+                <td>Displays data from <b>Namespace</b> on dashboards according to specific design.</td>
+            </tr>
+            <tr>
+                <td rowspan="3">Dev Tools</td>
+                <td>Containers</td>
+                <td>Integrates Portainer to manage docker containers.</td>
+            </tr>
+            <tr>
+                <td>Notebook</td>
+                <td>Adopts Marimo for easy python script usage. For example, train models, run SQL queries and others.</td>
+            </tr>
+            <tr>
+                <td>Advanced Use</td>
+                <td>Provides account and password of integrated application for deeper exploration.</td>
+            </tr>
+            {/* <tr>
+                <td>CICD</td>
+                <td>Integrates Gitea for repository management.</td>
+            </tr>
+            <tr>
+                <td rowspan="3">AppSpace</td>
+                <td>GenApps</td>
+                <td>Displays all applications built on <b>GenerativeUI</b>.</td>
+            </tr>
+            <tr>
+                <td>GenerativeUI</td>
+                <td>Integrates generative AI to build applications through natural language.</td>
+            </tr>
+            <tr>
+                <td>MCP Client</td>
+                <td>Embedded MCP server for internal data topic queries, and enables you to use external MCP services.</td>
+            </tr> */}
+            <tr>
+                <td rowspan="10">System</td>
+                <td>Routing Management</td>
+                <td>Customizes Tier0 function module routing.</td>
+            </tr>
+            <tr>
+                <td>Authentication</td>
+                <td>Manages user permissions.</td>
+            </tr>
+            <tr>
+                <td>User Management</td>
+                <td>Enables general user and role management.</td>
+            </tr>
+            <tr>
+                <td>About Us</td>
+                <td>Introduces Tier0 and displays the integrated open source applications.</td>
+            </tr>
+            {/* <tr>
+                <td>Plugin Management</td>
+                <td>Manages plugins installed on Tier0.</td>
+            </tr>
+            <tr>
+                <td>Theme Management</td>
+                <td>Manages Tier0 themes.</td>
+            </tr>
+            <tr>
+                <td>I18n Management</td>
+                <td>Manages frontend language display and supports multiple languages.</td>
+            </tr> */}
+            <tr>
+                <td>Menu Config</td>
+                <td>Supports menu changes on all existing function modules.</td>
+            </tr>
+        </tbody>
+    </table>

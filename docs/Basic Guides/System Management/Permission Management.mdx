@@ -1,0 +1,64 @@
+## Managing User Permission
+
+1. Log in to Tier0, and then select **User Management** under **System**.
+2. Click **Role Permission** at the upper-right corner, and then click **New Role**.
+3. Enter the role name, and then select permissions for the role.
+
+<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/80.png" />
+
+4. Click **Save**.
+
+## Permission Management on Keycloak
+:::note
+In this demonstration, we only focus on how to complete the connections between role and permission. Keycloak can do more, please refer to <a href="https://www.keycloak.org/guides#getting-started">Keycloak</a>  for more details.
+:::
+
+### Adding Role
+1. Select **System** > **Authentication**, and then enter **admin/tier0** to log in to Keycloak.
+2. Select **tier0** as the realm.
+
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/20.png" />
+
+3. Select **Clients**, and then click **tier0**.
+4. Under **Roles**, click **Create role** to add a new role.
+
+<img width={350} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/21.png" />
+
+5. Click **Save**.
+
+### Assigning Permission to Role
+To assign permissions to different roles, you need to first define the resources to be accessed, set policies of how to and who can access, and finally configure permissions.
+
+#### Adding Resource
+1. On the client details page, select **Authorization**.
+2. Select **Resources**, and then click **Create resource**.
+
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/22.png" />
+
+3. Enter the required fields, and then add URIs which are the resource path.
+4. Click **Save**.
+
+#### Setting Policy
+1. On the client details page, select **Authorization**.
+2. Select **Policies**, and then click **Create client policy**.
+3. Set the policy type to **Role**.
+
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/23.png" />
+
+4. Enter the required fields, and then select the role you want to grant access to.
+:::info
+For example, select role A, that means, only users assigned with role A can access the resources associated with corresponding permission.
+:::
+
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/24.png" />
+
+5. Click **Save**.
+
+#### Configuring Permission
+1. On the client details page, select **Authorization**.
+2. Select **Permissions** > **Create permission** > **Create resource-based permission**.
+3. Enter the required fields, and then select the resource and policies.
+
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/25.png" />
+
+4. Click **Save**.

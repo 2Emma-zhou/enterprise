@@ -1,0 +1,89 @@
+Tier0 supports service routing based on Konga, and you can add your application to Tier0 for integrated entry. Following certain rules, you can:
+- Set the routing path to your backend service.
+- Fashion access authorization mechanisms.
+- Add external service to Tier0 frontend as one of the applications.
+
+## Creating Service
+1. Select **System** > **Routing Management**, and then click **SERVICES**.
+:::tip
+If the **DASHBOARD** shows no active connection, go to **CONNECTIONS**, and then click **ACTIVATE** next to **Kong**.
+
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/29.png" />
+
+:::
+2. Click **ADD NEW SERVICE**, and then enter the information of your backend service.
+:::info
+These parameters are necessary. For instance, you have a backend resource **https://example.com:8080**.
+- **Protocol**: https
+- **Host**: example.com
+- **Port**: 8080
+- **Path**: Request path prefix, which will added to the path of request from client before the request gets forwarded to your service.
+
+<img width={650} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/30.png" />
+
+:::
+
+3. Click **SUBMIT SERVICE**.
+
+## Building Routes
+Build the routing path for accessing the service.
+1. On the **Service Details** page, click **Routes**.
+2. Click **ADD ROUTE**, and then enter the information of the route to access your service.
+- **Tags**: We have mapped some tags with fixed meanings.
+
+<table>
+        <thead>
+            <tr>
+                <th>Tag</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>menu</td>
+                <td>The service will appear as an application on Tier0 homepage.</td>
+            </tr>
+            <tr>
+                <td>parentName:menu.tag.xxx</td>
+                <td>xxx is the name of an existing first-level menu in Tier0 (all in lowercase). It indicates that the current route appears as a second-level menu of xxx.</td>
+            </tr>
+            <tr>
+                <td>homeParentName:menu.tag.xxx</td>
+                <td>xxx is the name of an existing first-level menu in Tier0 (all in lowercase). It indicates that the current route appears in the navigation bar and serves as a second-level menu of xxx.</td>
+            </tr>
+            <tr>
+                <td>description:menu.desc.xxx</td>
+                <td>xxx is the name of the route. It represents the description information corresponding to xxx.</td>
+            </tr>
+        </tbody>
+    </table>
+
+- **Paths**: Request paths that will be recognized by Kong and Kong will match and forward the request to your service.
+
+<img width={650} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/31.png" />
+
+3. Click **SUBMIT ROUTE**.
+
+## Setting Authentication
+Set authentication mechanisms for your service.
+1. On the **Service Details** page, click **Plugins**.
+2. Click **ADD PLUGIN**, and select **Key Auth**.
+:::note
+You can add other authentication methods. For more details, see <a href="https://github.com/pantsel/konga/blob/master/README.md">Konga</a>.
+:::
+3. Enter the **Key names** and decide how the anthentication information should be transmitted.
+
+<img width={650} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/32.png" />
+
+4. Click **ADD PLUGIN**.
+5. Click **CONSUMERS** on the left side menu to add an authentication key.
+
+<ol>
+<ol> 
+<li>Click <b>CREATE CONSUMER</b>, and give it a username or ID.</li>
+<li>On the details page, select <b>Credentials</b>.</li>
+<li>Select <b>API KEYS</b>, and then create an API key.</li>
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/33.png" />
+<li>Leave it empty and click <b>SUBMIT</b>, Konga will generate a custom key, which is necessary when accessing your service.</li>
+</ol>
+</ol> 

@@ -1,0 +1,61 @@
+Tier0 enables you to upload your applications to its **App Space**, and integrate them with UNS data.
+
+:::info
+- Data in Tier0 can be obtained through MQTT subscription or API.
+- You can use data connected to Tier0 in your application. For detailed instructions, see <a href="../UNS Data Integration/Obtain Data from Tier0">Obtain Data from Tier0</a>.
+:::
+
+## Uploading Applications
+1. Log in to Tier0, and select **App Space**.
+2 Click **Deploy New App**, and enter the appplication information.
+:::info how your application should be configured
+- **basePath**/**baseUrl** must be set. 
+- Pack your application into a docker image.
+:::
+    1. Enter the application name, description, icon, and select the application image to be uploaded.
+
+    <img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/196.png" />
+
+    2. Set the menu route of the application, so it will be displayed on Tier0.
+    3. Select the application behaviors.
+    - **Strip Path**: Whether to remove the path prefix when forwarding requests. For example, if the path is set to `/myapp` and **Strip Path** is enabled, a request to `/myapp/api/data` will be forwarded as `/api/data`. If not, the request will be forwarded as `/myapp/api/data`.
+    - **Preserve Host**: Whether to preserve the original host header when forwarding requests. If enabled, the host header will be forwarded as it is. If not, the host header will be changed to the **App Space** domain.
+    4. Set the container configuration, including version, container name, image name and more.
+    ```yaml
+    version: '3.8'
+
+    services:
+    app:
+        container_name: simple-form-app
+        image: simple-form-app:latest
+        ports:
+        - "49500:3000"
+        environment:
+        - NODE_ENV=production
+        - PORT=3000
+        - HOSTNAME=0.0.0.0
+        restart: unless-stopped
+    ```
+
+    <img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/197.png" />
+
+3. Click **Deploy Now**, and the application will be displayed in **App Space**.
+
+<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/198.png" />
+
+4. Click your application to access it.
+
+<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/199.png" />
+
+### Deleting Applications
+To delete uploaded applications, you need to delete both the application container and display menu. 
+1. Log in to Tier0, and select **System** > **Menu Config**.
+2. Find the application under **App Space**, and then click <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/200.png" /> to delete the menu.
+
+<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/201.png" />
+
+3. Go back to homepage, and select **Dev Tools** > **Containers**.
+4. Find the application container, and then click **Remove** to delete the container.
+
+<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/202.png" />
+

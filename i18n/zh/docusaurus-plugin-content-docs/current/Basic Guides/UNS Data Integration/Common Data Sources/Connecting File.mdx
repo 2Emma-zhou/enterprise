@@ -1,0 +1,72 @@
+---
+hide_title: true
+sidebar_label: 连接文件
+---
+
+
+:::info
+在**数据连接**中处理文件前，需将文件放入对应的容器中。
+```js
+scp C:\Users\you\Desktop\myfile.txt username@server IP:/home/username/  
+ //将文件从本地复制到服务器
+docker cp /root/config.json <容器名称或ID>:/app/config.json  
+ //将文件从服务器复制到容器
+```
+:::
+:::tip 常用Docker命令
+
+<table>
+  <thead>
+    <tr>
+      <th>命令</th>
+      <th>说明</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>docker ps</code></td>
+      <td>列出所有正在运行的Docker容器。</td>
+    </tr>
+    <tr>
+      <td><code>docker ps | grep [container]</code></td>
+      <td>根据指定的容器信息筛选正在运行的容器。</td>
+    </tr>
+    <tr>
+      <td><code>docker exec -it [container] /bin/sh</code></td>
+      <td>通过 <code>/bin/sh</code> 在运行中的容器内启动一个shell会话。</td>
+    </tr>
+    <tr>
+      <td><code>mkdir [directory]</code></td>
+      <td>在容器内创建一个指定名称的新目录。</td>
+    </tr>
+  </tbody>
+</table>
+
+:::
+
+## 连接文本文件
+1. 在 **数据连接** 中，拖拽一个 `inject` 节点。
+2. 拖拽一个 `read file` 节点，然后双击该节点。
+3. 输入文件路径和输出配置。
+
+<img width={300} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/97.png" />
+
+4. 单击 **完成**，然后在末端连接一个 `debug` 节点。
+5. 单击右上角 **部署**，接着单击 `inject` 节点触发流程。
+
+<img width={600} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/98.png" />
+
+## 连接Excel文件
+1. 在 **数据连接** 中，拖拽一个 `inject` 节点。
+2. 拖拽一个 `read file` 节点，然后双击该节点。
+3. 输入文件路径和输出配置。
+
+<img width={300} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/99.png" />
+
+4. 单击 **Done**，然后按顺序连接 `book`、`sheet` 和 `sheet to json` 节点，将表格数据转换为JSON格式。
+
+<img width={400} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/100.png" />
+
+5. 单击右上角 **Deploy**，接着单击 `inject` 节点触发流程.
+
+<img width={600} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/101.png" />

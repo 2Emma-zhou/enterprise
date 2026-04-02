@@ -1,0 +1,66 @@
+:::info
+Before processing files in **Source Flow**, you need to put the file in to the corresponding docker.
+```js
+scp C:\Users\you\Desktop\myfile.txt username@server IP:/home/username/  
+ //copy the file from local to server
+docker cp /root/config.json <docker name or ID>:/app/config.json  
+ //copy the file from server to docker
+```
+:::
+:::tip general docker commands
+
+<table>
+  <thead>
+    <tr>
+      <th>Command</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>docker ps</code></td>
+      <td>Lists all running Docker containers.</td>
+    </tr>
+    <tr>
+      <td><code>docker ps | grep [container]</code></td>
+      <td>Filters running containers based on the specified docker information.</td>
+    </tr>
+    <tr>
+      <td><code>docker exec -it [container] /bin/sh</code></td>
+      <td>Starts a shell session inside a running container using <code>/bin/sh</code>.</td>
+    </tr>
+    <tr>
+      <td><code>mkdir [directory]</code></td>
+      <td>Creates a new directory with the specified name inside a container.</td>
+    </tr>
+  </tbody>
+</table>
+
+:::
+
+## Connecting a Text File
+1. In **Source Flow**, drag an **inject** node.
+2. Drag a **read file** node, and then double-click it.
+3. Enter the file path and output configuration.
+
+<img width={300} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/97.png" />
+
+4. Click **Done**, and then connect a debug node at the end.
+5. Click **Deploy** at the upper-right corner, and then click **inject** node to trigger the flow.
+
+<img width={600} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/98.png" />
+
+## Connecting an Excel File
+1. In **Source Flow**, drag an **inject** node.
+2. Drag a **read file** node, and then double-click it.
+3. Enter the file path and output configuration.
+
+<img width={300} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/99.png" />
+
+4. Click **Done**, and then connect a **book**, a **sheet** and a **sheet to json** node by order to convert table data to json.
+
+<img width={400} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/100.png" />
+
+5. Click **Deploy** at the upper-right corner, and then click **inject** node to trigger the flow.
+
+<img width={600} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/101.png" />

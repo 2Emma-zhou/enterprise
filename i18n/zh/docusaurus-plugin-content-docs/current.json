@@ -1,0 +1,66 @@
+{
+  "version.label": {
+    "message": "下一步",
+    "description": "The label for version current"
+  },
+  "sidebar.tutorialSidebar.category.Quick Start Guide": {
+    "message": "入门指导",
+    "description": "The label for category Quick Start Guide in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.Quick Start Guide.link.generated-index.description": {
+    "message": "快速了解平台的基本功能和使用方法。",
+    "description": "The generated-index page description for category Quick Start Guide in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.Overview": {
+    "message": "概览",
+    "description": "The label for category Overview in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.Overview.link.generated-index.description": {
+    "message": "基础功能和核心概念。",
+    "description": "The generated-index page description for category Overview in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.How-to Guide": {
+    "message": "操作指南",
+    "description": "The label for category How-to Guide in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.How-to Guide.link.generated-index.description": {
+    "message": "平台重点功能的详细操作指南。",
+    "description": "The generated-index page description for category How-to Guide in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.Common Data Sources": {
+    "message": "常规数据源",
+    "description": "The label for category Common Data Sources in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.Common Data Sources.link.generated-index.description": {
+    "message": "常规数据源连接用例一览。",
+    "description": "The generated-index page description for category Common Data Sources in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.Common Data Processing Methods": {
+    "message": "常规数据处理",
+    "description": "The label for category Common Data Processing Methods in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.Common Data Processing Methods.link.generated-index.description": {
+    "message": "常规数据处理用例一览。",
+    "description": "The generated-index page description for category Common Data Processing Methods in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.Advanced Guide": {
+    "message": "高阶使用",
+    "description": "The label for category Advanced Guide in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.Advanced Guide.link.generated-index.description": {
+    "message": "高阶使用指南。",
+    "description": "The generated-index page description for category Common Data Processing Methods in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.System": {
+    "message": "系统管理",
+    "description": "The label for category System in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.System.link.generated-index.description": {
+    "message": "系统管理使用指南。",
+    "description": "The generated-index page description for category Common Data Processing Methods in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.Glossary": {
+    "message": "术语表",
+    "description": "The label for item Glossary in sidebar tutorialSidebar"
+  }
+}

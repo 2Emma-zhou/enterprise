@@ -1,0 +1,79 @@
+---
+hide_title: true
+---
+
+## Example
+We have a single message containing multiple furnace readings, and we need to split them into individual messages for further processing.
+
+```json
+{
+  "furnace": {
+    "temp": 86,
+    "humidity": 64,
+    "pressure": 80
+  }
+}
+```
+
+
+## What Node to be Used?
+In this example, we use the **split** node to break one message into multiple smaller messages.
+
+<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/136.png" />
+
+<table>
+<thead>
+<tr>
+<th>Parameter</th> 
+<th>Description</th> 
+</tr> 
+</thead> 
+<tbody> 
+<tr> 
+<td>Name</td>
+<td> Optional label for the node to help identify it in the flow. </td> 
+</tr> 
+<tr> 
+<td>Split the</td> 
+<td> The property of the message to split, usually <code>msg.payload</code>, but can be any property such as <code>msg.payload.data</code>. </td> 
+</tr> 
+<tr> 
+<td>String / Buffer - Split using</td> 
+<td> For string or buffer payloads, specifies how to split:<br/> 
+ • <b>string</b>: Use a specific string or regular expression pattern to split the message.<br/>
+ • <b>buffer</b>: Defines chunk size by which the message is split. <br/>
+ • <b>Fixed length of</b>: Split the string according to the set length. <br/>
+ • Leave empty to return the tring unsplit.</td> 
+</tr> 
+<tr> 
+<td>Handle as a stream of messages</td> 
+<td> When checked, the node will process incoming data as a continuous stream, emitting split messages as data arrives, rather than waiting for the full payload. </td> 
+</tr> 
+<tr> 
+<td>Array - Split using</td> 
+<td> <b>Fixed length of N</b>: Splits the array into multiple messages with N elements each. </td> 
+</tr> 
+<tr> 
+<td>Object - Send a message for each key/value pair</td> 
+<td>The value of each key/value pair will be returned as payload.</td> 
+</tr> 
+<tr> 
+<td>Copy key to <code>msg.payload</code></td> 
+<td> If checked, the original key will be returned as <code>msg.payload</code> of the split messages. </td> 
+</tr> 
+</tbody> 
+</table>
+
+## How to Split Messages?
+
+1. In **Event Flow**, drag in an **inject** node, and use a **function** node to transmit the object.
+
+<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/142.png" />
+
+2. Connect it to 2 **split** nodes in order, and configure both properties as the same on the **Object** part.
+
+<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/141.png" />
+
+3. Connect the **split** node to a **debug** node to inspect each individual output message.
+
+<img width={650} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/143.png" />

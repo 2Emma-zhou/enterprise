@@ -1,0 +1,60 @@
+Tier0 支持将应用上传到 **应用集**，并与平台内数据进行集成。
+
+:::info
+- Tier0 中的数据可以通过 MQTT 订阅或 API 获取。
+- 第三方应用可以使用接入到 Tier0 的数据。详细说明请参见 <a href="../UNS Data Integration/Obtain Data from Tier0">从 Tier0 获取数据</a>。
+:::
+
+## 上传应用
+1. 登录 Tier0，选择 **应用集**。
+2 单击 **部署新应用**，并填写应用信息。
+:::info 应用配置要求
+- 必须设置 **basePath**/**baseUrl**。
+- 请将应用打包为 docker 镜像。
+:::
+    1. 输入应用名称、描述、图标，并选择要上传的应用镜像。
+
+    <img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/196-1.png" />
+
+    2. 设置应用的菜单路由，使其能够在 Tier0 前端显示。
+    3. 选择应用行为。
+    - **去除路径**：是否在转发请求时移除路径前缀。例如，如果路径设置为 `/myapp` 且启用了 **去除路径**，则访问 `/myapp/api/data` 时会被转发为 `/api/data`；否则将转发为 `/myapp/api/data`。
+    - **保留主机头**：是否在转发请求时保留原始 host 头。如果启用，则 host 头保持不变；否则会被替换为 **应用集** 的域名。
+    4. 设置容器配置，包括版本、容器名称、镜像名称等。
+    ```yaml
+    version: '3.8'
+
+    services:
+    app:
+        container_name: simple-form-app
+        image: simple-form-app:latest
+        ports:
+        - "49500:3000"
+        environment:
+        - NODE_ENV=production
+        - PORT=3000
+        - HOSTNAME=0.0.0.0
+        restart: unless-stopped
+    ```
+
+    <img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/197-1.png" />
+
+3. 单击 **立即部署**，成功后应用将显示在 **应用集** 中。
+
+<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/198-1.png" />
+
+4. 单击应用即可访问。
+
+<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/199-1.png" />
+
+### 删除应用
+要删除已上传的应用，需要同时删除应用容器和展示菜单。 
+1. 登录 Tier0，选择 **系统管理** > **菜单配置**。
+2. 在 **应用集** 下找到对应应用，然后单击 <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/200.png" /> 删除菜单。
+
+<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/201-1.png" />
+
+3. 返回首页，选择 **工具集** > **容器管理**。
+4. 找到应用容器，然后单击 **Remove** 删除容器。
+
+<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/202.png" />

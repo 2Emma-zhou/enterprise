@@ -1,0 +1,175 @@
+---
+hide_title: true
+---
+
+## System Requirements
+
+<table>
+<tr>
+<th>Configuration Type</th>
+<th>CPU</th>
+<th>Memory</th>
+<th>HDD/IOPS</th>
+</tr>
+<tr>
+<td>Basic Configuration</td>
+<td>4 cores</td>
+<td>8 GB</td>
+<td>100 GB, 2000 IOPS (30% write)</td>
+</tr>
+<tr>
+<td>Recommended Configuration</td>
+<td>8 cores</td>
+<td>16 GB</td>
+<td>1 TB, 2000 IOPS (30% write)</td>
+</tr>
+</table>
+
+## Installing Tier0
+### Linux
+1. Make sure you have the following system and components ready.
+- Ubuntu Server 24.04
+- Docker
+
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Version</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Docker Engine - Community</td>
+<td>27.4.0</td>
+</tr>
+<tr>
+<td>Docker Buildx</td>
+<td>v0.19.2</td>
+</tr>
+<tr>
+<td>Docker Compose</td>
+<td>v2.31.0</td>
+</tr>
+<tr>
+<td>Containerd</td>
+<td>1.7.24</td>
+</tr>
+</tbody>
+</table>
+
+:::note
+Above system and components have been tested. You can try on other versions if you are interested.
+:::
+
+2. Clone the project from Github.
+```
+git clone https://github.com/FREEZONEX/Tier0-Edge.git
+```
+
+3. Go to the folder **Tier0-Edge/deploy** inside the project.
+```
+cd Tier0-Edge/deploy
+```
+4. Enter the **.env.default** file and press the **i** key to edit configuration items as needed.
+```
+vi .env.default
+```
+<table>
+<tr>
+<th>Item</th>
+<th>Description</th>
+</tr>
+<tr>
+<td>VOLUMES_PATH</td>
+<td>The storage path for project data.</td>
+</tr>
+<tr>
+<td>ENTRANCE_DOMAIN</td>
+<td>
+Tier0 access address. Normally the IP or domain of the server where you install Tier0.
+
+:::warning
+Do not use 127.0.0.1 or localhost, otherwise login and authentication functions **will NOT** work.
+:::
+
+</td>
+</tr>
+<tr>
+<td>LANGUAGE</td>
+<td>Tier0 display language. Chinese (zh-CN) and English (en-US) are supported.</td>
+</tr>
+</table>
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/53.png" />
+
+5. Press **ESC** to stop editting, save the file and install Tier0.
+```
+:wq!
+bash bin/install.sh
+```
+6. Select whether to keep the entered entrance address and whether to use default setup, and then wait for the installation to complete.
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/54.png" />
+
+7. Access Tier0 on a browser and log in.
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/55.png" />
+
+### Windows
+
+:::info
+- Make sure you have installed the lastest **Docker Desktop** and **Git** on Windows 10 or 11.
+- Docker must be started.
+:::
+
+1. Clone the project from Github in **Git Bash**.
+```
+git clone https://github.com/FREEZONEX/Tier0-Edge.git
+```
+2. Go to the folder **Tier0-Edge/deploy** inside the project.
+```
+cd Tier0-Edge/deploy
+```
+3. Edit the following attributes in file **.env.default**.
+:::tip
+Before editing .env.default file, execute `ipconfig` in Git Bash to get the IP of the server.
+
+<img width={350} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/144.png" />
+
+:::
+- **OS_PLATFORM_TYPE**: The operating system where Tier0 is installed. Change it to **windows**
+- **VOLUMES_PATH**: The storage path for project data.
+- **ENTRANCE_DOMAIN**/**ENTRANCE_PORT**: Tier0 access address. Normally the IP or domain of the server where you install Tier0, and make sure the port is not occupied.
+
+```
+vi .env.default
+```
+:::note
+**.env.default** file is hidden, directly enter the command to open it.
+:::
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/56.png" />
+
+4. Save the file and start installing Tier0.
+```
+:wq!
+bash bin/install.sh
+```
+5. Select the default configurations and wait for the installation to complete.
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/57.png" />
+
+6. Access Tier0 on a browser and log in.
+
+## Uninstalling Tier0
+1. Access the path **Tier0-Edge/deploy/bin**.
+2. Execute the script **uninstall.sh**.
+```
+bash uninstall.sh
+```
+:::info
+- **clean-all.sh** will wipe out all project data and uninstall Tier0.
+- Images will not be deleted.
+- If you want to install Tier0 again, make sure you have pulled all images with the newest versions (based on image tags).
+:::

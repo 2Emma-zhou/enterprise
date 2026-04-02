@@ -1,0 +1,72 @@
+---
+hide_title: true
+sidebar_label: 连接 MQTT
+---
+
+
+1. 在 **数据连接** 中，拖拽一个 `mqtt in` 节点。
+2. 双击该节点，单击 **Server** 右侧的 <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/84.png" /> 。
+
+<img width={300} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/92.png" />
+
+<table>
+  <tr>
+    <th>参数（Parameter）</th>
+    <th>说明（Description）</th>
+  </tr>
+  <tr>
+    <td>名称（Name）</td>
+    <td>MQTT 代理配置的可选名称（仅用于内部参考）。</td>
+  </tr>
+  <tr>
+    <td>服务器（Server）</td>
+    <td>MQTT 代理的主机名或 IP 地址（例如：<code>localhost</code> 或 <code>broker.hivemq.com</code>）。</td>
+  </tr>
+  <tr>
+    <td>端口（Port）</td>
+    <td>用于连接 MQTT 代理的端口（非 TLS 连接默认值为 <code>1883</code>，TLS 连接默认值为 <code>8883</code>）。</td>
+  </tr>
+  <tr>
+    <td>自动连接（Connect automatically）</td>
+    <td>启用后，Node-RED 会在流程启动时自动尝试连接代理。</td>
+  </tr>
+  <tr>
+    <td>使用 TLS（Use TLS）</td>
+    <td>若代理要求安全的 TLS/SSL 连接，需启用此选项。</td>
+  </tr>
+  <tr>
+    <td>协议（Protocol）</td>
+    <td>用于连接的 MQTT 协议版本（例如：MQTT v3.1.1 或 v5.0）。</td>
+  </tr>
+  <tr>
+    <td>客户端 ID（Client ID）</td>
+    <td>可选的客户端 ID。若留空，系统会自动生成唯一 ID，且每个客户端的 ID 必须唯一。</td>
+  </tr>
+  <tr>
+    <td>保活时间（Keep Alive）</td>
+    <td>与代理通信的最大间隔时间（单位：秒），用于检测断开的连接。</td>
+  </tr>
+  <tr>
+    <td>使用干净会话（Use clean session）</td>
+    <td>启用后，不会与代理保持持久会话；未启用时，会话状态（如订阅信息）会被保留。</td>
+  </tr>
+  <tr>
+    <td><strong>用户名（Username）</strong>（安全标签页）</td>
+    <td>若需要，填写用于 MQTT 代理身份验证的用户名。</td>
+  </tr>
+  <tr>
+    <td><strong>密码（Password）</strong>（安全标签页）</td>
+    <td>与用户名对应的代理身份验证密码，会被安全存储。</td>
+  </tr>
+</table>
+
+3. 单击 **Add**，输入需要订阅的主题。
+4. 单击 **Done**。
+
+<img width={300} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/93.png" />
+
+5. 在末端连接一个 `debug` 节点。
+6. 单击右上角 **部署（Deploy）**，当该主题接收到数据时，流程会被触发。
+
+<img width={600} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/94.png" />
+

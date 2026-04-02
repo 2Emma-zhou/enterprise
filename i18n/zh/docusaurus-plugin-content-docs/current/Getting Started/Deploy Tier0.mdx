@@ -1,0 +1,177 @@
+---
+hide_title: true
+sidebar_label: 部署 Tier0
+---
+
+## 系统要求
+
+<table>
+<tr>
+<th>配置类型</th>
+<th>CPU</th>
+<th>内存</th>
+<th>硬盘/IOPS</th>
+</tr>
+<tr>
+<td>基础配置</td>
+<td>4核</td>
+<td>8GB</td>
+<td>100GB，2000 IOPS（30%写入）</td>
+</tr>
+<tr>
+<td>推荐配置</td>
+<td>8核</td>
+<td>16GB</td>
+<td>1TB，2000 IOPS（30%写入）</td>
+</tr>
+</table>
+
+## 安装 Tier0
+### Linux 系统
+1. 确保准备好以下系统和组件：
+- Ubuntu Server 24.04
+- Docker
+
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>版本</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Docker Engine - Community</td>
+<td>27.4.0</td>
+</tr>
+<tr>
+<td>Docker Buildx</td>
+<td>v0.19.2</td>
+</tr>
+<tr>
+<td>Docker Compose</td>
+<td>v2.31.0</td>
+</tr>
+<tr>
+<td>Containerd</td>
+<td>1.7.24</td>
+</tr>
+</tbody>
+</table>
+
+:::note
+上述系统和组件均已测试通过，您也可以尝试其他版本。
+:::
+
+2. 从 Github 克隆项目：
+```
+git clone https://github.com/FREEZONEX/Tier0-Edge.git
+```
+
+
+3. 进入项目内的 **Tier0-Edge/deploy** 文件夹：
+```
+cd Tier0-Edge/deploy
+```
+4. 打开 **.env.default** 文件，按 **i** 键根据需要编辑配置项：
+```
+vi .env.default
+```
+<table>
+<tr>
+<th>配置项</th>
+<th>说明</th>
+</tr>
+<tr>
+<td>VOLUMES_PATH</td>
+<td>项目数据的存储路径。</td>
+</tr>
+<tr>
+<td>ENTRANCE_DOMAIN</td>
+<td>
+Tier0 的访问地址，通常是安装 Tier0 的服务器 IP 或域名。
+
+:::warning
+请勿使用 127.0.0.1 或 localhost，否则登录和认证功能**将无法**正常运行。
+:::
+
+</td>
+</tr>
+<tr>
+<td>LANGUAGE</td>
+<td>Tier0 的显示语言，支持中文（zh-CN）和英文（en-US）。</td>
+</tr>
+</table>
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/53.png" />
+
+5. 按 **ESC** 停止编辑，保存文件并安装 Tier0：
+```
+:wq!
+bash bin/install.sh
+```
+6. 选择是否保留输入的访问地址、是否使用默认设置，然后等待安装完成。
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/54.png" />
+
+7. 在浏览器中访问 Tier0 并登录。
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/55-1.png" />
+
+### Windows 系统
+
+:::info
+- 确保已在 Windows 10 或 11 上安装最新版 **Docker Desktop** 和 **Git**。
+- 启动 Docker。
+:::
+
+1. 在 **Git Bash** 中从 Github 克隆项目：
+```
+git clone https://github.com/FREEZONEX/Tier0-Edge.git
+```
+2. 进入项目内的 **Tier0-Edge/deploy** 文件夹：
+```
+cd Tier0-Edge/deploy
+```
+3. 编辑 **.env.default** 文件中的以下属性：
+:::tip
+编辑 .env.default 文件前，在 Git Bash 中执行 `ipconfig` 获取服务器 IP。
+
+<img width={350} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/144.png" />
+
+:::
+- **OS_PLATFORM_TYPE**：安装 Tier0 的操作系统，改为 **windows**
+- **VOLUMES_PATH**：项目数据的存储路径。
+- **ENTRANCE_DOMAIN**/**ENTRANCE_PORT**：Tier0 的访问地址，通常是安装 Tier0 的服务器 IP 或域名，确保端口未被占用。
+
+```
+vi .env.default
+```
+:::note
+**.env.default** 文件默认隐藏，直接输入命令即可打开。
+:::
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/56.png" />
+
+4. 保存文件并开始安装 Tier0：
+```
+:wq!
+bash bin/install.sh
+```
+5. 选择默认配置，等待安装完成。
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/57.png" />
+
+6. 在浏览器中访问 Tier0 并登录。
+
+## 卸载 Tier0
+1. 进入路径 **Tier0-Edge/deploy/bin**。
+2. 执行脚本 **uninstall.sh**：
+```
+bash uninstall.sh
+```
+:::info
+- **clean-all.sh** 会清除所有项目数据并卸载Tier0。
+- 镜像不会被删除。
+- 如需重新安装 Tier0，请确保拉取所有最新版本的镜像（基于镜像标签）。
+:::

@@ -1,0 +1,95 @@
+---
+sidebar_label: Connect Data Sources (Source Flow)
+---
+
+## How to Add Data Sources
+Once the data model is built under **Namespace**, you need to connect real data to the model for subsequent processing and use.
+
+### Adding Data Flow Manually
+1. Log in to Tier0, go to **UNS** > **Source Flow**.
+
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/108.png" />
+
+<table>
+  <thead>
+    <tr>
+      <th>Index</th>
+      <th>Item</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr>
+      <td rowspan="2">1</td>
+      <td>Search</td>
+      <td>Search for existing data flows.</td>
+    </tr>
+    <tr>
+      <td>New Source Flow</td>
+      <td>Add a data flow.</td>
+    </tr>
+    <tr>
+      <td rowspan="1">2</td>
+      <td>Flow List</td>
+      <td>Displays flow information. Click the flow name to start editing the data flow.</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>Display</td>
+      <td>Switch flow display between blocks and list.</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>Flow Operations</td>
+      <td>Copy / Edit / Delete the data flow.</td>
+    </tr>
+  </tbody>
+</table>
+
+
+2. Click **New Source Flow**, enter a name and click **Save**.
+3. Click the flow you just added, and drag in nodes according to your data source type (e.g.`modbus`).
+4. Drag in an `mqtt out` node, and finish its configurations.
+
+<ol>
+<ol>
+<li>
+Add the internal broker via <code>emqx:1883</code>.
+<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/106.png" />
+</li>
+<li>
+Set its subscription topic to the data model in <b>Namespace</b>.
+
+For example, the data model structure is <code>factory/equipment/cnc</code>, the topic will be <code>factory/equipment/cnc</code>.
+<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/107.png" />
+</li>
+</ol>
+</ol>
+
+5. Click **Deploy** at the upper-right corner, trigger the flow and the data will be sent to corresponding model under **Namespace**.
+
+
+### Configuring Data Source through Generated Flow
+:::note
+Data flow will only be automatically generated when you select **Mock Data** while creating topics.
+:::
+1. Log in to Tier0, landed on the **Namespace** page, and under the **Topic** tab, select a file.
+2. Scroll down to **Topology Map**, click the icon on **Source Flow** to redirect to the generated data flow under **Source Flow**.
+
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/49.png" />
+
+3. Change the data source of the generated flow.
+:::info
+Make sure the returned data of the source node is **JSON object**. Currently, Tier0 can only parse this data type.
+:::
+
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/50.png" />
+
+4. Delete the `mock data` function node and connect the source node to the rest of the flow.
+
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/51.png" />
+
+5. Click **Deploy** at the upper-right corner, and then trigger the flow.
+6. Go back to **Namespace**, check whether the data is received.
+
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/52.png" />

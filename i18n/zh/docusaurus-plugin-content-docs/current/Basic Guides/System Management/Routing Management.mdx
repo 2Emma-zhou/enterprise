@@ -1,0 +1,96 @@
+---
+hide_title: true
+sidebar_label: 路由管理
+---
+
+
+## 服务路由配置
+平台基于 Konga 管理服务路由，你可将自有应用接入平台实现集成。遵循相关规则，你可完成以下操作：
+- 配置后端服务的路由路径
+- 配置访问授权机制
+- 将外部服务作为应用接入平台前端
+
+## 创建服务
+1. 选择 **系统管理** > **路由管理**，单击 **SERVICES**。
+:::tip
+若 **DASHBOARD** 显示无活跃连接，请进入 **CONNECTIONS**，单击 **Kong** 旁的 **ACTIVATE**。
+
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/29.png" />
+
+:::
+2. 单击 **ADD NEW SERVICE**，输入后端服务信息。
+:::info
+以下为必填参数。例如，你的后端资源为 **https://example.com:8080**
+- **Protocol**: https
+- **Host**: example.com
+- **Port**: 8080
+- **Path**: 请求路径前缀，会在客户端请求转发至服务前添加到请求路径中
+
+<img width={650} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/30.png" />
+
+:::
+
+3. 单击 **SUBMIT SERVICE**。
+
+## 建立路由
+为服务配置访问路由路径：
+1. 在 **Service Details** 页面，单击 **Routes**。
+2. 单击 **ADD ROUTE**，输入服务访问路由信息。
+- **Tags**: 部分标签已映射固定含义。
+
+<table>
+    <thead>
+        <tr>
+            <th>标签</th>
+            <th>说明</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>menu</td>
+            <td>服务将作为应用显示在平台首页</td>
+        </tr>
+        <tr>
+            <td>parentName:menu.tag.xxx</td>
+            <td>xxx 为平台现有一级菜单名称（全小写），表示当前路由作为 xxx 的二级菜单显示</td>
+        </tr>
+        <tr>
+            <td>homeParentName:menu.tag.xxx</td>
+            <td>xxx 为平台现有一级菜单名称（全小写），表示当前路由显示在导航栏中，作为 xxx 的二级菜单</td>
+        </tr>
+        <tr>
+            <td>description:menu.desc.xxx</td>
+            <td>xxx 为路由名称，表示 xxx 对应的描述信息</td>
+        </tr>
+    </tbody>
+</table>
+
+- **Paths**: Kong 可识别的请求路径，Kong 会匹配该路径并将请求转发至你的服务。
+
+<img width={650} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/31.png" />
+
+3. 单击 **SUBMIT ROUTE**。
+
+## 配置认证机制
+为服务配置认证机制：
+1. 在 **Service Details** 页面，单击 **Plugins**。
+2. 单击 **ADD PLUGIN**，选择 **Key Auth**。
+:::note
+支持添加其他认证方式，详情请参考 <a href="https://github.com/pantsel/konga/blob/master/README.md">Konga 官方文档</a>。
+:::
+3. 输入 **Key names**，指定认证信息的传输方式。
+
+<img width={650} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/32.png" />
+
+4. 单击 **ADD PLUGIN** 并退出。
+5. 单击左侧菜单 **CONSUMERS**，添加认证密钥：
+
+<ol>
+<ol>
+    <li>单击 <b>CREATE CONSUMER</b>，设置用户名或 ID。</li>
+    <li>在详情页，选择 <b>Credentials</b>。</li>
+    <li>选择 <b>API KEYS</b>，创建 API 密钥。</li>
+    <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/33.png" />
+    <li>留空并单击 <b>SUBMIT</b>，Konga 会自动生成自定义密钥，访问服务时需使用该密钥。</li>
+</ol>
+</ol> 

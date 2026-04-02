@@ -1,0 +1,115 @@
+---
+hide_title: true
+---
+
+## Example
+We receive a message and need to rename fields, calculate new values, and remove unused fields for cleaner downstream processing.
+
+### Input message
+
+```json
+{
+  "furnace": {
+    "temp_c": 30.5,
+    "humidity": 64,
+    "pressure": 80
+  },
+  "site": "A1"
+}
+```
+
+### Target transformation
+
+- Move furnace.temp_c to furnace.temperature.celsius
+- Add furnace.temperature.fahrenheit (converted from Celsius)
+- Remove pressure
+- Change the site from A1 to B1
+
+### Output message (example)
+
+```json
+{
+    "furnace":{
+        "humidity":64,
+        "temperature":{
+            "celcius":30.5,
+            "fahrenheit":86.9
+            }
+        },
+    "site":"B1"
+}
+```
+
+## What Node to be Used?
+In this case, we use the **change** node to perform operations like **Set**, **Change**, **Delete** and **Move** on message properties.
+
+<img width={300} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/137.png" />
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Rules</td>
+      <td>
+        Each rule is executed in order, top to bottom.  
+        Multiple rules can be added to perform complex transformations.
+      </td>
+    </tr>
+    <tr>
+      <td>Rule Type</td>
+      <td>
+        • <b>Set</b>: Set or create a property value.<br/>
+        • <b>Change</b>: Find and replace.<br/>
+        • <b>Delete</b>: Remove a property.<br/>
+        • <b>Move</b>: Move a property from one path to another.
+      </td>
+    </tr>
+    <tr>
+      <td>Property/Source/Target</td>
+      <td>
+        Defines which property to operate on, such as <code>msg.payload</code> or <code>msg.payload.furnace.temp_c</code>.<br/>
+        Can also reference <code>flow.</code> or <code>global.</code> context variables.
+      </td>
+    </tr>
+    <tr>
+      <td>Target Value</td>
+      <td>
+        • <b>Set</b>: The value to assign.
+        • <b>Change</b>: The value to find and replace.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## How to Use the Change Node?
+1. In **Event Flow**, drag in an **inject** node, and add the following json as the input.
+```json
+{
+  "furnace": {
+    "temp_c": 30.5,
+    "humidity": 64,
+    "pressure": 80
+  },
+  "site": "A1"
+}
+```
+
+<img width={300} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/140.png" />
+
+2. Connect it to a **change** node.
+3. Open the **change** node configuration panel and add rules.
+- Move msg.payload.furnace.temp_c → msg.payload.furnace.temperature.celcius
+- Set msg.payload.furnace.temperature.fahrenheit → payload.furnace.temperature.celcius * 9/5 + 32
+- Delete msg.payload.pressure
+- Change value of msg.payload.site from A1 → B1
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/138.png" />
+
+4. Connect the **change** node to a **debug** node to check the transformed output.
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/139.png" />

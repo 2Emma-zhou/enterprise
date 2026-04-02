@@ -1,0 +1,278 @@
+---
+hide_title: true
+sidebar_label: PCBA工艺流程模拟
+---
+
+
+## PCBA自动化生产流程模拟
+本用例模拟印刷电路板组件（PCBA）的自动化生产流程，通过平台集成生产线设备及自动导引车（AGV）数据，借助事件驱动的数据流实现全设备监控与AGV调度，最大化提升生产效率。
+
+## PCBA生产流程
+
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/smt.png" /> 
+
+如图所示，除必要人工操作环节外，从焊膏印刷到产品入库的全流程中，AGV自动调度是提升效率的核心功能。本示例将实现以下目标：
+- 监控生产设备，异常时触发告警并生成维修工单，同步至制造执行系统
+- 监控AGV设备，异常时触发告警并生成维修工单，同步至机器人控制系统
+- 基于生产进度，通过人工智能生成AGV调度指令并下发至机器人控制系统
+- 计算生产线综合效率
+
+## 构建数据模型
+1. 登录平台后，选择 **数据管理** > **数据建模**。
+2. 单击右上角的 **导入**，输入模型JSON数据。
+
+<img width={350} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/58-1.png" /> 
+
+<table>
+<caption>数据模型说明</caption>
+<thead>
+<tr>
+<th>路径</th>
+<th>属性</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td rowspan="3">表面贴装技术/综合效率</td>
+<td>计划运行时间</td>
+<td>设备的计划运行时间段</td>
+</tr>
+<tr>
+<td>单品生产时间</td>
+<td>生产单个产品的理论耗时</td>
+</tr>
+<tr>
+<td>合格产品数量</td>
+<td>计划运行时间内产出的合格产品数量</td>
+</tr>
+<tr>
+<td rowspan="3">
+
+- 表面贴装技术/设备/印刷机
+- 表面贴装技术/设备/钻孔机
+- 表面贴装技术/设备/涂胶机
+- 表面贴装技术/设备/老化测试机
+- 表面贴装技术/设备/人工测试机
+
+</td>
+<td>设备名称</td>
+<td>设备的名称标识</td>
+</tr>
+<tr>
+<td>设备状态</td>
+<td>设备的运行状态</td>
+</tr>
+<tr>
+<td>安装位置</td>
+<td>设备的物理安装位置</td>
+</tr>
+<tr>
+<td rowspan="4">
+
+- 表面贴装技术/机器人控制系统/自动导引车1
+- 表面贴装技术/机器人控制系统/自动导引车2
+- 表面贴装技术/机器人控制系统/自动导引车3
+
+</td>
+<td>设备名称</td>
+<td>AGV的名称标识</td>
+</tr>
+<tr>
+<td>设备状态</td>
+<td>AGV的运行状态</td>
+</tr>
+<tr>
+<td>剩余电量</td>
+<td>AGV的当前电池电量</td>
+</tr>
+<tr>
+<td>实时位置</td>
+<td>AGV的实时所在位置</td>
+</tr>
+</tbody>
+</table>
+
+3. 单击 **保存**。
+
+<img width={650} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/60-1.png" /> 
+
+## 连接数据源
+通过应用程序接口对接制造执行系统与机器人控制系统数据，获取设备及AGV相关信息。
+:::note
+本示例中，数据源为模拟API接口。
+:::
+1. 选择 **数据建模** > **数据连接**。
+2. 找到与模型路径同名的自动生成流，单击流名称进入编辑页面。
+3. 将数据流类型修改为API数据源，通过与数据模型路径同名的消息队列输出节点完成连接。
+:::info
+为简化操作，本示例通过单个数据流实现所有数据的统一接入。
+:::
+:::tip
+可在数据接入流中直接通过函数节点计算综合效率。
+:::
+
+<img width={650} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/62.png" /> 
+
+4. 触发数据流，检查数据是否已同步至**数据建模**。
+
+<img width={650} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/63.png" /> 
+
+## 创建数据事件
+将模拟以下事件：
+- 生产设备状态为异常时，触发告警
+- 生产设备状态为异常时，生成维修工单
+- AGV设备状态为异常时，触发告警
+- AGV设备状态为异常时，生成维修工单
+- AGV调度指令下发
+
+:::info
+所有事件的输出结果将通过API反馈至对应系统，本示例中通过调试节点查看执行结果。
+:::
+
+1. 选择 **数据建模** > **事件流**，新增一个事件流。
+2. 设计事件流逻辑。
+
+### 告警与维修工单事件
+1. 通过消息队列输入节点接入5台生产设备的实时数据。
+2. 使用状态聚合节点将多设备数据合并。
+3. 通过两个函数节点分别实现告警触发与维修工单生成功能：
+- 告警触发：当设备状态为异常时，自动生成告警信息（包含设备名称、异常时间、安装位置等）
+```js
+let alarms = [];
+
+for (let [topic, device] of Object.entries(msg.state)) {
+    if (device.status === "error") {
+        alarms.push({
+            type: "ALERT",
+            level: "critical",
+            message: `Device "${device.name || topic}" reported an ERROR state.`,
+            source: device.name || topic,
+            timestamp: new Date().toISOString()
+        });
+    }
+}
+
+if (alarms.length > 0) {
+    msg.payload = alarms; 
+    return msg;
+}
+
+return null;
+
+```
+- 维修工单生成：当设备状态为异常时，自动创建维修工单（包含工单编号、设备名称、工单状态等）
+```js
+node.warn(msg.state);
+
+let workOrders = [];
+
+for (let [topic, device] of Object.entries(msg.state)) {
+    if (device.status === "error") {
+        let timestamp = Date.now().toString(36);
+        let randomPart = Math.random().toString(36).substring(2, 8);
+        let workOrderId = `WO-${timestamp}-${randomPart}`.toUpperCase();
+
+        workOrders.push({
+            workOrderId: workOrderId,
+            type: "MAINTENANCE",
+            status: "created",
+            issuedAt: new Date().toISOString(),
+            device: {
+                name: device.name || topic
+            }
+        });
+    }
+}
+
+if (workOrders.length > 0) {
+    msg.payload = workOrders;
+    return msg;
+}
+
+return null;
+
+```
+4. 添加函数节点，将状态聚合节点合并后的数据传递至下一个节点。
+5. 对AGV设备执行相同配置操作。
+
+<img width={650} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/65.png" /> 
+
+:::tip
+需先触发数据源接入流，再执行函数节点操作。
+:::
+6. 添加调试节点，触发事件流查看执行结果。
+
+<img width={350} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/64.png" /> 
+
+### AGV调度事件
+1. 通过消息队列输入节点接入所有数据源。
+2. 使用状态聚合节点合并数据，同时为后续深度搜索节点设置提示信息。
+:::info
+提示信息仅作参考。
+:::
+- 系统提示
+
+    You are an intelligent AGV dispatching agent responsible for orchestrating material transport between equipment in an SMT production line. Your tasks:
+    - Detect dispatch triggers:
+    If a device’s status is "complete", it signals that a product is ready for pickup.
+    - Select an available AGV:
+    Must be in "idle" status;
+    Battery level must be above 20;
+    AGV’s current zone must match the source device’s zone.
+    - Validate the next station:
+    The next equipment in the process flow must exist;
+    Its status must be "waiting" to accept incoming materials;
+    If not "waiting", the AGV will wait near the device until it's ready.
+    - Update AGV status upon delivery:
+    Once the destination equipment becomes "waiting", mark the AGV as "idle" again.
+    - Output:
+    When a dispatch is made, return a dispatch task with this structure:
+    ```json
+    {
+    "agv": "AGV1",
+    "from": "printer",
+    "fromZone": "zone1",
+    "to": "drill",
+    "toZone": "zone2",
+    "status": "dispatched",
+    "issuedAt": "2025-05-15T10:00:00.000Z"
+    }
+    ```
+- 环境提示
+
+    You are operating in an SMT factory with the following setup:
+    - 5 pieces of equipment:
+    printer,
+    drill,
+    coating machine,
+    aging test machine,
+    manual test machine;
+    Each device reports a status, such as "running", "complete", or "waiting";
+    When status === "complete", the device is ready to send material.
+    - 3 AGVs (AGV1, AGV2, AGV3) are integrated via the following MQTT topics:
+    SMT/RCS/AGV1,
+    SMT/RCS/AGV2,
+    SMT/RCS/AGV3;
+    Each AGV reports:
+    number (1, 2, or 3),
+    status (idle, in task, or error),
+    zone (e.g., zone1, zone2),
+    battery (10–100%).
+    - aterial flow process:
+    printer → drill → coating machine → aging test machine → manual test machine → finished goods warehouse.
+    Each device is located in a specific zone (e.g., printer = zone1, drill = zone2). AGV zone proximity is used to determine availability.
+
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/66.png" /> 
+
+3. 添加函数节点，将状态聚合节点合并后的数据传递至下一个节点。
+4. 连接深度搜索节点，配置其API密钥及最大令牌数。
+:::info
+建议将令牌数设置为较高值，因令牌数达到上限时节点将停止运行。
+:::
+
+<img width={650} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/67.png" /> 
+
+5. 添加调试节点，单击 **部署** 后触发事件流。
+
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/68.png" />

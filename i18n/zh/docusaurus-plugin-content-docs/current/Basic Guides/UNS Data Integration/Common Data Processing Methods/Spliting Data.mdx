@@ -1,0 +1,79 @@
+---
+hide_title: true
+sidebar_label: 拆分数据
+---
+
+## 示例
+我们有一条包含多组熔炉读数的消息，需要将其拆分为多条独立的消息，以便进行后续处理。
+
+```json
+{
+  "furnace": {
+    "temp": 86,
+    "humidity": 64,
+    "pressure": 80
+  }
+}
+```
+
+## 需使用的节点
+本示例中，我们使用 `split` 节点将一条消息拆分为多条更小的消息。
+
+<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/136.png" />
+
+<table>
+<thead>
+<tr>
+<th>参数（Parameter）</th> 
+<th>说明（Description）</th> 
+</tr> 
+</thead> 
+<tbody> 
+<tr> 
+<td>名称（Name）</td>
+<td> 节点的可选标签，用于在流程中标识该节点。 </td> 
+</tr> 
+<tr> 
+<td>拆分对象（Split the）</td> 
+<td> 要拆分的消息属性，通常为 <code>msg.payload</code>，也可以是其他属性（如 <code>msg.payload.data</code>）。 </td> 
+</tr> 
+<tr> 
+<td>字符串/二进制缓存 - 拆分方式（String / Buffer - Split using）</td> 
+<td> 针对字符串或二进制缓存类型的负载，指定拆分方式：<br/> 
+ • <b>字符串（string）</b>：使用特定字符串或正则表达式模式拆分消息。<br/>
+ • <b>二进制缓存（buffer）</b>：按设定的块大小拆分消息。 <br/>
+ • <b>固定长度（Fixed length of）</b>：按设定的长度拆分字符串。 <br/>
+ • 留空则不拆分字符串。</td> 
+</tr> 
+<tr> 
+<td>作为消息流处理（Handle as a stream of messages）</td> 
+<td> 勾选后，节点会将传入数据视为连续流，数据到达时立即发送拆分后的消息，而非等待完整负载接收完毕。 </td> 
+</tr> 
+<tr> 
+<td>数组 - 拆分方式（Array - Split using）</td> 
+<td> <b>固定长度 N（Fixed length of N）</b>：将数组拆分为多条消息，每条消息包含 N 个元素。 </td> 
+</tr> 
+<tr> 
+<td>对象 - 为每个键值对发送一条消息（Object - Send a message for each key/value pair）</td> 
+<td> 每个键值对的值将作为拆分后消息的负载（payload）返回。</td> 
+</tr> 
+<tr> 
+<td>将键复制到 <code>msg.payload</code>（Copy key to <code>msg.payload</code>）</td> 
+<td> 勾选后，原始键名会作为拆分后消息的 <code>msg.payload</code> 返回。 </td> 
+</tr> 
+</tbody> 
+</table>
+
+## 如何拆分消息？
+
+1. 在 **事件流程** 中拖拽一个 `inject` 节点，再通过一个 `function` 节点传递目标对象数据。
+
+<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/142.png" />
+
+2. 按顺序将其连接到 2 个 `split` 节点，并为两个节点配置一样的「对象（Object）」属性.
+
+<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/141.png" />
+
+3. 将 `split` 节点与 `debug` 节点连接，查看每条拆分后的输出消息。
+
+<img width={650} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/143.png" />

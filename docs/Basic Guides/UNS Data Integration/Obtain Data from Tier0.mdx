@@ -1,0 +1,91 @@
+---
+sidebar_label: Obtain Data from Tier0 (Event Flow)
+---
+
+Data can be collected to Tier0 through various protocols, it can also be obtained through MQTT subscription, or even directly from Tier0 database.
+
+
+## Obtaining Data through MQTT Subscription
+:::info
+This method is only suitable for third parties who have experience in MQTT protocol.
+:::
+1. Log in to Tier0, and then select **UNS** > **Event Flow**.
+2. Click **New Event Flow**, enter a name and click **Save**.
+3. Click the flow you just added, drag an `mqtt in` node, and enter the configurations.
+    - Tier0 MQTT broker address: `emqx:1883`
+    - Topic: The topic to obtain data from, for example, `factory/workshop/order`.
+
+<img width={350} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/151.png" />
+
+4. Process the data obtained, or directly use an `mqtt out` node to transmit the data to the third party MQTT.
+
+<img width={350} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/152.png" />
+
+5. Deploy the flow, and data will be pushed to the third party when the topic data changes.
+
+## Obtaining Data through API
+:::info
+This method is suitable for third parties who do not support MQTT and need event-driven data.
+:::
+1. Log in to Tier0, and then select **UNS** > **Event Flow**.
+2. Click **New Event Flow**, enter a name and click **Save**.
+3. Click the flow you just added, drag an `mqtt in` node, and enter the configurations.
+    - Tier0 MQTT broker address: `emqx:1883`
+    - Topic: The topic to obtain data from, for example, `factory/workshop/order`.
+    
+<img width={350} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/151.png" />
+
+4. Drag a `function` node to the canvas, and write a script to format the data obtained according to third-party receiver API.
+```js
+// parse payload if it's a string
+if (typeof msg.payload === "string") {
+    msg.payload = JSON.parse(msg.payload);
+}
+
+// set headers
+msg.headers = {
+    "Content-Type": "application/json"
+};
+
+return msg;
+```
+5. Use an `http request` node to send the data to the third party through API.
+
+<img width={350} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/153.png" />
+
+6. Deploy the flow, and data will be pushed to the third party when the topic data changes.
+
+## Obtaining Data Directly from Tier0 Database
+:::info
+This method is suitable for requests on history data.
+:::
+1. Log in to Tier0, and then select **UNS** > **Event Flow**.
+2. Click **New Event Flow**, enter a name and click **Save**.
+3. Click the flow you just added, drag an `inject` node.
+4. Drag a `postgres` node to the canvas, and connect to Tier0 PostgreSQL database.
+    - **Connection**
+        - Host: `postgresql`
+        - Port: `5432`
+        - Database: `postgres`
+        - SSL: `false`
+    - **Security**
+        - User: `postgres`
+        - Password: `postgres`
+
+<img width={350} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/154.png" />
+<img width={350} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/155.png" />
+
+5. Write SQL statements to query data from Tier0 database.
+:::info
+Get the table name from topic **Details** under **Namespace**.
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/157.png" />
+
+:::
+```sql
+SELECT * FROM _order_0baa755c15544f81a302;
+```
+
+<img width={350} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/156.png" />
+
+6. Add an `http request` or `mqtt out` node to transmit the queried data to the third party.

@@ -1,0 +1,101 @@
+---
+hide_title: true
+sidebar_label: 数据过滤
+---
+
+## 示例
+
+**熔炉（furnace）** 数据源包含 3 个字段，我们需要根据温度阈值对消息进行路由：
+
+- 若 **温度（temp）> 85** → 路由至 **输出 1（Output 1）**
+- 若 **温度（temp）≤ 85** → 路由至 **输出 2（Output 2）**
+
+```json
+{
+  "furnace": {
+    "temp": 86,
+    "humidity": 64,
+    "pressure": 80
+  }
+}
+```
+
+
+## 需使用的节点
+本示例中，我们使用 `switch` 节点根据条件对消息进行路由。
+
+<img width={300} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/133.png" />
+
+<table>
+  <thead>
+    <tr>
+      <th>参数（Parameter）</th>
+      <th>说明（Description）</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>属性（Property）</td>
+      <td>
+        需评估的属性路径。常用 <code>msg.payload</code> 或更深层的属性，
+        本示例中为 <code>msg.payload.temp</code>。
+      </td>
+    </tr>
+    <tr>
+      <td>规则（Rules）</td>
+      <td>
+        一组评估规则，每条规则对应一个输出端口。
+      </td>
+    </tr>
+    <tr>
+      <td>类型（Type）</td>
+      <td>
+        比较的数据类型：数字（number）、字符串（string）、布尔值（boolean）、JSONata 等。
+
+:::info
+确保数值比较不会被当作字符串比较处理。
+:::
+      </td>
+    </tr>
+    <tr>
+      <td>值（Value）</td>
+      <td>
+        比较的目标值来源：常量值（如 85）、
+        <code>msg.</code> 字段（如 <code>msg.threshold</code>）、
+        <code>flow.</code> / <code>global.</code> 上下文变量，
+        或 <code>JSONata</code> 表达式。
+      </td>
+    </tr>
+    <tr>
+      <td>检查所有规则（checking all rules）</td>
+      <td>
+        按顺序评估所有规则。若消息匹配多条规则，会发送至多个输出端口。
+      </td>
+    </tr>
+    <tr>
+      <td>找到第一个匹配后停止（Stop after first match）</td>
+      <td>
+        找到第一个匹配规则后停止评估，消息仅发送至一个输出端口。
+      </td>
+    </tr>
+    <tr>
+      <td>重建消息序列（recreate message sequences）</td>
+      <td>
+        启用后，保留并重建消息序列元数据（msg.parts）——通常由拆分（split）节点生成——
+        确保消息序列在分支后仍能保持完整。
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## 如何筛选数据？
+
+1. 在 **事件流程** 中添加一个 `mqtt in` 节点，获取平台中的数据。
+2. 拖拽一个 `switch` 节点并配置其属性。
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/134.png" />
+
+3. 在 `switch` 节点的每个输出端口分别连接一个 `debug` 节点。
+4. 触发流程并查看结果。
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/135.png" />

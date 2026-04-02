@@ -1,0 +1,47 @@
+---
+hide_title: true
+sidebar_label: 容器管理
+---
+
+
+Tier0 采用 Portainer 进行容器管理，可轻松实现应用的部署、管理与扩缩容。
+
+:::info
+本指引仅介绍通用容器管理的简单操作。如需了解 Portainer 的详细用法，请参阅 [Portainer 官方文档](https://docs.portainer.io/)。
+:::
+
+##  进入容器管理页面
+1.  登录 Tier0 平台，然后依次选择 **工具集** > **容器管理**。
+
+<img width={350} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/183.png" />
+
+2.  单击 **Login with OAuth**，再单击 **Live connect**，即可开始管理容器。
+
+<img width={650} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/184.png" />
+
+##  容器通用操作
+1.  在 **Dashboard** 页面，单击 **Containers**。
+
+<img width={650} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/185.png" />
+
+2.  选中某个容器后，即可对其执行启动、停止、重启、暂停或删除操作。
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/186.png" />
+
+3.  （可选操作）单击 **Console**，进入容器终端，执行更复杂的操作。
+
+<img width={650} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/187.png" />
+
+##  访问容器中的数据库
+1.  在 **Dashboard** 页面，单击 **Containers**。
+2.  切换至第 2 页，选中 **postgresql**，然后单击 **Console**。
+
+<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/188.png" />
+
+3.  单击 **Connect**，然后执行以下命令访问数据库。
+
+```bash
+psql -U postgres -d postgres
+```
+
+<img width={650} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/189.png" />

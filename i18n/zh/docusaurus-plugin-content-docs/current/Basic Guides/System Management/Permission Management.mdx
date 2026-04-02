@@ -1,0 +1,70 @@
+---
+hide_title: true
+sidebar_label: 权限管理
+---
+
+
+## 用户权限管理
+
+1. 登录平台后，选择 **系统管理** > **用户管理**。
+2. 单击右上角的 **角色设置**，然后单击 **新增角色**。
+3. 输入角色名称，为该角色选择对应的权限。
+
+<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/80-1.png" />
+
+4. 单击 **保存**。
+
+## Keycloak 权限管理
+:::note
+本演示仅聚焦于角色与权限的关联配置，Keycloak 支持更多功能，详情可参考 [Keycloak 官方文档](https://www.keycloak.org/guides#getting-started)。
+:::
+
+### 新增角色
+1. 选择 **系统管理** > **身份与访问管理**，输入账号密码（admin/tier0）登录 Keycloak。
+2. 选择 **tier0** 作为领域（realm）。
+
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/20.png" />
+
+3. 选择 **Clients**，然后单击 **tier0**。
+4. 在 **Roles** 菜单下，单击 **Create role** 新增角色。
+
+<img width={350} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/21.png" />
+
+5. 单击 **Save**。
+
+### 分配权限
+为不同角色分配权限，需先定义待访问的资源（resource），设置访问规则（policy）与访问主体，最后配置权限关联。
+
+#### 新增资源
+1. 在 Clients 详情页，选择 **Authorization**。
+2. 选择 **Resources**，然后单击 **Create resource**。
+
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/22.png" />
+
+3. 填写必填字段，添加资源路径（URIs）。
+4. 单击 **Save**。
+
+#### 设置策略（Policy）
+1. 在客户端详情页，选择 **Authorization**。
+2. 选择 **Policies**，然后单击 **Create client policy**。
+3. 设置 **Policy type** 为 **Role**。
+
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/23.png" />
+
+4. 填写必填字段，选择需要授予访问权限的角色。
+:::info
+例如选择角色 A，则仅被分配角色 A 的用户可访问该权限关联的资源。
+:::
+
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/24.png" />
+
+5. 单击 **Save**。
+
+#### 配置权限
+1. 在客户端详情页，选择 **Authorization**。
+2. 选择 **Permissions** > **Create permission** > **Create resource-based permission**。
+3. 填写必填字段，选择关联的资源（resource）与策略（policy）。
+
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/25.png" />
+
+4. 单击 **Save**。

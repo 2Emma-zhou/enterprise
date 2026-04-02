@@ -1,0 +1,213 @@
+---
+hide_title: true
+sidebar_label: 经典案例--OEE
+---
+
+Tier0的核心优势在于**数据管理（UNS）** 的应用，以下通过示例展示平台如何基于不同类型的原始数据，计算设备综合效率（OEE），用于评估设备性能。
+
+## 示例说明
+通过平台连接并格式化设备运行时间、产品数量及产品质量数据，采用AI模型基于**设备综合效率（OEE）** 指标分析设备性能，并将结果回传至平台供后续展示。
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/81-1.png" />
+
+<img width={700} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/47.png" />
+
+## 数据源
+- 通过Modbus协议从PLC连接数控机床（CNC）运行时间数据
+- 从ERP系统通过RestAPI传输的订单信息
+- Excel表格记录的产品质量日志
+
+## 数据集成
+### 构建数据模型
+在平台中创建数据模型，同时平台内置MQTT代理将自动生成同名MQTT主题供订阅使用。
+1. 登录平台，进入**数据建模**。
+2. 选择 <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/75.png" /> > **新建文件夹**，添加名为**Equipment**的文件夹。
+
+<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/6-1.png" />
+
+3. 选择 <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/75.png" /> > **新建文件**，在**Equipment**下添加名为**CNC**的文件，并添加属性用于存储设备的实际运行时间和计划运行时间数据。
+
+<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/8-1.png" />
+
+4. 勾选**启用历史数据**，并单击**保存**。
+5. 按相同操作添加其他模型**Order/OrderInfo**、**Quality/OrderQualityLog**、**Quality/QualityAnalysis**。
+
+<table>
+        <thead>
+            <tr>
+                <th>模型</th>
+                <th>属性</th>
+                <th>说明</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Order/OrderInfo</td>
+                <td>数量sum/double，单产品耗时time/double</td>
+                <td>表示产品数量及生产单个产品的耗时。</td>
+            </tr>
+            <tr>
+                <td>Quality/OrderQualityLog</td>
+                <td>总数量Sum/double，合格数量Good/double，合格率Rate/double</td>
+                <td>表示产品总数量、合格产品数量及合格率。</td>
+            </tr>
+            <tr>
+                <td>Quality/QualityAnalysis</td>
+                <td>性能Performance/string</td>
+                <td>表示设备整体性能评估结果。</td>
+            </tr>
+        </tbody>
+    </table>
+
+<img width={350} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/10.png" />
+
+### 添加数据源
+数据模型构建完成后，**数据连接**中将生成含模拟数据的NodeRed数据流，需修改流的数据源以获取真实数据。
+
+#### 获取设备运行时间
+1. 单击**数据管理**下的**数据连接**，然后单击**Equipment/CNC**。
+
+<img width={650} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/11-3.png" />
+
+2. 将数据源修改为Modbus，添加Modbus服务器并输入相应配置。
+
+<img width={350} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/11-1.png" />
+
+:::note
+确保`Modbus读取`节点的输出数据为对象格式，且与数据建模中的字段匹配；若不匹配，需使用`函数`节点进行数据转换。
+:::
+
+3. 添加`调试`节点，单击`Modbus`节点触发数据流。
+
+4. 检查数据是否已传输至**数据建模**。
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/12-20.png" />
+
+#### 获取订单信息
+1. 在**数据连接**页面，单击**Order/OrderInfo**。
+2. 将数据源修改为RestAPI，输入API相关信息。
+
+<img width={350} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/11-2.png" />
+
+:::note
+若API返回的数据非对象类型，或字段与数据建模中的模型不匹配，需使用`函数`节点进行转换。
+:::
+3. 添加`调试`节点，触发数据流。
+
+4. 检查数据是否已传输至**数据建模**。
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/12-21.png" />
+
+#### 获取产品质量数据
+1. 在**数据连接**页面，单击**Quality/OrderQualityLog**。
+
+2. 将数据源修改为Excel文件：
+<ol>
+<ol>
+<li>将Excel文件保存至NodeRed所在的服务器。</li>
+<li>使用`读取文件`节点访问该Excel表格。</li>
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/12-13.png" />
+</ol>
+</ol>
+
+3. 从Excel表格中提取数据：
+:::info
+需安装`node-red-contrib-spreadsheet-in`节点以实现数据提取。
+:::
+4. 添加`函数`节点，编写脚本将传输的数据格式化为JSON对象。
+5. 添加`调试`节点，触发数据流。
+6. 检查数据是否已传输至**数据建模**。
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/12-22.png" />
+
+### 数据分析
+整合所有数据源，通过AI模型进行分析，最终将结果回传至**数据建模**。
+1. 单击**数据管理**下的**事件流程**，单击右上角**新建事件流程**添加事件流。
+2. 单击该事件流，拖拽3个`MQTT输入`节点至画布。
+3. 双击节点，添加名为emqx的MQTT代理，订阅**数据建模**中的**Equipment/CNC**、**Order/OrderInfo**和**Quality/OrderQualityLog**主题。
+
+<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/15.png" />
+
+4. 安装`factory-agent-states`和`factory-agent-deepseek`节点，将3个数据源均连接至`factory-agent-states`节点以整合所有数据。
+
+:::info
+这些节点为自定义节点并已上传至NodeRed，详情请参考<a href="https://flows.nodered.org/node/factory-agent-states">factory-agent-states</a> 及 <a href="https://flows.nodered.org/node/factory-agent-deepseek">factory-agent-deepseek</a>.。
+:::
+
+<ol>
+<ol>
+<li>设置延迟时间（建议10秒以上），并编写Deepseek的使用提示词。</li>
+
+:::info
+`factory-agent-states`节点接收完所有数据后会对其进行缓存，建议设置合理的延迟时间，确保接收完所有数据后再执行后续操作。
+:::
+
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/15-1.png" />
+
+<li>添加`函数`节点，配置参数使`factory-agent-states`节点输出所有缓存的主题消息。</li>
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/15-2.png" />
+</ol>
+</ol>
+
+5. 在`factory-agent-states`节点后添加另一个`函数`节点，用于计算设备综合效率并优化提示词。
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/15-3.png" />
+
+6. 将`factory-agent-deepseek`节点连接至该函数，输入Deepseek密钥并选择`deepseek-reasoner`模型。
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/15-4.png" />
+
+7. 添加另一个`函数`节点，从Deepseek的响应中提取结果信息：
+:::info
+平台**数据建模**对接收数据量有限制（256字节），建议对响应结果进行拆分。
+:::
+
+<img width={650} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/17-3.png" />
+
+8. 拖拽`MQTT输出`节点，订阅**Quality/QualityAnalysis**主题。
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/17.png" />
+
+9. 按顺序触发流程，前往**数据建模**查看结果：
+<ol>
+<ol>
+<li>触发**数据连接**下的3个数据源流程。</li>
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/17-1.png" />
+<li>触发向`factory-agent-states`节点发送参数的流程。</li>
+</ol>
+</ol>
+
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/17-4.png" />
+
+## 数据看板数据展示
+平台结合Grafana完成数据采集、分析、展示的全流程：
+1. 在**事件流程**中，`factory-agent-deepseek`后添加`函数`节点，获取AI分析结果。
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/43.png" />
+
+2. 在**数据建模**下添加新的数据模型，并在**事件流程**的数据流后添加`MQTT输出`节点，订阅模型同名主题，将数据传输至该模型。
+3. 前往**数据管理** > **数据看板**，添加新看板。
+4. 单击该看板，单击**Add visualization**。
+5. 选择数据源：
+    - 时序数据（**Equipment/CNC**）存储于TimesacleDB。
+    - 关系型数据（**Order/OrderInfo**、**Quality/OrderQualityLog**）存储于PostgreSQL。
+    - 数据建模中的所有数据均通过MQTT代理传输。
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/44.png" />
+
+:::info
+若未找到MQTT数据源，可单击**Configure a new data source**，搜索并配置。
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/45.png" />
+
+:::
+
+
+
+6. 设计看板布局。
+
+<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/46.png" />
+
+7. 保存看板并单击**预览**。
+

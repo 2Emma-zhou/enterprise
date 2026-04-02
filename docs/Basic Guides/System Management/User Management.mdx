@@ -1,0 +1,38 @@
+In Tier0, you can add users and assign different roles to them, easily managing module access. Meanwhile, you can also allow users to register account by themselves.
+
+:::info
+We adopted **Keycloak** to achieve comprehensive user management. You can customize it under **System** > **Authentication**.
+:::
+
+## Adding User
+1. Log in to Tier0, and then select **User Management** under **System**.
+2. Click **New User** at the upper-right corner.
+
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/18.png" />
+
+3. Enter the information and select a role for the user, and then click **Save**.
+
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/19.png" />
+
+- You can disable, edit, delete user and reset password of it.
+- The default user cannot be disabled or deleted.
+
+## Registering User
+For user registration, email is necessary. You need to set up an Email server for sending validation email.
+1. Select **System** > **Authentication**, and then log in to Keycloak with **admin/tier0**.
+2. Switch the realm to **tier0**, and then select **Realm settings**.
+
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/20.png" />
+
+3. Click **Email**, and then enter the email template and server information.
+
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/26.png" />
+
+4. Save the settings, and then click **Login** to enable **User registration**.
+
+<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/27.png" />
+
+5. Go to the Tier0 login page, and then click **Register**.
+6. Enter the information to apply for a user account.
+
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/28.png" />
