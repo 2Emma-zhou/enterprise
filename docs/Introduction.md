@@ -2,10 +2,10 @@
 sidebar_position: 1
 slug: /
 hide_title: true
-sidebar_label: What is Tier0?
+sidebar_label: What is Tier0 Enterprise?
 ---
 
-## What Is Tier0?
+## What Is Tier0 Enterprise?
 
 Tier0 is a Unified Namespace (UNS)-based industrial data platform.
 
@@ -45,17 +45,6 @@ The core engine for data connection and processing.
 
 ---
 
-### Grafana Dashboards
-Visualize industrial data in real time.
-
-- Build dashboards for monitoring and insights  
-- Connect directly to platform data  
-- Support time-series visualization and analysis  
-
-<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/194.png" />
-
----
-
 ### Python Notebook
 Analyze data with full flexibility using Python with an interactive environment.
 
@@ -63,3 +52,9 @@ Analyze data with full flexibility using Python with an interactive environment.
 
 ---
 
+### Agentic App Builder
+Create industrial applications using natural language without consuming any of your local resources. The whole process is done on cloud, and provide a package for local installation.
+
+<img width={450} src="http://tier0saas1.oss-cn-hangzhou.aliyuncs.com/74.png" />
+
+---
