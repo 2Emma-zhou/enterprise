@@ -45,17 +45,6 @@ Tier0 在一个统一的流程中对数据建模，处理数据：
 
 ---
 
-### Grafana 仪表板
-实时可视化工业数据。
-
-- 构建用于监控和分析洞察的仪表看板  
-- 可直连平台数据  
-- 支持多种数据可视化与分析  
-
-<img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/194.png" />
-
----
-
 ### Python Notebook
 使用 Python 在交互式 Notebook 中灵活分析数据。
 
