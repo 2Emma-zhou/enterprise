@@ -55,6 +55,6 @@ Analyze data with full flexibility using Python with an interactive environment.
 ### Agentic App Builder
 Create industrial applications using natural language without consuming any of your local resources. The whole process is done on cloud, and provide a package for local installation.
 
-<img width={450} src="http://tier0saas1.oss-cn-hangzhou.aliyuncs.com/74.png" />
+<img width={450} src="http://enterpriseimage.oss-cn-hangzhou.aliyuncs.com/3.png" />
 
 ---
