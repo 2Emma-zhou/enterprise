@@ -1,0 +1,44 @@
+---
+sidebar_label: 开放数据
+hide_title: true
+---
+
+## 如何在 Tier0 中访问数据
+Tier0 提供 3 种数据订阅与调用方式：API、MQTT 和 MCP。
+
+### API
+如需通过 API 访问数据，需要使用平台中提供的 URL 和密钥。
+1. 登录 Tier0，选择 **系统管理** > **统一数据开放**。
+2. 点击 **新增密钥** 创建密钥。
+
+<img width={550} src="http://enterpriseimage.oss-cn-hangzhou.aliyuncs.com/5-1.png" />
+
+3. 使用底部显示的 URL 和创建的密钥，从 Tier0 获取数据。
+
+:::info
+点击 **接口清单** 可查看 API 文档。
+:::
+
+### MQTT
+你可以使用 MQTTX、MQTT Explorer 等第三方客户端，或通过自定义代码，基于 MQTT 订阅数据。
+1. 登录 Tier0，选择 **系统管理** > **统一数据开放**。
+2. 点击 **MQTT** 查看 MQTT 连接信息，包括 broker 地址、端口和主题（topic）。
+
+<img width={550} src="http://enterpriseimage.oss-cn-hangzhou.aliyuncs.com/6-1.png" />
+
+:::info
+Tier0 提供了 JavaScript 和 Java 两种脚本示例，帮助你快速上手。
+:::
+
+### MCP
+Tier0 支持你通过 MCP 服务器 LLM 从平台获取数据。
+1. 登录 Tier0，选择 **系统管理** > **统一数据开放**。
+2. 点击 **MCP Server** 查看 MCP 连接详情和示例。
+
+<img width={550} src="http://enterpriseimage.oss-cn-hangzhou.aliyuncs.com/7-1.png" />
+
+:::info
+- 此处以 Cline 插件的使用方式作为示例。
+- 所需的 URL 和密钥可在 **RestAPI** 页签中获取。
+- 你可以在 **RestAPI** 页签中点击 **接口清单**，并复制其地址作为脚本中的 **SUPOS_OPEN_PATH**，以帮助 AI 理解。
+:::

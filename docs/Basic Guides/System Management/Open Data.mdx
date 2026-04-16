@@ -1,0 +1,44 @@
+---
+sidebar_label: Open Data
+hide_title: true
+---
+
+## How to Access Data in Tier0
+Tier0 provides 3 types of data subscription and invocation methods: API, MQTT, and MCP.
+ 
+### API
+To access data through API, you need to use the URL and secret key provided in the platform.
+1. Log in to Tier0, and select **System** > **Open Data**.
+2. Click **New Key** to create a secret key.
+
+<img width={550} src="http://enterpriseimage.oss-cn-hangzhou.aliyuncs.com/5.png" />
+
+3. Use the URL displayed on the bottom, and the created key to obtain data from Tier0.
+
+:::info
+Click **API List** to read the API documentation.
+:::
+
+### MQTT
+You can use third-party clients like MQTTX, MQTT Explorer, or custom code to subscribe to data through MQTT.
+1. Log in to Tier0, and select **System** > **Open Data**.
+2. Click **MQTT** to view the MQTT connection information, including the broker address, port and topic.
+
+<img width={550} src="http://enterpriseimage.oss-cn-hangzhou.aliyuncs.com/6.png" />
+
+:::info
+Tier0 provides script samples in both JavaScript and Java to help you get started.
+:::
+
+### MCP Server
+Tier0 enables you to use an MCP server to get data from the platform through a custom LLM.
+1. Log in to Tier0, and select **System** > **Open Data**.
+2. Click **MCP Server** to view the MCP connection details and example.
+
+<img width={550} src="http://enterpriseimage.oss-cn-hangzhou.aliyuncs.com/7.png" />
+
+:::info
+- Cline plugin usage is used as an example.
+- The required URL and key can be obtained on the **RestAPI** tab.
+- You can click **API List** on the **RestAPI** tab, and copy the address as the **SUPOS_OPEN_PATH** in the scriptto help AI understand.
+:::

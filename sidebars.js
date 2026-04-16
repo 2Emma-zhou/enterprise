@@ -45,7 +45,6 @@ const sidebars = {
         items: [
           'Getting Started/Deploy Tier0',
             'Getting Started/Login',
-            'Getting Started/Homepage',
         ]
         },
             
@@ -126,6 +125,7 @@ const sidebars = {
               'Basic Guides/System Management/Routing Management',
               'Basic Guides/System Management/User Management',
               'Basic Guides/System Management/Permission Management',
+              'Basic Guides/System Management/Open Data',
               // 'Basic Guides/System Management/I18n Management',
               'Basic Guides/System Management/Menu Config',
               // 'Basic Guides/System Management/Theme Management',

@@ -1,7 +1,169 @@
 ---
-sidebar_label: 功能列表
+sidebar_label: 首页
 hide_title: true
 ---
+
+
+## 首页介绍
+
+<img width={750} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/4-1.png" />
+
+<table>
+        <caption>首页说明</caption>
+        <thead>
+            <tr>
+                <th>序号</th>
+                <th>名称</th>
+                <th>说明</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>1</td>
+                <td>菜单栏</td>
+                <td>列出平台的功能菜单，可快速访问各个功能模块。</td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>工具栏</td>
+                <td>平台常用操作，包括搜索、快速指南、任务及用户信息。</td>
+            </tr>
+            <tr>
+                <td rowspan="2">3</td>
+                <td>导入/导出</td>
+                <td>整合了命名空间、数据采集层、事件流转层、仪表盘的数据导入/导出功能。</td>
+            </tr>
+            <tr>
+                <td><img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/4-2.png" /></td>
+                <td>回到主页。</td>
+            </tr>
+            <tr>
+      <td rowspan="3">4</td>
+      <td>工厂模型</td>
+      <td>已在 UNS 中创建的数据模型树形视图</td>
+    </tr>
+    <tr>
+      <td>模板</td>
+      <td>已在 UNS 中创建的数据模型模板树形视图</td>
+    </tr>
+    <tr>
+      <td>标签</td>
+      <td>显示标签及每个标签下的关联模型</td>
+    </tr>
+    <tr>
+      <td rowspan="3">5</td>
+      <td><img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/103.png" /></td>
+      <td>按类别展示数据模型：<b>文本/模板/标签</b>。</td>
+    </tr>
+    <tr>
+      <td><img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/104.png" />/<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/105.png" /></td>
+      <td>搜索数据模型 / 刷新数据模型列表。</td>
+    </tr>
+    <tr>
+      <td><img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/75.png" /></td>
+      <td>根据数据层级，创建**文件夹-文件**结构的数据模型。</td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td>概述</td>
+      <td>数据源与内部 MQTT 代理的连接数及消息入/出量统计。</td>
+    </tr>
+    <tr>
+      <td>7</td>
+      <td>功能模块</td>
+      <td>列出了平台支持的功能模块。</td>
+    </tr>
+    <tr>
+      <td>8</td>
+      <td>MQTT 访问</td>
+      <td>内部 MQTT 代理的详细信息，可选择已有文件查看具体负载数据。</td>
+    </tr>
+        </tbody>
+    </table>
+
+ <table>
+        <caption>功能模块说明</caption>
+        <thead>
+            <tr>
+                <th>模块分类</th>
+                <th>模块名称</th>
+                <th>说明</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td rowspan="4">统一命名空间</td>
+                <td><a href="Basic Guides/UNS Data Integration/Build Data Models">数据建模</a></td>
+                <td>构建数据模型，为后续数据集成与使用奠定基础。</td>
+            </tr>
+            <tr>
+                <td><a href="Basic Guides/UNS Data Integration/Connect Data Sources">数据连接</a></td>
+                <td>通过可视化流编程工具定义已创建模型的数据源。</td>
+            </tr>
+            <tr>
+                <td><a href="Basic Guides/UNS Data Integration/Process Data">事件流程</a></td>
+
+                <td>通过可视化流编程工具自定义数据流，整合数据采集层与命名空间模块。</td>
+            </tr>
+            <tr>
+                <td><a href="Basic Guides/UNS Data Integration/Display Data on Dashboards">数据看板</a></td>
+                <td>按特定设计在仪表盘中展示命名空间的数据。</td>
+            </tr>
+            <tr>
+                <td rowspan="3">工具集</td>
+                <td>容器管理</td>
+                <td>集成容器管理工具，管理容器。</td>
+            </tr>
+            <tr>
+                <td><a href="Basic Guides/Database Management/Notebook">Notebook</a></td>
+                <td>集成交互式编程工具，方便使用Python脚本（例如：训练模型、执行SQL查询等）。</td>
+            </tr>
+            <tr>
+                <td>高阶使用</td>
+                <td>提供集成应用的账号密码，方便深度探索。</td>
+            </tr>
+            
+            <tr>
+                <td rowspan="10">系统管理</td>
+                <td>路由配置</td>
+                <td>自定义平台功能模块路由。</td>
+            </tr>
+            <tr>
+                <td>身份与访问管理</td>
+                <td>管理用户权限。</td>
+            </tr>
+            <tr>
+                <td><a href="Basic Guides/System Management/User Management">用户管理</a></td>
+                <td>支持普通用户及角色管理。</td>
+            </tr>
+            
+            <tr>
+                <td>关于我们</td>
+                <td>介绍平台，展示集成到平台的开源应用。</td>
+            </tr>
+            <tr>
+                <td><a href="Basic Guides/System Management/Open Data">统一数据开放</a></td>
+                <td>提供不同类型的数据订阅和调用说明。包括API，MQTT及MCP。</td>
+            </tr>
+            {/* <tr>
+                <td>主题管理</td>
+                <td>管理平台主题。</td>
+            </tr>
+            <tr>
+                <td>国际化管理</td>
+                <td>管理前端语言显示，支持多语言切换。</td>
+            </tr> */}
+            <tr>
+                <td>菜单配置</td>
+                <td>支持对所有现有功能模块的菜单进行自定义修改。</td>
+            </tr>
+        </tbody>
+    </table>
+
+:::info
+- 私有化部署。具体部署要求及步骤，请参见<a href="Getting Started/Deploy Tier0">部署指南</a>。
+- 通过自然语言构建的应用在云端生成，打包后在本地安装。
+:::
 
 ## 功能列表
 
