@@ -111,7 +111,7 @@ hide_title: true
             </tr>
             <tr>
                 <td rowspan="3">工具集</td>
-                <td>容器管理</td>
+                <td><a href="Basic Guides/Database Management/Container Management">容器管理</a></td>
                 <td>集成容器管理工具，管理容器。</td>
             </tr>
             <tr>
@@ -119,28 +119,28 @@ hide_title: true
                 <td>集成交互式编程工具，方便使用Python脚本（例如：训练模型、执行SQL查询等）。</td>
             </tr>
             <tr>
-                <td>高阶使用</td>
+                <td><a href="Basic Guides/Database Management/Advanced Use">高阶使用</a></td>
                 <td>提供集成应用的账号密码，方便深度探索。</td>
             </tr>
             
             <tr>
                 <td rowspan="10">系统管理</td>
-                <td>路由配置</td>
+                <td><a href="Basic Guides/System Management/Routing Management">路由配置</a></td>
                 <td>自定义平台功能模块路由。</td>
             </tr>
-            <tr>
-                <td>身份与访问管理</td>
+            {/* <tr>
+                <td><a href="Basic Guides/System Management/Permission Management">身份与访问管理</a></td>
                 <td>管理用户权限。</td>
-            </tr>
+            </tr> */}
             <tr>
                 <td><a href="Basic Guides/System Management/User Management">用户管理</a></td>
                 <td>支持普通用户及角色管理。</td>
             </tr>
             
-            <tr>
+            {/* <tr>
                 <td>关于我们</td>
                 <td>介绍平台，展示集成到平台的开源应用。</td>
-            </tr>
+            </tr> */}
             <tr>
                 <td><a href="Basic Guides/System Management/Open Data">统一数据开放</a></td>
                 <td>提供不同类型的数据订阅和调用说明。包括API，MQTT及MCP。</td>
@@ -154,7 +154,7 @@ hide_title: true
                 <td>管理前端语言显示，支持多语言切换。</td>
             </tr> */}
             <tr>
-                <td>菜单配置</td>
+                <td><a href="Basic Guides/System Management/Menu Config">菜单配置</a></td>
                 <td>支持对所有现有功能模块的菜单进行自定义修改。</td>
             </tr>
         </tbody>
@@ -164,100 +164,3 @@ hide_title: true
 - 私有化部署。具体部署要求及步骤，请参见<a href="Getting Started/Deploy Tier0">部署指南</a>。
 - 通过自然语言构建的应用在云端生成，打包后在本地安装。
 :::
-
-## 功能列表
-
-本节按版本分类列出了 Tier0 的功能，每个功能在文档中都有对应的使用指南。您可以点击链接了解如何使用各项功能。
-
-<table border="1" cellspacing="0" cellpadding="8">
-<thead>
-<tr>
-<th>版本</th>
-<th>功能</th>
-<th>说明</th>
-<th>备注</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td rowspan="2">边缘版</td>
-<td>数据建模</td>
-<td>将工业数据建模为层级结构（文件夹-文件），以提升清晰度。</td>
-<td rowspan="2">
-
-- 私有化部署。
-- 有关规格详情，请参见 <a href="https://tier0edge.vercel.app/zh/Getting%20Started/Deploy%20Tier0#System%20Requirements">系统要求</a>。
-
-</td>
-</tr>
-<tr>
-<td>数据连接</td>
-<td>通过 Node-RED 以拖拽方式连接多种数据源。</td>
-</tr>
-<tr>
-<td rowspan="6">企业版</td>
-<td><a href="Basic Guides/UNS Data Integration/Build Data Models">数据建模</a></td>
-<td>将工业数据建模为层级结构（文件夹-文件），以提升清晰度。</td>
-<td rowspan="6">
-
-私有化部署。
-
-:::info
-通过自然语言构建的应用在云端生成，打包后在本地安装。
-:::
-
-</td>
-</tr>
-<tr>
-<td><a href="Basic Guides/UNS Data Integration/Connect Data Sources">数据连接</a></td>
-<td>通过 Node-RED 以拖拽方式连接多种数据源。</td>
-</tr>
-<tr>
-<td><a href="Basic Guides/UNS Data Integration/Process Data">Event Flow</a></td>
-<td>通过 Node-RED 处理数据建模中的数据并配置数据事件。</td>
-</tr>
-<tr>
-<td><a href="Basic Guides/UNS Data Integration/Display Data on Dashboards">数据看板</a></td>
-<td>使用 Grafana 对数据建模中的数据进行可视化展示。</td>
-</tr>
-<tr>
-<td><a href="Basic Guides/Database Management/Notebook">Notebook</a></td>
-<td>使用 Marimo Notebook 对数据建模中的数据或外部数据进行高级分析。</td>
-</tr>
-<tr>
-<td><a href="Basic Guides/System Management/User Management">用户管理</a></td>
-<td>通过用户与角色进行访问控制管理。</td>
-</tr>
-{/* <tr>
-<td><a href="Database Management/App Space">App Space</a></td>
-<td>基于 Namespace 数据，通过自然语言生成应用。</td>
-</tr> */}
-
-<tr>
-<td rowspan="6">云服务版</td>
-<td>Connectivity</td>
-<td>提供 MQTT 凭证，便于第三方向 Tier0 发布数据或从 Tier0 订阅数据。</td>
-<td rowspan="6">云端部署。申请租户账号即可开始使用。</td>
-</tr>
-<tr>
-<td>UNS</td>
-<td>将工业数据建模为层级结构（文件夹-文件），以提升清晰度。</td>
-</tr>
-<tr>
-<td>Flows</td>
-<td>使用 Node-RED 将数据连接到数据建模，并处理数据/配置数据事件。</td>
-</tr>
-<tr>
-<td>App Builder</td>
-<td>通过自然语言构建应用并管理应用。</td>
-</tr>
-<tr>
-<td>Anchor</td>
-<td>基于数据建模中数据的 3D 数字孪生。</td>
-</tr>
-<tr>
-<td>Notebook</td>
-<td>使用 Marimo Notebook 对数据建模中的数据或外部数据进行高级分析。</td>
-</tr>
-</tbody>
-</table>

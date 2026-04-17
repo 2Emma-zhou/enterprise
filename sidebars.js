@@ -125,7 +125,7 @@ const sidebars = {
             items: [
               'Basic Guides/System Management/Routing Management',
               'Basic Guides/System Management/User Management',
-              'Basic Guides/System Management/Permission Management',
+              // 'Basic Guides/System Management/Permission Management',
               'Basic Guides/System Management/Open Data',
               // 'Basic Guides/System Management/I18n Management',
               'Basic Guides/System Management/Menu Config',
