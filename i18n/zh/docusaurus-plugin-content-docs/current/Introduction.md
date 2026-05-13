@@ -1,7 +1,7 @@
 ---
 sidebar_position: 1
 slug: /
-hide_title: true
+title: Tier0 是什么?
 sidebar_label: Tier0 是什么?
 ---
 

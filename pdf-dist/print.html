@@ -1,0 +1,1842 @@
+
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>User Manual</title>
+
+  <base href="http://localhost:3002/" />
+
+  <style>
+    body {
+      font-family: Arial, "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+      line-height: 1.6;
+      color: #222;
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 40px;
+      font-size: 15px;
+    }
+
+    .cover-title {
+      font-size: 38px;
+      font-weight: 700;
+      text-align: center;
+      margin: 140px 0 100px;
+      page-break-after: always;
+    }
+
+    .pdf-sidebar-category {
+      color: #1f2937;
+      font-weight: 700;
+      margin-top: 36px;
+      margin-bottom: 18px;
+      line-height: 1.35;
+    }
+
+    .pdf-sidebar-category.pdf-level-1 {
+      font-size: 30px;
+      page-break-before: always;
+    }
+
+    .pdf-sidebar-category.pdf-level-1:first-of-type {
+      page-break-before: auto;
+    }
+
+    .pdf-sidebar-category.pdf-level-2 {
+      font-size: 24px;
+    }
+
+    .pdf-sidebar-category.pdf-level-3 {
+      font-size: 20px;
+    }
+
+    .pdf-doc {
+      margin-top: 24px;
+    }
+
+    .pdf-doc-title {
+      color: #374151;
+      font-weight: 600;
+      line-height: 1.35;
+      margin-top: 22px;
+      margin-bottom: 12px;
+    }
+
+    .pdf-doc-title.pdf-level-1 {
+      font-size: 26px;
+    }
+
+    .pdf-doc-title.pdf-level-2 {
+      font-size: 22px;
+    }
+
+    .pdf-doc-title.pdf-level-3 {
+      font-size: 19px;
+    }
+
+    /* 只用于 PDF 侧边书签，不在正文中显示 */
+    .pdf-bookmark-only {
+      font-size: 1px !important;
+      line-height: 1px !important;
+      height: 1px !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      color: transparent !important;
+      overflow: hidden !important;
+    }
+
+    .pdf-content-heading {
+      line-height: 1.35;
+      margin-top: 28px;
+      margin-bottom: 12px;
+      color: #1f2937;
+    }
+
+    .pdf-h1 {
+      font-size: 26px;
+      font-weight: 700;
+    }
+
+    .pdf-h2 {
+      font-size: 23px;
+      font-weight: 700;
+      border-bottom: 1px solid #e5e7eb;
+      padding-bottom: 6px;
+    }
+
+    .pdf-h3 {
+      font-size: 19px;
+      font-weight: 700;
+    }
+
+    .pdf-h4,
+    .pdf-h5,
+    .pdf-h6 {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    p {
+      margin: 10px 0;
+    }
+
+    a {
+      color: #0969da;
+      text-decoration: none;
+    }
+
+    ul,
+    ol {
+      padding-left: 24px;
+    }
+
+    li {
+      margin: 4px 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 14px;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    th,
+    td {
+      border: 1px solid #d0d7de;
+      padding: 8px 10px;
+      vertical-align: top;
+    }
+
+    th {
+      font-weight: 700;
+      background: #f6f8fa;
+    }
+
+    img,
+    svg {
+      max-width: 100%;
+      height: auto;
+    }
+
+    .doc-content img:not(.pdf-inline-icon) {
+      display: block;
+      margin: 14px 0;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .doc-content .pdf-inline-icon {
+      display: inline-block !important;
+      vertical-align: middle !important;
+      margin: 0 4px !important;
+      max-width: 1.4em !important;
+      max-height: 1.4em !important;
+      width: auto !important;
+      height: auto !important;
+    }
+
+    .pdf-admonition-content img.pdf-inline-icon,
+    .pdf-admonition-content svg.pdf-inline-icon {
+      display: inline-block !important;
+      vertical-align: middle !important;
+      margin: 0 4px !important;
+      max-width: 1.4em !important;
+      max-height: 1.4em !important;
+      width: auto !important;
+      height: auto !important;
+    }
+
+    pre {
+      background: #f6f8fa;
+      padding: 12px;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-size: 13px;
+      line-height: 1.45;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    code {
+      font-family: Menlo, Consolas, Monaco, monospace;
+      font-size: 0.92em;
+    }
+
+    pre code {
+      background: transparent;
+      padding: 0;
+    }
+
+    :not(pre) > code {
+      background: #f6f8fa;
+      padding: 2px 4px;
+      border-radius: 4px;
+    }
+
+    .pdf-admonition {
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin: 16px 0;
+  border-left: 5px solid;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.pdf-admonition-info {
+  background: #eef6ff !important;
+  border-left-color: #3b82f6 !important;
+}
+
+.pdf-admonition-tip {
+  background: #ecfdf5 !important;
+  border-left-color: #10b981 !important;
+}
+
+.pdf-admonition-warning {
+  background: #fffbeb !important;
+  border-left-color: #f59e0b !important;
+}
+
+.pdf-admonition-danger {
+  background: #fef2f2 !important;
+  border-left-color: #ef4444 !important;
+}
+
+.pdf-admonition-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.pdf-admonition-icon {
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  max-width: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  line-height: 1;
+}
+
+.pdf-admonition-content > :first-child {
+  margin-top: 0;
+}
+
+.pdf-admonition-content > :last-child {
+  margin-bottom: 0;
+}
+
+.pdf-admonition blockquote,
+.pdf-admonition-content blockquote {
+  border-left: none !important;
+  margin: 0 !important;
+  padding-left: 0 !important;
+}
+
+.pdf-admonition *::before,
+.pdf-admonition *::after,
+.pdf-admonition::before,
+.pdf-admonition::after {
+  content: none !important;
+  display: none !important;
+}
+
+    button,
+    .clean-btn,
+    [class*="copyButton"],
+    [class*="copyButtonContainer"],
+    [class*="codeBlockButtons"],
+    [class*="buttonGroup"] {
+      display: none !important;
+    }
+
+    @page {
+      size: A4;
+      margin: 18mm 16mm;
+    }
+  </style>
+</head>
+<body>
+  <div class="cover-title">User Manual</div>
+  
+      <h1 class="pdf-sidebar-category pdf-level-1">
+        Overview
+      </h1>
+    
+
+    <section class="pdf-doc">
+      <h2 class="pdf-doc-title pdf-bookmark-only pdf-level-2">
+        Introduction
+      </h2>
+      <div class="doc-content">
+        <div class="theme-doc-markdown markdown"><div class="pdf-content-heading pdf-h2">What Is Tier0?<a href="#what-is-tier0" class="hash-link" aria-label="Direct link to What Is Tier0?" title="Direct link to What Is Tier0?">​</a></div>
+<p>Tier0 is a Unified Namespace (UNS)-based industrial data platform.</p>
+<p>It connects data through Node-RED, organizes it into a unified structure, and makes it available for applications and analytics.</p>
+<hr>
+<div class="pdf-content-heading pdf-h2">How It Works?<a href="#how-it-works" class="hash-link" aria-label="Direct link to How It Works?" title="Direct link to How It Works?">​</a></div>
+<p>Tier0 moves and structures data in a single workflow:</p>
+<ul>
+<li>Node-RED connects and processes data from devices and systems</li>
+<li>Data is published into the Unified Namespace (UNS), structured and stored in Tier0 database</li>
+<li>Data is consumed by dashboards, applications and analytics</li>
+</ul>
+<img width="550" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/191.png" class="medium-zoom-image">
+<hr>
+<div class="pdf-content-heading pdf-h2">Key Components<a href="#key-components" class="hash-link" aria-label="Direct link to Key Components" title="Direct link to Key Components">​</a></div>
+<div class="pdf-content-heading pdf-h3">Unified Namespace (UNS)<a href="#unified-namespace-uns" class="hash-link" aria-label="Direct link to Unified Namespace (UNS)" title="Direct link to Unified Namespace (UNS)">​</a></div>
+<p>Defines a hierarchical structure for all industrial data.</p>
+<p><code>factory/workshopA/line1/cnc01/telemetry/spindleSpeed</code></p>
+<img width="650" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/192.png" class="medium-zoom-image">
+<div class="pdf-content-heading pdf-h3">Node-RED Integration<a href="#node-red-integration" class="hash-link" aria-label="Direct link to Node-RED Integration" title="Direct link to Node-RED Integration">​</a></div>
+<p>The core engine for data connection and processing.</p>
+<ul>
+<li>Connect devices, applications, and systems</li>
+<li>Format and publish data into the namespace</li>
+</ul>
+<img width="450" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/193.png" class="medium-zoom-image">
+<hr>
+<div class="pdf-content-heading pdf-h3">Python Notebook<a href="#python-notebook" class="hash-link" aria-label="Direct link to Python Notebook" title="Direct link to Python Notebook">​</a></div>
+<p>Analyze data with full flexibility using Python with an interactive environment.</p>
+<img width="550" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/195.png" class="medium-zoom-image">
+<hr>
+<div class="pdf-content-heading pdf-h3">Agentic App Builder<a href="#agentic-app-builder" class="hash-link" aria-label="Direct link to Agentic App Builder" title="Direct link to Agentic App Builder">​</a></div>
+<p>Create industrial applications using natural language without consuming any of your local resources. The whole process is done on cloud, and provide a package for local installation.</p>
+<img width="450" src="http://enterpriseimage.oss-cn-hangzhou.aliyuncs.com/3.png" class="medium-zoom-image">
+<hr></div>
+      </div>
+    </section>
+  
+
+    <section class="pdf-doc">
+      <h2 class="pdf-doc-title pdf-bookmark-only pdf-level-2">
+        Feature List
+      </h2>
+      <div class="doc-content">
+        <div class="theme-doc-markdown markdown"><header><div class="pdf-content-heading pdf-h1">Homepage</div></header><img width="750" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/4.png" class="medium-zoom-image">
+<table><caption>Homepage</caption><thead><tr><th>No.</th><th>Name</th><th>Description</th></tr></thead><tbody><tr><td>1</td><td>Menu Bar</td><td>Lists the function menus of the platform, enabling quick access to various function modules.</td></tr><tr><td>2</td><td>Tool Bar</td><td>Common operations on the platform, including search and user information.</td></tr><tr><td rowspan="2">3</td><td>Import/Export</td><td>Integrate the data import/export function from <b>Namespace/Source Flow/Event Flow/Dashboard</b> together.</td></tr><tr><td><img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/4-2.png" class="medium-zoom-image pdf-inline-icon" style="display: inline-block; vertical-align: middle; margin: 0px 4px;"></td><td>Go back to the homepage.</td></tr><tr><td rowspan="3">4</td><td>Topic</td><td>Tree view of data models already built in UNS</td></tr><tr><td>Template</td><td>Tree view of data model templates already built in UNS</td></tr><tr><td>Label</td><td>Displays labels, and models under each label</td></tr><tr><td rowspan="3">5</td><td><img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/103.png" class="medium-zoom-image pdf-inline-icon" style="display: inline-block; vertical-align: middle; margin: 0px 4px;"></td><td>Displays data models by category: <b>Text/Template/Label</b>.</td></tr><tr><td><img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/104.png" class="medium-zoom-image pdf-inline-icon" style="display: inline-block; vertical-align: middle; margin: 0px 4px;">/<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/105.png" class="medium-zoom-image pdf-inline-icon" style="display: inline-block; vertical-align: middle; margin: 0px 4px;"></td><td>Search data models / Refresh data model list.</td></tr><tr><td><img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/75.png" class="medium-zoom-image pdf-inline-icon" style="display: inline-block; vertical-align: middle; margin: 0px 4px;"></td><td>Create folder-file structured data models based on data hierarchy.</td></tr><tr><td>6</td><td>Overview</td><td>Number of connections between data sources and the internal MQTT broker and messages in/out.</td></tr><tr><td>7</td><td>Functions</td><td>Lists all function modules of the platform.</td></tr><tr><td>8</td><td>MQTT Access</td><td>Detailed information of the internal MQTT broker. Select existing topics to see detailed payload.</td></tr></tbody></table>
+<table><caption>Function Module Description</caption><thead><tr><th>Module</th><th>Name</th><th>Description</th></tr></thead><tbody><tr><td rowspan="4">UNS</td><td><a href="Basic Guides/UNS Data Integration/Build Data Models">Namespace (homepage)</a></td><td>Models industrial data into a hierarchical structure (folder-file) for clarity.</td></tr><tr><td><a href="Basic Guides/UNS Data Integration/Connect Data Sources">Source Flow</a></td><td>Uses Node-RED to define the data source of the created model.</td></tr><tr><td><a href="Basic Guides/UNS Data Integration/Process Data">Event Flow</a></td><td>Process Namespace data and configure data events via Node-RED.</td></tr><tr><td><a href="Basic Guides/UNS Data Integration/Display Data on Dashboards">Dashboards</a></td><td>Displays data from <b>Namespace</b> on dashboards according to specific design.</td></tr><tr><td rowspan="3">Dev Tools</td><td><a href="Basic Guides/Database Management/Container Management">Containers</a></td><td>Integrates Portainer to manage docker containers.</td></tr><tr><td><a href="Basic Guides/Database Management/Notebook">Notebook</a></td><td>Adopts Marimo for easy python script usage. For example, train models, run SQL queries and others.</td></tr><tr><td><a href="Basic Guides/Database Management/Advanced Use">Advanced Use</a></td><td>Provides account and password of integrated application for deeper exploration.</td></tr><tr><td rowspan="10">System</td><td><a href="Basic Guides/System Management/Routing Management">Routing Management</a></td><td>Customizes Tier0 function module routing.</td></tr><tr><td><a href="Basic Guides/System Management/User Management">User Management</a></td><td>Manage access control via users and roles.</td></tr><tr><td><a href="Basic Guides/System Management/Open Data">Open Data</a></td><td>Provide different types of data subscription, including API, MQTT and MCP.</td></tr><tr><td><a href="Basic Guides/System Management/Menu Config">Menu Config</a></td><td>Supports menu changes on all existing function modules.</td></tr></tbody></table>
+<div class="pdf-admonition pdf-admonition-info">
+      <div class="pdf-admonition-title">
+        <span class="pdf-admonition-icon">ⓘ</span>
+        <span>info</span>
+      </div>
+      <div class="pdf-admonition-content">
+        <ul>
+<li>Private deployment. For detailed specifications and steps, see <a href="Getting Started/Deploy Tier0">Deploy Tier0</a>.</li>
+<li>Applications built through natural language in <strong>App Builder</strong> is generated on cloud, and a package is available for local installation.</li>
+</ul>
+      </div>
+    </div></div>
+      </div>
+    </section>
+  
+
+    <section class="pdf-doc">
+      <h2 class="pdf-doc-title pdf-bookmark-only pdf-level-2">
+        User Journey
+      </h2>
+      <div class="doc-content">
+        <div class="theme-doc-markdown markdown"><header><div class="pdf-content-heading pdf-h1">User Journey</div></header><div class="pdf-content-heading pdf-h2">User Journey<a href="#user-journey" class="hash-link" aria-label="Direct link to User Journey" title="Direct link to User Journey">​</a></div>
+<p>Follow the order displayed in the image, you will complete your first data flow in Tier0.</p>
+<img width="450" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/48.png">
+<ul>
+<li>Tier0 builds data models in a folder-file structure, making it easy to track and understand;</li>
+<li>It collects various types of data from diverse sources in <strong>Source Flow</strong>;</li>
+<li>Data collected to Tier0 can be processed in many ways in <strong>Event Flow</strong>;</li>
+<li>Processed data can be displayed on dashboards for better understanding through both <strong>Event Flow</strong> and <strong>Dashboards</strong>.</li>
+<li>Data collected to and processed in Tier0 can be obtained by third parties through <a href="../../../openapi/#/">Open API</a> or MQTT subscription.</li>
+</ul>
+<div class="pdf-admonition pdf-admonition-info">
+      <div class="pdf-admonition-title">
+        <span class="pdf-admonition-icon">ⓘ</span>
+        <span>note</span>
+      </div>
+      <div class="pdf-admonition-content">
+        <ul>
+<li><strong>Source Flow</strong> and <strong>Event Flow</strong> are based on <strong>Node-RED</strong>. For detailed instructions, please see <a href="https://nodered.org/docs/tutorials/first-flow">NodeRed</a>.</li>
+<li><strong>Dashboards</strong> is based on <strong>Grafana</strong>. For detailed instructions, please see <a href="https://grafana.com/docs/grafana/latest/dashboards/build-dashboards/create-dashboard/">Grafana</a>.</li>
+</ul>
+      </div>
+    </div></div>
+      </div>
+    </section>
+  
+
+      <h1 class="pdf-sidebar-category pdf-level-1">
+        Quick Start Guide
+      </h1>
+    
+
+    <section class="pdf-doc">
+      <h2 class="pdf-doc-title pdf-bookmark-only pdf-level-2">
+        Deploy Tier0
+      </h2>
+      <div class="doc-content">
+        <div class="theme-doc-markdown markdown"><header><div class="pdf-content-heading pdf-h1">Deploy Tier0</div></header><div class="pdf-content-heading pdf-h2">System Requirements<a href="#system-requirements" class="hash-link" aria-label="Direct link to System Requirements" title="Direct link to System Requirements">​</a></div>
+<table><tr><th>Configuration Type</th><th>CPU</th><th>Memory</th><th>HDD/IOPS</th></tr><tr><td>Basic Configuration</td><td>4 cores</td><td>8 GB</td><td>100 GB, 2000 IOPS (30% write)</td></tr><tr><td>Recommended Configuration</td><td>8 cores</td><td>16 GB</td><td>1 TB, 2000 IOPS (30% write)</td></tr></table>
+<div class="pdf-content-heading pdf-h2">Installing Tier0<a href="#installing-tier0" class="hash-link" aria-label="Direct link to Installing Tier0" title="Direct link to Installing Tier0">​</a></div>
+<div class="pdf-content-heading pdf-h3">Linux<a href="#linux" class="hash-link" aria-label="Direct link to Linux" title="Direct link to Linux">​</a></div>
+<ol>
+<li>Make sure you have the following system and components ready.</li>
+</ol>
+<ul>
+<li>Ubuntu Server 24.04</li>
+<li>Docker</li>
+</ul>
+<table><thead><tr><th>Component</th><th>Version</th></tr></thead><tbody><tr><td>Docker Engine - Community</td><td>27.4.0</td></tr><tr><td>Docker Buildx</td><td>v0.19.2</td></tr><tr><td>Docker Compose</td><td>v2.31.0</td></tr><tr><td>Containerd</td><td>1.7.24</td></tr></tbody></table>
+<div class="pdf-admonition pdf-admonition-info">
+      <div class="pdf-admonition-title">
+        <span class="pdf-admonition-icon">ⓘ</span>
+        <span>note</span>
+      </div>
+      <div class="pdf-admonition-content">
+        <p>Above system and components have been tested. You can try on other versions if you are interested.</p>
+      </div>
+    </div>
+<ol start="2">
+<li>Clone the project from Github.</li>
+</ol>
+<div class="codeBlockContainer_Ckt0 theme-code-block" style="--prism-color: #393A34; --prism-background-color: #f6f8fa;"><div class="codeBlockContent_biex"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color: rgb(57, 58, 52); background-color: rgb(246, 248, 250);"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">git clone https://github.com/FREEZONEX/Tier0-Edge.git</span><br></span></code></pre></div></div>
+<ol start="3">
+<li>Go to the folder <strong>Tier0-Edge/deploy</strong> inside the project.</li>
+</ol>
+<div class="codeBlockContainer_Ckt0 theme-code-block" style="--prism-color: #393A34; --prism-background-color: #f6f8fa;"><div class="codeBlockContent_biex"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color: rgb(57, 58, 52); background-color: rgb(246, 248, 250);"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">cd Tier0-Edge/deploy</span><br></span></code></pre></div></div>
+<ol start="4">
+<li>Enter the <strong>.env.default</strong> file and press the <strong>i</strong> key to edit configuration items as needed.</li>
+</ol>
+<div class="codeBlockContainer_Ckt0 theme-code-block" style="--prism-color: #393A34; --prism-background-color: #f6f8fa;"><div class="codeBlockContent_biex"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color: rgb(57, 58, 52); background-color: rgb(246, 248, 250);"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">vi .env.default</span><br></span></code></pre></div></div>
+<table><tr><th>Item</th><th>Description</th></tr><tr><td>VOLUMES_PATH</td><td>The storage path for project data.</td></tr><tr><td>ENTRANCE_DOMAIN</td><td><p>Tier0 access address. Normally the IP or domain of the server where you install Tier0.</p><div class="pdf-admonition pdf-admonition-warning">
+      <div class="pdf-admonition-title">
+        <span class="pdf-admonition-icon">⚠</span>
+        <span>warning</span>
+      </div>
+      <div class="pdf-admonition-content">
+        <p>Do not use 127.0.0.1 or localhost, otherwise login and authentication functions <strong>will NOT</strong> work.</p>
+      </div>
+    </div></td></tr><tr><td>LANGUAGE</td><td>Tier0 display language. Chinese (zh-CN) and English (en-US) are supported.</td></tr></table>
+<img width="550" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/53.png" class="medium-zoom-image">
+<ol start="5">
+<li>Press <strong>ESC</strong> to stop editting, save the file and install Tier0.</li>
+</ol>
+<div class="codeBlockContainer_Ckt0 theme-code-block" style="--prism-color: #393A34; --prism-background-color: #f6f8fa;"><div class="codeBlockContent_biex"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color: rgb(57, 58, 52); background-color: rgb(246, 248, 250);"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">:wq!</span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">bash bin/install.sh</span><br></span></code></pre></div></div>
+<ol start="6">
+<li>Select whether to keep the entered entrance address and whether to use default setup, and then wait for the installation to complete.</li>
+</ol>
+<img width="550" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/54.png" class="medium-zoom-image">
+<ol start="7">
+<li>Access Tier0 on a browser and log in.</li>
+</ol>
+<img width="550" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/55.png" class="medium-zoom-image">
+<div class="pdf-content-heading pdf-h3">Windows<a href="#windows" class="hash-link" aria-label="Direct link to Windows" title="Direct link to Windows">​</a></div>
+<div class="pdf-admonition pdf-admonition-info">
+      <div class="pdf-admonition-title">
+        <span class="pdf-admonition-icon">ⓘ</span>
+        <span>info</span>
+      </div>
+      <div class="pdf-admonition-content">
+        <ul>
+<li>Make sure you have installed the lastest <strong>Docker Desktop</strong> and <strong>Git</strong> on Windows 10 or 11.</li>
+<li>Docker must be started.</li>
+</ul>
+      </div>
+    </div>
+<ol>
+<li>Clone the project from Github in <strong>Git Bash</strong>.</li>
+</ol>
+<div class="codeBlockContainer_Ckt0 theme-code-block" style="--prism-color: #393A34; --prism-background-color: #f6f8fa;"><div class="codeBlockContent_biex"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color: rgb(57, 58, 52); background-color: rgb(246, 248, 250);"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">git clone https://github.com/FREEZONEX/Tier0-Edge.git</span><br></span></code></pre></div></div>
+<ol start="2">
+<li>Go to the folder <strong>Tier0-Edge/deploy</strong> inside the project.</li>
+</ol>
+<div class="codeBlockContainer_Ckt0 theme-code-block" style="--prism-color: #393A34; --prism-background-color: #f6f8fa;"><div class="codeBlockContent_biex"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color: rgb(57, 58, 52); background-color: rgb(246, 248, 250);"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">cd Tier0-Edge/deploy</span><br></span></code></pre></div></div>
+<ol start="3">
+<li>Edit the following attributes in file <strong>.env.default</strong>.</li>
+</ol>
+<div class="pdf-admonition pdf-admonition-tip">
+      <div class="pdf-admonition-title">
+        <span class="pdf-admonition-icon">✓</span>
+        <span>tip</span>
+      </div>
+      <div class="pdf-admonition-content">
+        <p>Before editing .env.default file, execute <code>ipconfig</code> in Git Bash to get the IP of the server.</p><img width="350" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/144.png" class="medium-zoom-image">
+      </div>
+    </div>
+<ul>
+<li><strong>OS_PLATFORM_TYPE</strong>: The operating system where Tier0 is installed. Change it to <strong>windows</strong></li>
+<li><strong>VOLUMES_PATH</strong>: The storage path for project data.</li>
+<li><strong>ENTRANCE_DOMAIN</strong>/<strong>ENTRANCE_PORT</strong>: Tier0 access address. Normally the IP or domain of the server where you install Tier0, and make sure the port is not occupied.</li>
+</ul>
+<div class="codeBlockContainer_Ckt0 theme-code-block" style="--prism-color: #393A34; --prism-background-color: #f6f8fa;"><div class="codeBlockContent_biex"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color: rgb(57, 58, 52); background-color: rgb(246, 248, 250);"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">vi .env.default</span><br></span></code></pre></div></div>
+<div class="pdf-admonition pdf-admonition-info">
+      <div class="pdf-admonition-title">
+        <span class="pdf-admonition-icon">ⓘ</span>
+        <span>note</span>
+      </div>
+      <div class="pdf-admonition-content">
+        <p><strong>.env.default</strong> file is hidden, directly enter the command to open it.</p>
+      </div>
+    </div>
+<img width="550" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/56.png" class="medium-zoom-image">
+<ol start="4">
+<li>Save the file and start installing Tier0.</li>
+</ol>
+<div class="codeBlockContainer_Ckt0 theme-code-block" style="--prism-color: #393A34; --prism-background-color: #f6f8fa;"><div class="codeBlockContent_biex"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color: rgb(57, 58, 52); background-color: rgb(246, 248, 250);"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">:wq!</span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">bash bin/install.sh</span><br></span></code></pre></div></div>
+<ol start="5">
+<li>Select the default configurations and wait for the installation to complete.</li>
+</ol>
+<img width="550" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/57.png" class="medium-zoom-image">
+<ol start="6">
+<li>Access Tier0 on a browser and log in.</li>
+</ol>
+<div class="pdf-content-heading pdf-h2">Uninstalling Tier0<a href="#uninstalling-tier0" class="hash-link" aria-label="Direct link to Uninstalling Tier0" title="Direct link to Uninstalling Tier0">​</a></div>
+<ol>
+<li>Access the path <strong>Tier0-Edge/deploy/bin</strong>.</li>
+<li>Execute the script <strong>uninstall.sh</strong>.</li>
+</ol>
+<div class="codeBlockContainer_Ckt0 theme-code-block" style="--prism-color: #393A34; --prism-background-color: #f6f8fa;"><div class="codeBlockContent_biex"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color: rgb(57, 58, 52); background-color: rgb(246, 248, 250);"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">bash uninstall.sh</span><br></span></code></pre></div></div>
+<div class="pdf-admonition pdf-admonition-info">
+      <div class="pdf-admonition-title">
+        <span class="pdf-admonition-icon">ⓘ</span>
+        <span>info</span>
+      </div>
+      <div class="pdf-admonition-content">
+        <ul>
+<li><strong>clean-all.sh</strong> will wipe out all project data and uninstall Tier0.</li>
+<li>Images will not be deleted.</li>
+<li>If you want to install Tier0 again, make sure you have pulled all images with the newest versions (based on image tags).</li>
+</ul>
+      </div>
+    </div></div>
+      </div>
+    </section>
+  
+
+    <section class="pdf-doc">
+      <h2 class="pdf-doc-title pdf-bookmark-only pdf-level-2">
+        Login
+      </h2>
+      <div class="doc-content">
+        <div class="theme-doc-markdown markdown"><header><div class="pdf-content-heading pdf-h1">Login</div></header><ol>
+<li>Access Tier0 with the set domain and port on a browser.</li>
+<li>On the login page, use your license to activate Tier0.</li>
+</ol>
+<ul>
+<li><strong>Online Activation</strong>: Enter the license key, and click <strong>Activate Now</strong>.</li>
+</ul>
+<img width="750" src="http://enterpriseimage.oss-cn-hangzhou.aliyuncs.com/1.png" class="medium-zoom-image">
+<ul>
+<li><strong>Offline Activation</strong>: Send the token to your vendor to get the JSON file, and import the file.</li>
+</ul>
+<img width="750" src="http://enterpriseimage.oss-cn-hangzhou.aliyuncs.com/2.png" class="medium-zoom-image">
+<ol start="3">
+<li>
+<p>Enter the default username and password (tier0/tier0).</p>
+</li>
+<li>
+<p>Click <strong>Sign In</strong>.</p>
+</li>
+</ol></div>
+      </div>
+    </section>
+  
+
+      <h1 class="pdf-sidebar-category pdf-level-1">
+        How-to Guide
+      </h1>
+    
+
+    <section class="pdf-doc">
+      <h2 class="pdf-doc-title pdf-bookmark-only pdf-level-2">
+        Build Data Models
+      </h2>
+      <div class="doc-content">
+        <div class="theme-doc-markdown markdown"><header><div class="pdf-content-heading pdf-h1">Build Data Models</div></header><p>Tier0 uses UNS (Unified Namespace) to organize data into a clear tree structure. Each path and topic in the model automatically generates an MQTT topic, making it easy to get real-time data.</p>
+<div class="pdf-content-heading pdf-h2">Additional Parameter Definition<a href="#additional-parameter-definition" class="hash-link" aria-label="Direct link to Additional Parameter Definition" title="Direct link to Additional Parameter Definition">​</a></div>
+<ul>
+<li><strong>Path-Additional Settings</strong></li>
+</ul>
+<table><thead><tr><th>Item</th><th>Description</th></tr></thead><tbody><tr><td><strong>Extended Attribute</strong></td><td>Add extended attributes for the path. Eg. unit.</td></tr><tr><td><strong>Template</strong></td><td>Select a template to inherit attributes from it. See <a href="#building-template">Building Template</a>.</td></tr><tr><td><strong>Generate Template</strong></td><td>Click <img alt="icon" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/35.png" class="medium-zoom-image pdf-inline-icon" style="display: inline-block; vertical-align: middle; margin: 0px 4px;"> to add an attribute to the path, at the same time you can select to generate a same template for future use.</td></tr></tbody></table>
+<ul>
+<li><strong>Topic-Topic Type</strong></li>
+</ul>
+<table><tr><th>Type</th><th>Description</th></tr><tr><td>State</td><td>Works as an API to receive system state data.</td></tr><tr><td>Action</td><td>Works as an API to execute CRUD commands.</td></tr><tr><td>Metric</td><td>Real-time data. For example, equipment temperature.</td></tr></table>
+
+<ul>
+<li><strong>Topic-Attribute Generation Method</strong></li>
+</ul>
+<table><thead><tr><th>Attribute Generation Method</th><th>Description</th></tr></thead><tbody><tr><td><strong>Custom</strong></td><td>Customize attributes.</td></tr><tr><td><strong>Template</strong></td><td>Inherit attributes from the selected template.</td></tr><tr><td><strong>Auto Parsing</strong></td><td>Use JSON text to generate attributes with the same structure.</td></tr></tbody></table>
+<ul>
+<li><strong>Topic-Linked Operation</strong></li>
+</ul>
+<table><thead><tr><th>Item</th><th>Description</th></tr></thead><tbody><tr><td><strong>Enable History</strong></td><td>Enable historical data storage for the topic.</td></tr></tbody></table>
+<div class="pdf-content-heading pdf-h2">How to Build a Data Model<a href="#how-to-build-a-data-model" class="hash-link" aria-label="Direct link to How to Build a Data Model" title="Direct link to How to Build a Data Model">​</a></div>
+<p>Based on simple folder-file structure, you can define the data hierarchy to a tree map.</p>
+<div class="pdf-content-heading pdf-h3">Building Models Manually<a href="#building-models-manually" class="hash-link" aria-label="Direct link to Building Models Manually" title="Direct link to Building Models Manually">​</a></div>
+<div class="pdf-admonition pdf-admonition-info">
+      <div class="pdf-admonition-title">
+        <span class="pdf-admonition-icon">ⓘ</span>
+        <span>note</span>
+      </div>
+      <div class="pdf-admonition-content">
+        <p><strong>factory/equipment/CNC</strong> will be used as an example, in which <code>factory</code> and <code>equipment</code> are paths and <code>CNC</code> is a topic.</p>
+      </div>
+    </div>
+<ol>
+<li>Log in to Tier0, landed on the <strong>Namespace</strong> page.</li>
+<li>Under <strong>Topic</strong>, click <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/75.png" class="medium-zoom-image pdf-inline-icon" style="display: inline-block; vertical-align: middle; margin: 0px 4px;"> &gt; <strong>New Path</strong> to add a path (e.g. <code>factory</code>).</li>
+</ol>
+<img width="450" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/34.png" class="medium-zoom-image">
+<ol start="3">
+<li>
+<p>Enter the path information, set the alias as needed, and then click <strong>Save</strong>.</p>
+</li>
+<li>
+<p>Select <strong>equipment</strong>, and then click <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/75.png" class="medium-zoom-image pdf-inline-icon" style="display: inline-block; vertical-align: middle; margin: 0px 4px;"> &gt; <strong>New Topic</strong> to add a topic (e.g.<code>CNC</code>) under it.</p>
+</li>
+</ol>
+<img width="450" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/36.png" class="medium-zoom-image">
+<ol start="5">
+<li>Enter the information of the topic, and then click <strong>Save</strong>.</li>
+</ol>
+
+
+<div class="pdf-content-heading pdf-h3">Importing Models<a href="#importing-models" class="hash-link" aria-label="Direct link to Importing Models" title="Direct link to Importing Models">​</a></div>
+<ol>
+<li>Log in to Tier0, landed on the <strong>Namespace</strong> page.</li>
+<li>Click <strong>Import</strong> at the upper-right corner.</li>
+</ol>
+<img width="450" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/69.png" class="medium-zoom-image">
+<ol start="3">
+<li>Import JSON to create models.</li>
+</ol>
+<ul>
+<li>Click <strong>UNS</strong>, and directly enter JSON.</li>
+</ul>
+<img width="450" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/69-1.png" class="medium-zoom-image">
+<ul>
+<li>Click <strong>Download Template</strong> at the <strong>UNS</strong> tab, enter the model content and upload it at the <strong>All</strong> tab.</li>
+</ul>
+<img width="450" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/69-2.png" class="medium-zoom-image">
+<div class="pdf-admonition pdf-admonition-tip">
+      <div class="pdf-admonition-title">
+        <span class="pdf-admonition-icon">✓</span>
+        <span>tip</span>
+      </div>
+      <div class="pdf-admonition-content">
+        <p>You can manually add a path and topic, export it and use it as an example for import.</p><img width="450" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/69-3.png" class="medium-zoom-image">
+      </div>
+    </div>
+<ol start="4">
+<li>Click <strong>Save</strong>.</li>
+</ol>
+
+<div class="pdf-content-heading pdf-h2">Optional Features<a href="#optional-features" class="hash-link" aria-label="Direct link to Optional Features" title="Direct link to Optional Features">​</a></div>
+<div class="pdf-content-heading pdf-h3">Building Template<a href="#building-template" class="hash-link" aria-label="Direct link to Building Template" title="Direct link to Building Template">​</a></div>
+<ol>
+<li>On the <strong>Namespace</strong> page, click <strong>Template</strong>.</li>
+<li>Click <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/38.png" class="medium-zoom-image pdf-inline-icon" style="display: inline-block; vertical-align: middle; margin: 0px 4px;">, and then enter the information of the template.</li>
+</ol>
+<div class="pdf-admonition pdf-admonition-tip">
+      <div class="pdf-admonition-title">
+        <span class="pdf-admonition-icon">✓</span>
+        <span>tip</span>
+      </div>
+      <div class="pdf-admonition-content">
+        <p>Click <strong>Source</strong> to select added models and inherit their attributes.</p>
+      </div>
+    </div>
+<img width="450" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/39.png" class="medium-zoom-image">
+<ol start="3">
+<li>Click <strong>Save</strong>.</li>
+</ol>
+<div class="pdf-content-heading pdf-h3">Creating Label<a href="#creating-label" class="hash-link" aria-label="Direct link to Creating Label" title="Direct link to Creating Label">​</a></div>
+<p>Labels are used for categorizing data models.</p>
+<ol>
+<li>On the <strong>Namespace</strong> page, click <strong>Label</strong>.</li>
+<li>Click <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/77.png" class="medium-zoom-image pdf-inline-icon" style="display: inline-block; vertical-align: middle; margin: 0px 4px;">, and then enter the label name.</li>
+<li>Click <strong>Save</strong>, and then click <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/78.png" class="medium-zoom-image pdf-inline-icon" style="display: inline-block; vertical-align: middle; margin: 0px 4px;"> to add topics under the label.</li>
+</ol>
+<img width="450" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/79.png" class="medium-zoom-image">
+<ol start="4">
+<li>Click <strong>Save</strong>.</li>
+</ol>
+<div class="pdf-content-heading pdf-h3">Exporting Data<a href="#exporting-data" class="hash-link" aria-label="Direct link to Exporting Data" title="Direct link to Exporting Data">​</a></div>
+<p>Tier0 can export UNS models and other data, such as source flows, event flows, and data dashboards.</p>
+<ol>
+<li>On the <strong>Namespace</strong> page, click <strong>Export</strong> at the upper-right corner.</li>
+<li>Click the <strong>Others</strong> tab and select the corresponding data type.</li>
+</ol>
+<img width="450" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/190-1.png" class="medium-zoom-image">
+<ol start="3">
+<li>Click <strong>Export</strong>.</li>
+</ol></div>
+      </div>
+    </section>
+  
+
+    <section class="pdf-doc">
+      <h2 class="pdf-doc-title pdf-bookmark-only pdf-level-2">
+        Connect Data Sources
+      </h2>
+      <div class="doc-content">
+        <div class="theme-doc-markdown markdown"><header><div class="pdf-content-heading pdf-h1">Connect Data Sources</div></header><div class="pdf-content-heading pdf-h2">How to Add Data Sources<a href="#how-to-add-data-sources" class="hash-link" aria-label="Direct link to How to Add Data Sources" title="Direct link to How to Add Data Sources">​</a></div>
+<p>Once the data model is built under <strong>Namespace</strong>, you need to connect real data to the model for subsequent processing and use.</p>
+<div class="pdf-content-heading pdf-h3">Adding Data Flow Manually<a href="#adding-data-flow-manually" class="hash-link" aria-label="Direct link to Adding Data Flow Manually" title="Direct link to Adding Data Flow Manually">​</a></div>
+<ol>
+<li>Log in to Tier0, go to <strong>UNS</strong> &gt; <strong>Source Flow</strong>.</li>
+</ol>
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/108.png" class="medium-zoom-image">
+<table><thead><tr><th>Index</th><th>Item</th><th>Description</th></tr></thead><tbody><tr><td rowspan="2">1</td><td>Search</td><td>Search for existing data flows.</td></tr><tr><td>New Source Flow</td><td>Add a data flow.</td></tr><tr><td rowspan="1">2</td><td>Flow List</td><td>Displays flow information. Click the flow name to start editing the data flow.</td></tr><tr><td>3</td><td>Display</td><td>Switch flow display between blocks and list.</td></tr><tr><td>4</td><td>Flow Operations</td><td>Copy / Edit / Delete the data flow.</td></tr></tbody></table>
+<ol start="2">
+<li>Click <strong>New Source Flow</strong>, enter a name and click <strong>Save</strong>.</li>
+<li>Click the flow you just added, and drag in nodes according to your data source type (e.g.<code>modbus</code>).</li>
+<li>Drag in an <code>mqtt out</code> node, and finish its configurations.</li>
+</ol>
+<ol><ol><li><p>Add the internal broker via <code>emqx:1883</code>.</p><img width="450" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/106.png" class="medium-zoom-image"></li><li><p>Set its subscription topic to the data model in <b>Namespace</b>.</p><p>For example, the data model structure is <code>factory/equipment/cnc</code>, the topic will be <code>factory/equipment/cnc</code>.</p><img width="450" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/107.png" class="medium-zoom-image"></li></ol></ol>
+<ol start="5">
+<li>Click <strong>Deploy</strong> at the upper-right corner, trigger the flow and the data will be sent to corresponding model under <strong>Namespace</strong>.</li>
+</ol>
+<div class="pdf-content-heading pdf-h3">Configuring Data Source through Generated Flow<a href="#configuring-data-source-through-generated-flow" class="hash-link" aria-label="Direct link to Configuring Data Source through Generated Flow" title="Direct link to Configuring Data Source through Generated Flow">​</a></div>
+<div class="pdf-admonition pdf-admonition-info">
+      <div class="pdf-admonition-title">
+        <span class="pdf-admonition-icon">ⓘ</span>
+        <span>note</span>
+      </div>
+      <div class="pdf-admonition-content">
+        <p>Data flow will only be automatically generated when you select <strong>Mock Data</strong> while creating topics.</p>
+      </div>
+    </div>
+<ol>
+<li>Log in to Tier0, landed on the <strong>Namespace</strong> page, and under the <strong>Topic</strong> tab, select a file.</li>
+<li>Scroll down to <strong>Topology Map</strong>, click the icon on <strong>Source Flow</strong> to redirect to the generated data flow under <strong>Source Flow</strong>.</li>
+</ol>
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/49.png" class="medium-zoom-image">
+<ol start="3">
+<li>Change the data source of the generated flow.</li>
+</ol>
+<div class="pdf-admonition pdf-admonition-info">
+      <div class="pdf-admonition-title">
+        <span class="pdf-admonition-icon">ⓘ</span>
+        <span>info</span>
+      </div>
+      <div class="pdf-admonition-content">
+        <p>Make sure the returned data of the source node is <strong>JSON object</strong>. Currently, Tier0 can only parse this data type.</p>
+      </div>
+    </div>
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/50.png" class="medium-zoom-image">
+<ol start="4">
+<li>Delete the <code>mock data</code> function node and connect the source node to the rest of the flow.</li>
+</ol>
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/51.png" class="medium-zoom-image">
+<ol start="5">
+<li>Click <strong>Deploy</strong> at the upper-right corner, and then trigger the flow.</li>
+<li>Go back to <strong>Namespace</strong>, check whether the data is received.</li>
+</ol>
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/52.png" class="medium-zoom-image"></div>
+      </div>
+    </section>
+  
+
+      <h2 class="pdf-sidebar-category pdf-level-2">
+        Common Data Sources
+      </h2>
+    
+
+    <section class="pdf-doc">
+      <h3 class="pdf-doc-title pdf-bookmark-only pdf-level-3">
+        Connecting OPC UA
+      </h3>
+      <div class="doc-content">
+        <div class="theme-doc-markdown markdown"><header><div class="pdf-content-heading pdf-h1">Connecting OPC UA</div></header><div class="pdf-content-heading pdf-h2">Read Data from OPC UA Server<a href="#read-data-from-opc-ua-server" class="hash-link" aria-label="Direct link to Read Data from OPC UA Server" title="Direct link to Read Data from OPC UA Server">​</a></div>
+<ol>
+<li>In <strong>Source Flow</strong>, drag an <strong>inject</strong> node.</li>
+<li>Double-click the node, and then enter the <strong>NodeId</strong> from your OPC UA server.</li>
+</ol>
+<img width="300" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/83.png" class="medium-zoom-image">
+<ol start="3">
+<li>Drag an <strong>OpcUa-Client</strong> node, and then double-click it.</li>
+<li>Click <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/84.png" class="medium-zoom-image pdf-inline-icon" style="display: inline-block; vertical-align: middle; margin: 0px 4px;"> next to <strong>Endpoint</strong> to enter the information of your OPC UA server.</li>
+</ol>
+<img width="300" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/85.png" class="medium-zoom-image">
+<ol start="5">
+<li>Click <strong>Add</strong>, and set <strong>Action</strong> to <strong>READ</strong>.</li>
+<li>Leave everything else as default, and then click <strong>Done</strong>.</li>
+</ol>
+<img width="300" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/86.png" class="medium-zoom-image">
+<ol start="7">
+<li>Connect the <strong>inject</strong> node to the <strong>OpcUa-Client</strong> node, and then connect a debug node at the end.</li>
+<li>Click <strong>Deploy</strong> at the upper-right corner, and then click <strong>inject</strong> node to trigger the flow.</li>
+</ol>
+<img width="600" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/87.png" class="medium-zoom-image">
+<div class="pdf-content-heading pdf-h2">Subscribing Data from OPC UA Server<a href="#subscribing-data-from-opc-ua-server" class="hash-link" aria-label="Direct link to Subscribing Data from OPC UA Server" title="Direct link to Subscribing Data from OPC UA Server">​</a></div>
+<ol>
+<li>In <strong>Source Flow</strong>, drag an <strong>inject</strong> node.</li>
+<li>Double-click the node, and then enter the <strong>NodeId</strong> from your OPC UA server.</li>
+</ol>
+<ul>
+<li>msg.payload:</li>
+</ul>
+<div class="language-json codeBlockContainer_Ckt0 theme-code-block" style="--prism-color: #393A34; --prism-background-color: #f6f8fa;"><div class="codeBlockContent_biex"><pre tabindex="0" class="prism-code language-json codeBlock_bY9V thin-scrollbar" style="color: rgb(57, 58, 52); background-color: rgb(246, 248, 250);"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token punctuation" style="color: rgb(57, 58, 52);">[</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">    </span><span class="token punctuation" style="color: rgb(57, 58, 52);">{</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">        </span><span class="token property" style="color: rgb(54, 172, 170);">"nodeId"</span><span class="token operator" style="color: rgb(57, 58, 52);">:</span><span class="token plain"> </span><span class="token string" style="color: rgb(227, 17, 108);">"ns=2;i=1001"</span><span class="token punctuation" style="color: rgb(57, 58, 52);">,</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">        </span><span class="token property" style="color: rgb(54, 172, 170);">"datatype"</span><span class="token operator" style="color: rgb(57, 58, 52);">:</span><span class="token plain"> </span><span class="token string" style="color: rgb(227, 17, 108);">"Int32"</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">    </span><span class="token punctuation" style="color: rgb(57, 58, 52);">}</span><span class="token punctuation" style="color: rgb(57, 58, 52);">,</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">    </span><span class="token punctuation" style="color: rgb(57, 58, 52);">{</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">        </span><span class="token property" style="color: rgb(54, 172, 170);">"nodeId"</span><span class="token operator" style="color: rgb(57, 58, 52);">:</span><span class="token plain"> </span><span class="token string" style="color: rgb(227, 17, 108);">"ns=2;i=1002"</span><span class="token punctuation" style="color: rgb(57, 58, 52);">,</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">        </span><span class="token property" style="color: rgb(54, 172, 170);">"datatype"</span><span class="token operator" style="color: rgb(57, 58, 52);">:</span><span class="token plain"> </span><span class="token string" style="color: rgb(227, 17, 108);">"Int32"</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">    </span><span class="token punctuation" style="color: rgb(57, 58, 52);">}</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain"></span><span class="token punctuation" style="color: rgb(57, 58, 52);">]</span><br></span></code></pre></div></div>
+<ul>
+<li>msg.topic: multiple</li>
+</ul>
+<img width="300" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/83-1.png" class="medium-zoom-image">
+<ol start="3">
+<li>Drag an <strong>OpcUa-Client</strong> node, and then double-click it.</li>
+<li>Click <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/84.png" class="medium-zoom-image pdf-inline-icon" style="display: inline-block; vertical-align: middle; margin: 0px 4px;"> next to <strong>Endpoint</strong> to enter the information of your OPC UA server.</li>
+</ol>
+<img width="300" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/85.png" class="medium-zoom-image">
+<ol start="5">
+<li>Click <strong>Add</strong>, and set <strong>Action</strong> to <strong>SUBSCRIBE</strong>.</li>
+<li>Set the subscription interval, and leave everything else as default, and then click <strong>Done</strong>.</li>
+</ol>
+<img width="300" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/86-1.png" class="medium-zoom-image">
+<ol start="7">
+<li>Connect the <strong>inject</strong> node to the <strong>OpcUa-Client</strong> node, and then connect a debug node at the end.</li>
+<li>Click <strong>Deploy</strong> at the upper-right corner, and then click <strong>inject</strong> node to trigger the flow.</li>
+</ol>
+<img width="600" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/87-1.png" class="medium-zoom-image"></div>
+      </div>
+    </section>
+  
+
+    <section class="pdf-doc">
+      <h3 class="pdf-doc-title pdf-bookmark-only pdf-level-3">
+        Connecting OPC DA
+      </h3>
+      <div class="doc-content">
+        <div class="theme-doc-markdown markdown"><header><div class="pdf-content-heading pdf-h1">Connecting OPC DA</div></header><ol>
+<li>In <strong>Source Flow</strong>, drag an <strong>inject</strong> node.</li>
+<li>Drag an <strong>opcda-read</strong> node, and then double-click it.</li>
+<li>Click <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/84.png" class="pdf-inline-icon" style="display: inline-block; vertical-align: middle; margin: 0px 4px;"> next to <strong>Server</strong> to enter the information of your OPC DA server.</li>
+</ol>
+<img width="300" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/88.png">
+<table><tr><th>Parameter</th><th>Description</th></tr><tr><td>Address</td><td>OPC DA server IP address.</td></tr><tr><td>Domain</td><td>The domain name of your OPC DA server.</td></tr><tr><td>User Name/Password</td><td>The username and password you use to log in to the DA server.</td></tr><tr><td>Clsld</td><td>The application ID of the DA connetion service you use. For example, KepServer.</td></tr></table>
+<ol start="5">
+<li>Click <strong>Browse</strong> to see the connected channels.</li>
+<li>Click <strong>Add</strong>, and then under <strong>Items</strong>, add the items needed.</li>
+<li>Connect the <strong>inject</strong> node to the <strong>opcda-read</strong> node, and then connect a debug node at the end.</li>
+<li>Click <strong>Deploy</strong> at the upper-right corner, and then click <strong>inject</strong> node to trigger the flow.</li>
+</ol>
+<img width="550" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/88-1.png"></div>
+      </div>
+    </section>
+  
+
+    <section class="pdf-doc">
+      <h3 class="pdf-doc-title pdf-bookmark-only pdf-level-3">
+        Connecting Modbus
+      </h3>
+      <div class="doc-content">
+        <div class="theme-doc-markdown markdown"><header><div class="pdf-content-heading pdf-h1">Connecting Modbus</div></header><ol>
+<li>In <strong>Source Flow</strong>, drag a <strong>Modbus Read</strong> node.</li>
+<li>Double-click the node, and then click <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/84.png" class="pdf-inline-icon" style="display: inline-block; vertical-align: middle; margin: 0px 4px;"> next to <strong>Server</strong> to enter the information of your modbus server.</li>
+</ol>
+<img width="300" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/89.png">
+<ol start="3">
+<li>CLick <strong>Add</strong>, and then enter the information of the data to be connected.</li>
+</ol>
+<img width="300" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/90.png">
+<table><tr><th>Parameter</th><th>Description</th></tr><tr><td>Name</td><td>The display name of the node (for visual identification only).</td></tr><tr><td>Topic</td><td>Optional topic string passed to output messages.</td></tr><tr><td>Unit-Id</td><td>The Modbus slave ID of the target device (typically 1–247).</td></tr><tr><td>FC</td><td>Function code that specifies the Modbus action, e.g., FC 3 = Read Holding Registers.</td></tr><tr><td>Address</td><td>The starting register address to read from (usually zero-based).</td></tr><tr><td>Quantity</td><td>The number of consecutive registers to read.</td></tr><tr><td>Poll Rate</td><td>How often the node polls the Modbus device (e.g., every 10 seconds).</td></tr><tr><td>Delay to activate input</td><td>Optional delay before activating the input signal for polling.</td></tr><tr><td>Server</td><td>Reference to a configured Modbus server (IP, port, protocol, etc.).</td></tr></table>
+<ol start="4">
+<li>Click <strong>Done</strong>.</li>
+<li>Connect a debug node at the end.</li>
+<li>Click <strong>Deploy</strong> at the upper-right corner, and then click <strong>Modbus Read</strong> node to trigger the flow.</li>
+</ol>
+<img width="600" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/91.png"></div>
+      </div>
+    </section>
+  
+
+    <section class="pdf-doc">
+      <h3 class="pdf-doc-title pdf-bookmark-only pdf-level-3">
+        Connecting MQTT
+      </h3>
+      <div class="doc-content">
+        <div class="theme-doc-markdown markdown"><header><div class="pdf-content-heading pdf-h1">Connecting MQTT</div></header><ol>
+<li>In <strong>Source Flow</strong>, drag an <strong>mqtt in</strong> node.</li>
+<li>Double-click the node, and then click <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/84.png" class="pdf-inline-icon" style="display: inline-block; vertical-align: middle; margin: 0px 4px;"> next to <strong>Server</strong>.</li>
+</ol>
+<img width="300" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/92.png">
+<table><tr><th>Parameter</th><th>Description</th></tr><tr><td>Name</td><td>Optional name for the MQTT broker configuration (for internal reference).</td></tr><tr><td>Server</td><td>The hostname or IP address of the MQTT broker (e.g., <code>localhost</code> or <code>broker.hivemq.com</code>).</td></tr><tr><td>Port</td><td>The port used to connect to the MQTT broker (default is <code>1883</code> for non-TLS, <code>8883</code> for TLS).</td></tr><tr><td>Connect automatically</td><td>If enabled, Node-RED will try to connect to the broker automatically when the flow starts.</td></tr><tr><td>Use TLS</td><td>Enable this option if the broker requires a secure TLS/SSL connection.</td></tr><tr><td>Protocol</td><td>The MQTT protocol version to use for connection (e.g., MQTT v3.1.1 or v5.0).</td></tr><tr><td>Client ID</td><td>Optional client ID. If blank, a unique one will be auto-generated. Must be unique per client.</td></tr><tr><td>Keep Alive</td><td>The maximum period (in seconds) between communications with the broker. Helps detect dropped connections.</td></tr><tr><td>Use clean session</td><td>If enabled, no persistent session is maintained with the broker; otherwise, session state (like subscriptions) is retained.</td></tr><tr><td><strong>Username</strong> (Security tab)</td><td>Username for authenticating with the MQTT broker, if required.</td></tr><tr><td><strong>Password</strong> (Security tab)</td><td>Password corresponding to the username for broker authentication. Stored securely.</td></tr></table>
+<ol start="3">
+<li>Click <strong>Add</strong>, and then enter the topic to be subscribed.</li>
+<li>Click <strong>Done</strong>.</li>
+</ol>
+<img width="300" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/93.png">
+<ol start="5">
+<li>Connect a debug node at the end.</li>
+<li>Click <strong>Deploy</strong> at the upper-right corner, and then once the topic receives data, the flow will be triggered.</li>
+</ol>
+<img width="600" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/94.png"></div>
+      </div>
+    </section>
+  
+
+    <section class="pdf-doc">
+      <h3 class="pdf-doc-title pdf-bookmark-only pdf-level-3">
+        Connecting File
+      </h3>
+      <div class="doc-content">
+        <div class="theme-doc-markdown markdown"><header><div class="pdf-content-heading pdf-h1">Connecting File</div></header><div class="pdf-admonition pdf-admonition-info">
+      <div class="pdf-admonition-title">
+        <span class="pdf-admonition-icon">ⓘ</span>
+        <span>info</span>
+      </div>
+      <div class="pdf-admonition-content">
+        <p>Before processing files in <strong>Source Flow</strong>, you need to put the file in to the corresponding docker.</p><div class="language-js codeBlockContainer_Ckt0 theme-code-block" style="--prism-color: #393A34; --prism-background-color: #f6f8fa;"><div class="codeBlockContent_biex"><pre tabindex="0" class="prism-code language-js codeBlock_bY9V thin-scrollbar" style="color: rgb(57, 58, 52); background-color: rgb(246, 248, 250);"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">scp </span><span class="token constant" style="color: rgb(54, 172, 170);">C</span><span class="token operator" style="color: rgb(57, 58, 52);">:</span><span class="token plain">\</span><span class="token maybe-class-name">Users</span><span class="token plain">\you\</span><span class="token maybe-class-name">Desktop</span><span class="token plain">\myfile</span><span class="token punctuation" style="color: rgb(57, 58, 52);">.</span><span class="token property-access">txt</span><span class="token plain"> username@server </span><span class="token constant" style="color: rgb(54, 172, 170);">IP</span><span class="token operator" style="color: rgb(57, 58, 52);">:</span><span class="token operator" style="color: rgb(57, 58, 52);">/</span><span class="token plain">home</span><span class="token operator" style="color: rgb(57, 58, 52);">/</span><span class="token plain">username</span><span class="token operator" style="color: rgb(57, 58, 52);">/</span><span class="token plain">  </span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain"> </span><span class="token comment" style="color: rgb(153, 153, 136); font-style: italic;">//copy the file from local to server</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">docker cp </span><span class="token operator" style="color: rgb(57, 58, 52);">/</span><span class="token plain">root</span><span class="token operator" style="color: rgb(57, 58, 52);">/</span><span class="token plain">config</span><span class="token punctuation" style="color: rgb(57, 58, 52);">.</span><span class="token property-access">json</span><span class="token plain"> </span><span class="token operator" style="color: rgb(57, 58, 52);">&lt;</span><span class="token plain">docker name or </span><span class="token constant" style="color: rgb(54, 172, 170);">ID</span><span class="token operator" style="color: rgb(57, 58, 52);">&gt;</span><span class="token operator" style="color: rgb(57, 58, 52);">:</span><span class="token operator" style="color: rgb(57, 58, 52);">/</span><span class="token plain">app</span><span class="token operator" style="color: rgb(57, 58, 52);">/</span><span class="token plain">config</span><span class="token punctuation" style="color: rgb(57, 58, 52);">.</span><span class="token property-access">json</span><span class="token plain">  </span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain"> </span><span class="token comment" style="color: rgb(153, 153, 136); font-style: italic;">//copy the file from server to docker</span><br></span></code></pre></div></div>
+      </div>
+    </div>
+<div class="pdf-admonition pdf-admonition-tip">
+      <div class="pdf-admonition-title">
+        <span class="pdf-admonition-icon">✓</span>
+        <span>general docker commands</span>
+      </div>
+      <div class="pdf-admonition-content">
+        <table><thead><tr><th>Command</th><th>Description</th></tr></thead><tbody><tr><td><code>docker ps</code></td><td>Lists all running Docker containers.</td></tr><tr><td><code>docker ps | grep [container]</code></td><td>Filters running containers based on the specified docker information.</td></tr><tr><td><code>docker exec -it [container] /bin/sh</code></td><td>Starts a shell session inside a running container using <code>/bin/sh</code>.</td></tr><tr><td><code>mkdir [directory]</code></td><td>Creates a new directory with the specified name inside a container.</td></tr></tbody></table>
+      </div>
+    </div>
+<div class="pdf-content-heading pdf-h2">Connecting a Text File<a href="#connecting-a-text-file" class="hash-link" aria-label="Direct link to Connecting a Text File" title="Direct link to Connecting a Text File">​</a></div>
+<ol>
+<li>In <strong>Source Flow</strong>, drag an <strong>inject</strong> node.</li>
+<li>Drag a <strong>read file</strong> node, and then double-click it.</li>
+<li>Enter the file path and output configuration.</li>
+</ol>
+<img width="300" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/97.png">
+<ol start="4">
+<li>Click <strong>Done</strong>, and then connect a debug node at the end.</li>
+<li>Click <strong>Deploy</strong> at the upper-right corner, and then click <strong>inject</strong> node to trigger the flow.</li>
+</ol>
+<img width="600" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/98.png">
+<div class="pdf-content-heading pdf-h2">Connecting an Excel File<a href="#connecting-an-excel-file" class="hash-link" aria-label="Direct link to Connecting an Excel File" title="Direct link to Connecting an Excel File">​</a></div>
+<ol>
+<li>In <strong>Source Flow</strong>, drag an <strong>inject</strong> node.</li>
+<li>Drag a <strong>read file</strong> node, and then double-click it.</li>
+<li>Enter the file path and output configuration.</li>
+</ol>
+<img width="300" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/99.png">
+<ol start="4">
+<li>Click <strong>Done</strong>, and then connect a <strong>book</strong>, a <strong>sheet</strong> and a <strong>sheet to json</strong> node by order to convert table data to json.</li>
+</ol>
+<img width="400" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/100.png">
+<ol start="5">
+<li>Click <strong>Deploy</strong> at the upper-right corner, and then click <strong>inject</strong> node to trigger the flow.</li>
+</ol>
+<img width="600" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/101.png"></div>
+      </div>
+    </section>
+  
+
+    <section class="pdf-doc">
+      <h3 class="pdf-doc-title pdf-bookmark-only pdf-level-3">
+        Connecting RestAPI
+      </h3>
+      <div class="doc-content">
+        <div class="theme-doc-markdown markdown"><header><div class="pdf-content-heading pdf-h1">Connecting RestAPI</div></header><ol>
+<li>In <strong>Source Flow</strong>, drag an <strong>inject</strong> node.</li>
+<li>Drag an <strong>http request</strong> node, and then double-click it.</li>
+<li>Enter the API information.</li>
+</ol>
+<div class="pdf-admonition pdf-admonition-tip">
+      <div class="pdf-admonition-title">
+        <span class="pdf-admonition-icon">✓</span>
+        <span>tip</span>
+      </div>
+      <div class="pdf-admonition-content">
+        <p>Set the <strong>Return</strong> to <strong>a parsed JSON obbject</strong> for Tier0 namespace to parse.</p>
+      </div>
+    </div>
+<img width="300" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/95.png" class="medium-zoom-image">
+<ol start="5">
+<li>Click <strong>Done</strong>, and then connect a debug node at the end.</li>
+<li>Click <strong>Deploy</strong> at the upper-right corner, and then click <strong>inject</strong> node to trigger the flow.</li>
+</ol>
+<img width="600" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/96.png" class="medium-zoom-image"></div>
+      </div>
+    </section>
+  
+
+    <section class="pdf-doc">
+      <h2 class="pdf-doc-title pdf-bookmark-only pdf-level-2">
+        Process Data
+      </h2>
+      <div class="doc-content">
+        <div class="theme-doc-markdown markdown"><header><div class="pdf-content-heading pdf-h1">Process Data</div></header><ol>
+<li>Log in to Tier0, and then select <strong>UNS</strong> &gt; <strong>Event Flow</strong>.</li>
+</ol>
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/109.png">
+<table><thead><tr><th>Index</th><th>Item</th><th>Description</th></tr></thead><tbody><tr><td rowspan="2">1</td><td>Search</td><td>Search for existing data flows.</td></tr><tr><td>New Event Flow</td><td>Add a data flow.</td></tr><tr><td rowspan="1">2</td><td>Flow List</td><td>Displays flows information. Click the flow name to start editing the data flow.</td></tr><tr><td>3</td><td>Display</td><td>Switch flow display between blocks and list.</td></tr><tr><td>4</td><td>Flow Operations</td><td>Copy / Edit / Delete the data flow.</td></tr></tbody></table>
+<ol start="2">
+<li>Click <strong>New Event Flow</strong>, enter a name and click <strong>Save</strong>.</li>
+<li>Click the flow you just added, and build data flows to analyze your data.</li>
+</ol></div>
+      </div>
+    </section>
+  
+
+      <h2 class="pdf-sidebar-category pdf-level-2">
+        Common Data Processing Methods
+      </h2>
+    
+
+    <section class="pdf-doc">
+      <h3 class="pdf-doc-title pdf-bookmark-only pdf-level-3">
+        Combining Multiple Sources
+      </h3>
+      <div class="doc-content">
+        <div class="theme-doc-markdown markdown"><header><div class="pdf-content-heading pdf-h1">Combining Multiple Sources</div></header><div class="pdf-content-heading pdf-h2">Example<a href="#example" class="hash-link" aria-label="Direct link to Example" title="Direct link to Example">​</a></div>
+<p>There are 3 data sources connected to Tier0, and we need to combine them together for the next step.</p>
+<div class="language-json codeBlockContainer_Ckt0 theme-code-block" style="--prism-color: #393A34; --prism-background-color: #f6f8fa;"><div class="codeBlockContent_biex"><pre tabindex="0" class="prism-code language-json codeBlock_bY9V thin-scrollbar" style="color: rgb(57, 58, 52); background-color: rgb(246, 248, 250);"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token punctuation" style="color: rgb(57, 58, 52);">{</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">  </span><span class="token property" style="color: rgb(54, 172, 170);">"workshop"</span><span class="token operator" style="color: rgb(57, 58, 52);">:</span><span class="token plain"> </span><span class="token punctuation" style="color: rgb(57, 58, 52);">{</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">    </span><span class="token property" style="color: rgb(54, 172, 170);">"furnace1"</span><span class="token operator" style="color: rgb(57, 58, 52);">:</span><span class="token plain"> </span><span class="token punctuation" style="color: rgb(57, 58, 52);">{</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">      </span><span class="token property" style="color: rgb(54, 172, 170);">"temp"</span><span class="token operator" style="color: rgb(57, 58, 52);">:</span><span class="token plain"> </span><span class="token number" style="color: rgb(54, 172, 170);">85</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">    </span><span class="token punctuation" style="color: rgb(57, 58, 52);">}</span><span class="token punctuation" style="color: rgb(57, 58, 52);">,</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">    </span><span class="token property" style="color: rgb(54, 172, 170);">"furnace2"</span><span class="token operator" style="color: rgb(57, 58, 52);">:</span><span class="token plain"> </span><span class="token punctuation" style="color: rgb(57, 58, 52);">{</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">      </span><span class="token property" style="color: rgb(54, 172, 170);">"humidity"</span><span class="token operator" style="color: rgb(57, 58, 52);">:</span><span class="token plain"> </span><span class="token number" style="color: rgb(54, 172, 170);">64</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">    </span><span class="token punctuation" style="color: rgb(57, 58, 52);">}</span><span class="token punctuation" style="color: rgb(57, 58, 52);">,</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">    </span><span class="token property" style="color: rgb(54, 172, 170);">"furnace3"</span><span class="token operator" style="color: rgb(57, 58, 52);">:</span><span class="token plain"> </span><span class="token punctuation" style="color: rgb(57, 58, 52);">{</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">      </span><span class="token property" style="color: rgb(54, 172, 170);">"pressure"</span><span class="token operator" style="color: rgb(57, 58, 52);">:</span><span class="token plain"> </span><span class="token number" style="color: rgb(54, 172, 170);">80</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">    </span><span class="token punctuation" style="color: rgb(57, 58, 52);">}</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">  </span><span class="token punctuation" style="color: rgb(57, 58, 52);">}</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain"></span><span class="token punctuation" style="color: rgb(57, 58, 52);">}</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain" style="display: inline-block;"></span><br></span></code></pre></div></div>
+<div class="pdf-content-heading pdf-h2">What Node to be Used?<a href="#what-node-to-be-used" class="hash-link" aria-label="Direct link to What Node to be Used?" title="Direct link to What Node to be Used?">​</a></div>
+<p>In this example, we use <strong>join</strong> node to combine previous messages.</p>
+<img width="450" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/129.png" class="medium-zoom-image">
+<table><thead><tr><th>Parameter</th><th>Description</th></tr></thead><tbody><tr><td>Mode</td><td><p>Join mode. <br>
+• <b>manual</b>: You configure how to merge messages yourself.<br>
+• <b>auto</b>: Automatically reassemble sequences split by a <b>split</b> node, based on <code>msg.parts</code>.<br>
+• <b>reduce sequence</b> – Runs a JavaScript reduce function across the sequence to produce a single result.</p></td></tr><tr><td>Combine each</td><td><p>Message part you want to combine.
+Commonly <code>msg.payload</code>, but can be others (e.g. <code>msg.data.value</code>).</p></td></tr><tr><td>to create</td><td><p>Result type:<br>
+• <b>a merged Object</b>: Merge all objects into a single object (later keys overwrite same-name keys).<br>
+• <b>a key/value Object</b>: Use a <b>key property</b> (default <code>msg.topic</code>) as the key, and the <b>Combine each</b> property as the value.<br>
+• <b>an Array</b>: Append each value to an array in order.<br>
+• <b>a String / a Buffer</b>: Concatenate text or binary data (String can use a separator; Buffer is joined as binary).</p></td></tr><tr><td>Use existing <code>msg.parts</code> property</td><td><p>When selected, the node uses the <code>msg.parts</code> from previous nodes
+(usually created by a <b>split</b> node) to determine grouping and when to send the joined output.
+Fields like <code>msg.parts.count</code> and <code>msg.parts.index</code> are used.</p></td></tr><tr><td>Send the message → After a number of message parts</td><td><p>Outputs the joined result after receiving the set number of fields.</p></td></tr><tr><td>Send the message → and every subsequent message</td><td><p>When selected, after the initial output, the node outputs an updated result upon new messages arrival.</p></td></tr><tr><td>Send the message → After a timeout following the first message</td><td><p>Optional. Starts a timer when the first message arrives; once the timeout
+(seconds) is reached, the node outputs whatever has been collected.</p></td></tr><tr><td>Send the message → After a message with the <code>msg.complete</code> property set</td><td><p>Outputs the joined result immediately when a message arrives with
+<code>msg.complete = true</code>.</p></td></tr><tr><td>(Advanced) String/Buffer separator</td><td><p>For <b>String</b> output, an optional separator can be set.
+For <b>Buffer</b> output, data is concatenated directly with no separator.</p></td></tr></tbody></table>
+<div class="pdf-content-heading pdf-h2">How to Combine Sources?<a href="#how-to-combine-sources" class="hash-link" aria-label="Direct link to How to Combine Sources?" title="Direct link to How to Combine Sources?">​</a></div>
+<ol>
+<li>In <strong>Event Flow</strong>, drag in 3 <strong>mqtt in</strong> nodes, and subscribe to corresponding topics relatively.</li>
+</ol>
+<img width="550" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/127.png" class="medium-zoom-image">
+<ol start="2">
+<li>Connect a <strong>join</strong> node to all 3 nodes, and merge them into an object.</li>
+</ol>
+<img width="550" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/128.png" class="medium-zoom-image">
+<ol start="3">
+<li>Connect a <strong>debug</strong> node, and trigger the flow to check the results.</li>
+</ol>
+<img width="550" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/130.png" class="medium-zoom-image"></div>
+      </div>
+    </section>
+  
+
+    <section class="pdf-doc">
+      <h3 class="pdf-doc-title pdf-bookmark-only pdf-level-3">
+        Filtering Data
+      </h3>
+      <div class="doc-content">
+        <div class="theme-doc-markdown markdown"><header><div class="pdf-content-heading pdf-h1">Filtering Data</div></header><div class="pdf-content-heading pdf-h2">Example<a href="#example" class="hash-link" aria-label="Direct link to Example" title="Direct link to Example">​</a></div>
+<p>The <strong>furnace</strong> data source contains 3 fields, and we want to route messages based on the temperature threshold:</p>
+<ul>
+<li>If <strong>temp &gt; 85</strong> → go to <strong>Output 1</strong></li>
+<li>If <strong>temp ≤ 85</strong> → go to <strong>Output 2</strong></li>
+</ul>
+<div class="language-json codeBlockContainer_Ckt0 theme-code-block" style="--prism-color: #393A34; --prism-background-color: #f6f8fa;"><div class="codeBlockContent_biex"><pre tabindex="0" class="prism-code language-json codeBlock_bY9V thin-scrollbar" style="color: rgb(57, 58, 52); background-color: rgb(246, 248, 250);"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token punctuation" style="color: rgb(57, 58, 52);">{</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">  </span><span class="token property" style="color: rgb(54, 172, 170);">"furnace"</span><span class="token operator" style="color: rgb(57, 58, 52);">:</span><span class="token plain"> </span><span class="token punctuation" style="color: rgb(57, 58, 52);">{</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">    </span><span class="token property" style="color: rgb(54, 172, 170);">"temp"</span><span class="token operator" style="color: rgb(57, 58, 52);">:</span><span class="token plain"> </span><span class="token number" style="color: rgb(54, 172, 170);">86</span><span class="token punctuation" style="color: rgb(57, 58, 52);">,</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">    </span><span class="token property" style="color: rgb(54, 172, 170);">"humidity"</span><span class="token operator" style="color: rgb(57, 58, 52);">:</span><span class="token plain"> </span><span class="token number" style="color: rgb(54, 172, 170);">64</span><span class="token punctuation" style="color: rgb(57, 58, 52);">,</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">    </span><span class="token property" style="color: rgb(54, 172, 170);">"pressure"</span><span class="token operator" style="color: rgb(57, 58, 52);">:</span><span class="token plain"> </span><span class="token number" style="color: rgb(54, 172, 170);">80</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">  </span><span class="token punctuation" style="color: rgb(57, 58, 52);">}</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain"></span><span class="token punctuation" style="color: rgb(57, 58, 52);">}</span><br></span></code></pre></div></div>
+<div class="pdf-content-heading pdf-h2">What Node to be Used?<a href="#what-node-to-be-used" class="hash-link" aria-label="Direct link to What Node to be Used?" title="Direct link to What Node to be Used?">​</a></div>
+<p>In this example, we use the <strong>switch</strong> node to route messages according to conditions.</p>
+<img width="300" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/133.png">
+<table><thead><tr><th>Parameter</th><th>Description</th></tr></thead><tbody><tr><td>Property</td><td><p>The property path to evaluate. Commonly <code>msg.payload</code> or a deeper property,
+such as <code>msg.payload.temp</code> in this example.</p></td></tr><tr><td>Rules</td><td><p>A set of evaluation rules, each corresponding to one output port.</p></td></tr><tr><td>Type</td><td><p>The data type for comparison: number, string, boolean, JSONata, etc.</p><div class="pdf-admonition pdf-admonition-info">
+      <div class="pdf-admonition-title">
+        <span class="pdf-admonition-icon">ⓘ</span>
+        <span>info</span>
+      </div>
+      <div class="pdf-admonition-content">
+        <p>Ensures numeric comparisons are not treated as string comparisons.</p>
+      </div>
+    </div></td></tr><tr><td>Value</td><td><p>The value to compare against can come from: a constant value (e.g. 85),
+<code>msg.</code> fields (e.g. <code>msg.threshold</code>),
+<code>flow.</code> / <code>global.</code> context,
+or a <code>JSONata</code> expression.</p></td></tr><tr><td>checking all rules</td><td><p>Evaluates all rules in order. If a message matches multiple rules, it will be sent to multiple outputs.</p></td></tr><tr><td>Stop after first match</td><td><p>Stops checking once the first rule matches, so the message is sent to only one output.</p></td></tr><tr><td>recreate message sequences</td><td><p>When enabled, preserves and rebuilds message sequence metadata (msg.parts)—usually created by a split node—so that the sequence is maintained even after branching.</p></td></tr></tbody></table>
+<div class="pdf-content-heading pdf-h2">How to Filter Data?<a href="#how-to-filter-data" class="hash-link" aria-label="Direct link to How to Filter Data?" title="Direct link to How to Filter Data?">​</a></div>
+<ol>
+<li>In <strong>Event Flow</strong>, add an <strong>mqtt in</strong> node to get the data from Tier0.</li>
+<li>Drag in a <strong>switch</strong> node and configure its properties.</li>
+</ol>
+<img width="550" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/134.png">
+<ol start="3">
+<li>Connect a <strong>debug</strong> node to each output of the <strong>switch</strong> node.</li>
+<li>Trigger the flow and check the results.</li>
+</ol>
+<img width="550" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/135.png"></div>
+      </div>
+    </section>
+  
+
+    <section class="pdf-doc">
+      <h3 class="pdf-doc-title pdf-bookmark-only pdf-level-3">
+        Changing Data
+      </h3>
+      <div class="doc-content">
+        <div class="theme-doc-markdown markdown"><header><div class="pdf-content-heading pdf-h1">Changing Data</div></header><div class="pdf-content-heading pdf-h2">Example<a href="#example" class="hash-link" aria-label="Direct link to Example" title="Direct link to Example">​</a></div>
+<p>We receive a message and need to rename fields, calculate new values, and remove unused fields for cleaner downstream processing.</p>
+<div class="pdf-content-heading pdf-h3">Input message<a href="#input-message" class="hash-link" aria-label="Direct link to Input message" title="Direct link to Input message">​</a></div>
+<div class="language-json codeBlockContainer_Ckt0 theme-code-block" style="--prism-color: #393A34; --prism-background-color: #f6f8fa;"><div class="codeBlockContent_biex"><pre tabindex="0" class="prism-code language-json codeBlock_bY9V thin-scrollbar" style="color: rgb(57, 58, 52); background-color: rgb(246, 248, 250);"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token punctuation" style="color: rgb(57, 58, 52);">{</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">  </span><span class="token property" style="color: rgb(54, 172, 170);">"furnace"</span><span class="token operator" style="color: rgb(57, 58, 52);">:</span><span class="token plain"> </span><span class="token punctuation" style="color: rgb(57, 58, 52);">{</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">    </span><span class="token property" style="color: rgb(54, 172, 170);">"temp_c"</span><span class="token operator" style="color: rgb(57, 58, 52);">:</span><span class="token plain"> </span><span class="token number" style="color: rgb(54, 172, 170);">30.5</span><span class="token punctuation" style="color: rgb(57, 58, 52);">,</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">    </span><span class="token property" style="color: rgb(54, 172, 170);">"humidity"</span><span class="token operator" style="color: rgb(57, 58, 52);">:</span><span class="token plain"> </span><span class="token number" style="color: rgb(54, 172, 170);">64</span><span class="token punctuation" style="color: rgb(57, 58, 52);">,</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">    </span><span class="token property" style="color: rgb(54, 172, 170);">"pressure"</span><span class="token operator" style="color: rgb(57, 58, 52);">:</span><span class="token plain"> </span><span class="token number" style="color: rgb(54, 172, 170);">80</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">  </span><span class="token punctuation" style="color: rgb(57, 58, 52);">}</span><span class="token punctuation" style="color: rgb(57, 58, 52);">,</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">  </span><span class="token property" style="color: rgb(54, 172, 170);">"site"</span><span class="token operator" style="color: rgb(57, 58, 52);">:</span><span class="token plain"> </span><span class="token string" style="color: rgb(227, 17, 108);">"A1"</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain"></span><span class="token punctuation" style="color: rgb(57, 58, 52);">}</span><br></span></code></pre></div></div>
+<div class="pdf-content-heading pdf-h3">Target transformation<a href="#target-transformation" class="hash-link" aria-label="Direct link to Target transformation" title="Direct link to Target transformation">​</a></div>
+<ul>
+<li>Move furnace.temp_c to furnace.temperature.celsius</li>
+<li>Add furnace.temperature.fahrenheit (converted from Celsius)</li>
+<li>Remove pressure</li>
+<li>Change the site from A1 to B1</li>
+</ul>
+<div class="pdf-content-heading pdf-h3">Output message (example)<a href="#output-message-example" class="hash-link" aria-label="Direct link to Output message (example)" title="Direct link to Output message (example)">​</a></div>
+<div class="language-json codeBlockContainer_Ckt0 theme-code-block" style="--prism-color: #393A34; --prism-background-color: #f6f8fa;"><div class="codeBlockContent_biex"><pre tabindex="0" class="prism-code language-json codeBlock_bY9V thin-scrollbar" style="color: rgb(57, 58, 52); background-color: rgb(246, 248, 250);"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token punctuation" style="color: rgb(57, 58, 52);">{</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">    </span><span class="token property" style="color: rgb(54, 172, 170);">"furnace"</span><span class="token operator" style="color: rgb(57, 58, 52);">:</span><span class="token punctuation" style="color: rgb(57, 58, 52);">{</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">        </span><span class="token property" style="color: rgb(54, 172, 170);">"humidity"</span><span class="token operator" style="color: rgb(57, 58, 52);">:</span><span class="token number" style="color: rgb(54, 172, 170);">64</span><span class="token punctuation" style="color: rgb(57, 58, 52);">,</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">        </span><span class="token property" style="color: rgb(54, 172, 170);">"temperature"</span><span class="token operator" style="color: rgb(57, 58, 52);">:</span><span class="token punctuation" style="color: rgb(57, 58, 52);">{</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">            </span><span class="token property" style="color: rgb(54, 172, 170);">"celcius"</span><span class="token operator" style="color: rgb(57, 58, 52);">:</span><span class="token number" style="color: rgb(54, 172, 170);">30.5</span><span class="token punctuation" style="color: rgb(57, 58, 52);">,</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">            </span><span class="token property" style="color: rgb(54, 172, 170);">"fahrenheit"</span><span class="token operator" style="color: rgb(57, 58, 52);">:</span><span class="token number" style="color: rgb(54, 172, 170);">86.9</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">            </span><span class="token punctuation" style="color: rgb(57, 58, 52);">}</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">        </span><span class="token punctuation" style="color: rgb(57, 58, 52);">}</span><span class="token punctuation" style="color: rgb(57, 58, 52);">,</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">    </span><span class="token property" style="color: rgb(54, 172, 170);">"site"</span><span class="token operator" style="color: rgb(57, 58, 52);">:</span><span class="token string" style="color: rgb(227, 17, 108);">"B1"</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain"></span><span class="token punctuation" style="color: rgb(57, 58, 52);">}</span><br></span></code></pre></div></div>
+<div class="pdf-content-heading pdf-h2">What Node to be Used?<a href="#what-node-to-be-used" class="hash-link" aria-label="Direct link to What Node to be Used?" title="Direct link to What Node to be Used?">​</a></div>
+<p>In this case, we use the <strong>change</strong> node to perform operations like <strong>Set</strong>, <strong>Change</strong>, <strong>Delete</strong> and <strong>Move</strong> on message properties.</p>
+<img width="300" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/137.png">
+<table><thead><tr><th>Parameter</th><th>Description</th></tr></thead><tbody><tr><td>Rules</td><td><p>Each rule is executed in order, top to bottom.<br>
+<!-- -->Multiple rules can be added to perform complex transformations.</p></td></tr><tr><td>Rule Type</td><td><p>• <b>Set</b>: Set or create a property value.<br>
+• <b>Change</b>: Find and replace.<br>
+• <b>Delete</b>: Remove a property.<br>
+• <b>Move</b>: Move a property from one path to another.</p></td></tr><tr><td>Property/Source/Target</td><td><p>Defines which property to operate on, such as <code>msg.payload</code> or <code>msg.payload.furnace.temp_c</code>.<br>
+Can also reference <code>flow.</code> or <code>global.</code> context variables.</p></td></tr><tr><td>Target Value</td><td><p>• <b>Set</b>: The value to assign.
+• <b>Change</b>: The value to find and replace.</p></td></tr></tbody></table>
+<div class="pdf-content-heading pdf-h2">How to Use the Change Node?<a href="#how-to-use-the-change-node" class="hash-link" aria-label="Direct link to How to Use the Change Node?" title="Direct link to How to Use the Change Node?">​</a></div>
+<ol>
+<li>In <strong>Event Flow</strong>, drag in an <strong>inject</strong> node, and add the following json as the input.</li>
+</ol>
+<div class="language-json codeBlockContainer_Ckt0 theme-code-block" style="--prism-color: #393A34; --prism-background-color: #f6f8fa;"><div class="codeBlockContent_biex"><pre tabindex="0" class="prism-code language-json codeBlock_bY9V thin-scrollbar" style="color: rgb(57, 58, 52); background-color: rgb(246, 248, 250);"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token punctuation" style="color: rgb(57, 58, 52);">{</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">  </span><span class="token property" style="color: rgb(54, 172, 170);">"furnace"</span><span class="token operator" style="color: rgb(57, 58, 52);">:</span><span class="token plain"> </span><span class="token punctuation" style="color: rgb(57, 58, 52);">{</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">    </span><span class="token property" style="color: rgb(54, 172, 170);">"temp_c"</span><span class="token operator" style="color: rgb(57, 58, 52);">:</span><span class="token plain"> </span><span class="token number" style="color: rgb(54, 172, 170);">30.5</span><span class="token punctuation" style="color: rgb(57, 58, 52);">,</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">    </span><span class="token property" style="color: rgb(54, 172, 170);">"humidity"</span><span class="token operator" style="color: rgb(57, 58, 52);">:</span><span class="token plain"> </span><span class="token number" style="color: rgb(54, 172, 170);">64</span><span class="token punctuation" style="color: rgb(57, 58, 52);">,</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">    </span><span class="token property" style="color: rgb(54, 172, 170);">"pressure"</span><span class="token operator" style="color: rgb(57, 58, 52);">:</span><span class="token plain"> </span><span class="token number" style="color: rgb(54, 172, 170);">80</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">  </span><span class="token punctuation" style="color: rgb(57, 58, 52);">}</span><span class="token punctuation" style="color: rgb(57, 58, 52);">,</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">  </span><span class="token property" style="color: rgb(54, 172, 170);">"site"</span><span class="token operator" style="color: rgb(57, 58, 52);">:</span><span class="token plain"> </span><span class="token string" style="color: rgb(227, 17, 108);">"A1"</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain"></span><span class="token punctuation" style="color: rgb(57, 58, 52);">}</span><br></span></code></pre></div></div>
+<img width="300" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/140.png">
+<ol start="2">
+<li>Connect it to a <strong>change</strong> node.</li>
+<li>Open the <strong>change</strong> node configuration panel and add rules.</li>
+</ol>
+<ul>
+<li>Move msg.payload.furnace.temp_c → msg.payload.furnace.temperature.celcius</li>
+<li>Set msg.payload.furnace.temperature.fahrenheit → payload.furnace.temperature.celcius * 9/5 + 32</li>
+<li>Delete msg.payload.pressure</li>
+<li>Change value of msg.payload.site from A1 → B1</li>
+</ul>
+<img width="550" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/138.png">
+<ol start="4">
+<li>Connect the <strong>change</strong> node to a <strong>debug</strong> node to check the transformed output.</li>
+</ol>
+<img width="550" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/139.png"></div>
+      </div>
+    </section>
+  
+
+    <section class="pdf-doc">
+      <h3 class="pdf-doc-title pdf-bookmark-only pdf-level-3">
+        Spliting Data
+      </h3>
+      <div class="doc-content">
+        <div class="theme-doc-markdown markdown"><header><div class="pdf-content-heading pdf-h1">Spliting Data</div></header><div class="pdf-content-heading pdf-h2">Example<a href="#example" class="hash-link" aria-label="Direct link to Example" title="Direct link to Example">​</a></div>
+<p>We have a single message containing multiple furnace readings, and we need to split them into individual messages for further processing.</p>
+<div class="language-json codeBlockContainer_Ckt0 theme-code-block" style="--prism-color: #393A34; --prism-background-color: #f6f8fa;"><div class="codeBlockContent_biex"><pre tabindex="0" class="prism-code language-json codeBlock_bY9V thin-scrollbar" style="color: rgb(57, 58, 52); background-color: rgb(246, 248, 250);"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token punctuation" style="color: rgb(57, 58, 52);">{</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">  </span><span class="token property" style="color: rgb(54, 172, 170);">"furnace"</span><span class="token operator" style="color: rgb(57, 58, 52);">:</span><span class="token plain"> </span><span class="token punctuation" style="color: rgb(57, 58, 52);">{</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">    </span><span class="token property" style="color: rgb(54, 172, 170);">"temp"</span><span class="token operator" style="color: rgb(57, 58, 52);">:</span><span class="token plain"> </span><span class="token number" style="color: rgb(54, 172, 170);">86</span><span class="token punctuation" style="color: rgb(57, 58, 52);">,</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">    </span><span class="token property" style="color: rgb(54, 172, 170);">"humidity"</span><span class="token operator" style="color: rgb(57, 58, 52);">:</span><span class="token plain"> </span><span class="token number" style="color: rgb(54, 172, 170);">64</span><span class="token punctuation" style="color: rgb(57, 58, 52);">,</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">    </span><span class="token property" style="color: rgb(54, 172, 170);">"pressure"</span><span class="token operator" style="color: rgb(57, 58, 52);">:</span><span class="token plain"> </span><span class="token number" style="color: rgb(54, 172, 170);">80</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">  </span><span class="token punctuation" style="color: rgb(57, 58, 52);">}</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain"></span><span class="token punctuation" style="color: rgb(57, 58, 52);">}</span><br></span></code></pre></div></div>
+<div class="pdf-content-heading pdf-h2">What Node to be Used?<a href="#what-node-to-be-used" class="hash-link" aria-label="Direct link to What Node to be Used?" title="Direct link to What Node to be Used?">​</a></div>
+<p>In this example, we use the <strong>split</strong> node to break one message into multiple smaller messages.</p>
+<img width="450" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/136.png" class="medium-zoom-image">
+<table><thead><tr><th>Parameter</th><th>Description</th></tr></thead><tbody><tr><td>Name</td><td> Optional label for the node to help identify it in the flow. </td></tr><tr><td>Split the</td><td> The property of the message to split, usually <code>msg.payload</code>, but can be any property such as <code>msg.payload.data</code>. </td></tr><tr><td>String / Buffer - Split using</td><td> For string or buffer payloads, specifies how to split:<br>
+• <b>string</b>: Use a specific string or regular expression pattern to split the message.<br>
+• <b>buffer</b>: Defines chunk size by which the message is split. <br>
+• <b>Fixed length of</b>: Split the string according to the set length. <br>
+• Leave empty to return the tring unsplit.</td></tr><tr><td>Handle as a stream of messages</td><td> When checked, the node will process incoming data as a continuous stream, emitting split messages as data arrives, rather than waiting for the full payload. </td></tr><tr><td>Array - Split using</td><td> <b>Fixed length of N</b>: Splits the array into multiple messages with N elements each. </td></tr><tr><td>Object - Send a message for each key/value pair</td><td>The value of each key/value pair will be returned as payload.</td></tr><tr><td>Copy key to <code>msg.payload</code></td><td> If checked, the original key will be returned as <code>msg.payload</code> of the split messages. </td></tr></tbody></table>
+<div class="pdf-content-heading pdf-h2">How to Split Messages?<a href="#how-to-split-messages" class="hash-link" aria-label="Direct link to How to Split Messages?" title="Direct link to How to Split Messages?">​</a></div>
+<ol>
+<li>In <strong>Event Flow</strong>, drag in an <strong>inject</strong> node, and use a <strong>function</strong> node to transmit the object.</li>
+</ol>
+<img width="450" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/142.png" class="medium-zoom-image">
+<ol start="2">
+<li>Connect it to 2 <strong>split</strong> nodes in order, and configure both properties as the same on the <strong>Object</strong> part.</li>
+</ol>
+<img width="450" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/141.png" class="medium-zoom-image">
+<ol start="3">
+<li>Connect the <strong>split</strong> node to a <strong>debug</strong> node to inspect each individual output message.</li>
+</ol>
+<img width="650" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/143.png" class="medium-zoom-image"></div>
+      </div>
+    </section>
+  
+
+    <section class="pdf-doc">
+      <h2 class="pdf-doc-title pdf-bookmark-only pdf-level-2">
+        Visualize Data
+      </h2>
+      <div class="doc-content">
+        <div class="theme-doc-markdown markdown"><header><div class="pdf-content-heading pdf-h1">Visualize Data</div></header><div class="pdf-content-heading pdf-h2">How to Build a Dashboard on Event Flow<a href="#how-to-build-a-dashboard-on-event-flow" class="hash-link" aria-label="Direct link to How to Build a Dashboard on Event Flow" title="Direct link to How to Build a Dashboard on Event Flow">​</a></div>
+<p>Data collected to, processed on Tier0, can be visualized in charts, tables, texts in custom styles and other formats on Tier0 as well.</p>
+<ol>
+<li>Log in to Tier0, and select <strong>UNS</strong> &gt; <strong>Event Flow</strong>.</li>
+<li>Click <strong>New Event Flow</strong> to add a flow.</li>
+<li>Click the flow name to start editing.</li>
+<li>Click <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/111.png" class="pdf-inline-icon" style="display: inline-block; vertical-align: middle; margin: 0px 4px;"> at the upper-right corner, and then click <strong>Node Management</strong>.</li>
+</ol>
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/110.png">
+<ol start="5">
+<li>Under <strong>Install</strong>, search for and install <code>@flowfuse/node-red-dashboard</code>.</li>
+</ol>
+<img width="450" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/112.png">
+<ol start="6">
+<li>Use nodes under flowfuse to build a dashboard.</li>
+</ol>
+<div class="pdf-admonition pdf-admonition-tip">
+      <div class="pdf-admonition-title">
+        <span class="pdf-admonition-icon">✓</span>
+        <span>tip</span>
+      </div>
+      <div class="pdf-admonition-content">
+        <p>Click <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/113-1.png" class="pdf-inline-icon" style="display: inline-block; vertical-align: middle; margin: 0px 4px;"> at the upper-right corner, and then click <strong>Dashboard2.0</strong> to adjust the layout.</p><img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/113.png">
+      </div>
+    </div>
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/114.png">
+<table><thead><tr><th>Index</th><th>Item</th><th>Description</th></tr></thead><tbody><tr><td>1</td><td>Node</td><td>Node of Dashboard 2.0, including gauge, form, progress bar and more.</td></tr><tr><td>2</td><td>Canvas</td><td>Where you drag in nodes to build a dashboard.</td></tr><tr><td>3</td><td>Operations</td><td>Edit the <code>ui-base</code> node and view the dashboard.</td></tr><tr><td>4</td><td>Layout</td><td>Displays all nodes in the corresponding hierarchical layout.</td></tr></tbody></table>
+<div class="pdf-admonition pdf-admonition-info">
+      <div class="pdf-admonition-title">
+        <span class="pdf-admonition-icon">ⓘ</span>
+        <span>info</span>
+      </div>
+      <div class="pdf-admonition-content">
+        <p>For details on how to use each node, see <a href="https://dashboard.flowfuse.com/nodes/config/ui-base">Flowfuse Node Docs</a>.</p>
+      </div>
+    </div></div>
+      </div>
+    </section>
+  
+
+    <section class="pdf-doc">
+      <h2 class="pdf-doc-title pdf-bookmark-only pdf-level-2">
+        Display Data on Dashboards
+      </h2>
+      <div class="doc-content">
+        <div class="theme-doc-markdown markdown"><header><div class="pdf-content-heading pdf-h1">Display Data on Dashboards</div></header><p>Data collected to, processed on Tier0, can be visualized in charts, tables, heat maps and other formats on a dashboard to provide a comprehensive insight.</p>
+<ol>
+<li>Log in to Tier0, and select <strong>UNS</strong> &gt; <strong>Dashboards</strong>.</li>
+</ol>
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/115.png" class="medium-zoom-image">
+<table><thead><tr><th>Index</th><th>Item</th><th>Description</th></tr></thead><tbody><tr><td rowspan="2">1</td><td>Search</td><td>Search for existing dashboards.</td></tr><tr><td>New Dashboard</td><td>Add a dashboard.</td></tr><tr><td rowspan="1">2</td><td>Dashboard List</td><td>Displays dashboard information. Click the name to start editing.</td></tr><tr><td>3</td><td>Display</td><td>Switch dashboard display between blocks and list.</td></tr><tr><td>4</td><td>Operations</td><td>Copy / Edit / Delete the dashboard.</td></tr></tbody></table>
+<ol start="2">
+<li>Click <strong>New Dashboard</strong> to add a dashboard.</li>
+<li>Click the dashboard name to start editing.</li>
+<li>Click <strong>Add Visualization</strong>, and then select a data source for the dashboard in the pop-up window.<!-- -->
+<ul>
+<li>The default <strong>tmsc</strong> is the internal database where the data  collected on <strong>Namespace</strong> is stored.</li>
+<li>Click <strong>Configure a new data source</strong> at the lower-right corner to configure other data sources. e.g. MQTT.</li>
+</ul>
+</li>
+</ol>
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/116.png" class="medium-zoom-image">
+<table><thead><tr><th>Index</th><th>Item</th><th>Description</th></tr></thead><tbody><tr><td rowspan="3">1</td><td>Tools</td><td>Switch between chart and table views.</td></tr><tr><td>Time Range</td><td>Select the time range where the data is displayed.</td></tr><tr><td>Refresh</td><td>Refresh the element.</td></tr><tr><td>2</td><td>Display Area</td><td>Display the current data source via the selected element.</td></tr><tr><td>3</td><td>Data Source Configuration</td><td>Change data source, and you can either select columns from the database or directly use SQL query to handle complex data.</td></tr><tr><td>4</td><td>General Operations</td><td>Go back to dashboard list/discard the changes on the current panel/save the dashboard.</td></tr><tr><td>5</td><td>Element</td><td>Select different elements for displaying the data.</td></tr><tr><td>6</td><td>Element Configuration</td><td>Configurations of the current element.</td></tr></tbody></table></div>
+      </div>
+    </section>
+  
+
+    <section class="pdf-doc">
+      <h2 class="pdf-doc-title pdf-bookmark-only pdf-level-2">
+        Obtain Data from Tier0
+      </h2>
+      <div class="doc-content">
+        <div class="theme-doc-markdown markdown"><header><div class="pdf-content-heading pdf-h1">Obtain Data from Tier0</div></header><p>Data can be collected to Tier0 through various protocols, it can also be obtained through MQTT subscription, or even directly from Tier0 database.</p>
+<div class="pdf-content-heading pdf-h2">Obtaining Data through MQTT Subscription<a href="#obtaining-data-through-mqtt-subscription" class="hash-link" aria-label="Direct link to Obtaining Data through MQTT Subscription" title="Direct link to Obtaining Data through MQTT Subscription">​</a></div>
+<div class="pdf-admonition pdf-admonition-info">
+      <div class="pdf-admonition-title">
+        <span class="pdf-admonition-icon">ⓘ</span>
+        <span>info</span>
+      </div>
+      <div class="pdf-admonition-content">
+        <p>This method is only suitable for third parties who have experience in MQTT protocol.</p>
+      </div>
+    </div>
+<ol>
+<li>Log in to Tier0, and then select <strong>UNS</strong> &gt; <strong>Event Flow</strong>.</li>
+<li>Click <strong>New Event Flow</strong>, enter a name and click <strong>Save</strong>.</li>
+<li>Click the flow you just added, drag an <code>mqtt in</code> node, and enter the configurations.<!-- -->
+<ul>
+<li>Tier0 MQTT broker address: <code>emqx:1883</code></li>
+<li>Topic: The topic to obtain data from, for example, <code>factory/workshop/order</code>.</li>
+</ul>
+</li>
+</ol>
+<img width="350" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/151.png" class="medium-zoom-image">
+<ol start="4">
+<li>Process the data obtained, or directly use an <code>mqtt out</code> node to transmit the data to the third party MQTT.</li>
+</ol>
+<img width="350" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/152.png" class="medium-zoom-image">
+<ol start="5">
+<li>Deploy the flow, and data will be pushed to the third party when the topic data changes.</li>
+</ol>
+<div class="pdf-content-heading pdf-h2">Obtaining Data through API<a href="#obtaining-data-through-api" class="hash-link" aria-label="Direct link to Obtaining Data through API" title="Direct link to Obtaining Data through API">​</a></div>
+<div class="pdf-admonition pdf-admonition-info">
+      <div class="pdf-admonition-title">
+        <span class="pdf-admonition-icon">ⓘ</span>
+        <span>info</span>
+      </div>
+      <div class="pdf-admonition-content">
+        <p>This method is suitable for third parties who do not support MQTT and need event-driven data.</p>
+      </div>
+    </div>
+<ol>
+<li>Log in to Tier0, and then select <strong>UNS</strong> &gt; <strong>Event Flow</strong>.</li>
+<li>Click <strong>New Event Flow</strong>, enter a name and click <strong>Save</strong>.</li>
+<li>Click the flow you just added, drag an <code>mqtt in</code> node, and enter the configurations.<!-- -->
+<ul>
+<li>Tier0 MQTT broker address: <code>emqx:1883</code></li>
+<li>Topic: The topic to obtain data from, for example, <code>factory/workshop/order</code>.</li>
+</ul>
+</li>
+</ol>
+<img width="350" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/151.png" class="medium-zoom-image">
+<ol start="4">
+<li>Drag a <code>function</code> node to the canvas, and write a script to format the data obtained according to third-party receiver API.</li>
+</ol>
+<div class="language-js codeBlockContainer_Ckt0 theme-code-block" style="--prism-color: #393A34; --prism-background-color: #f6f8fa;"><div class="codeBlockContent_biex"><pre tabindex="0" class="prism-code language-js codeBlock_bY9V thin-scrollbar" style="color: rgb(57, 58, 52); background-color: rgb(246, 248, 250);"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token comment" style="color: rgb(153, 153, 136); font-style: italic;">// parse payload if it's a string</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain"></span><span class="token keyword control-flow" style="color: rgb(0, 0, 159);">if</span><span class="token plain"> </span><span class="token punctuation" style="color: rgb(57, 58, 52);">(</span><span class="token keyword" style="color: rgb(0, 0, 159);">typeof</span><span class="token plain"> msg</span><span class="token punctuation" style="color: rgb(57, 58, 52);">.</span><span class="token property-access">payload</span><span class="token plain"> </span><span class="token operator" style="color: rgb(57, 58, 52);">===</span><span class="token plain"> </span><span class="token string" style="color: rgb(227, 17, 108);">"string"</span><span class="token punctuation" style="color: rgb(57, 58, 52);">)</span><span class="token plain"> </span><span class="token punctuation" style="color: rgb(57, 58, 52);">{</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">    msg</span><span class="token punctuation" style="color: rgb(57, 58, 52);">.</span><span class="token property-access">payload</span><span class="token plain"> </span><span class="token operator" style="color: rgb(57, 58, 52);">=</span><span class="token plain"> </span><span class="token known-class-name class-name">JSON</span><span class="token punctuation" style="color: rgb(57, 58, 52);">.</span><span class="token method function property-access" style="color: rgb(215, 58, 73);">parse</span><span class="token punctuation" style="color: rgb(57, 58, 52);">(</span><span class="token plain">msg</span><span class="token punctuation" style="color: rgb(57, 58, 52);">.</span><span class="token property-access">payload</span><span class="token punctuation" style="color: rgb(57, 58, 52);">)</span><span class="token punctuation" style="color: rgb(57, 58, 52);">;</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain"></span><span class="token punctuation" style="color: rgb(57, 58, 52);">}</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain" style="display: inline-block;"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain"></span><span class="token comment" style="color: rgb(153, 153, 136); font-style: italic;">// set headers</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">msg</span><span class="token punctuation" style="color: rgb(57, 58, 52);">.</span><span class="token property-access">headers</span><span class="token plain"> </span><span class="token operator" style="color: rgb(57, 58, 52);">=</span><span class="token plain"> </span><span class="token punctuation" style="color: rgb(57, 58, 52);">{</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">    </span><span class="token string-property property" style="color: rgb(54, 172, 170);">"Content-Type"</span><span class="token operator" style="color: rgb(57, 58, 52);">:</span><span class="token plain"> </span><span class="token string" style="color: rgb(227, 17, 108);">"application/json"</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain"></span><span class="token punctuation" style="color: rgb(57, 58, 52);">}</span><span class="token punctuation" style="color: rgb(57, 58, 52);">;</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain" style="display: inline-block;"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain"></span><span class="token keyword control-flow" style="color: rgb(0, 0, 159);">return</span><span class="token plain"> msg</span><span class="token punctuation" style="color: rgb(57, 58, 52);">;</span><br></span></code></pre></div></div>
+<ol start="5">
+<li>Use an <code>http request</code> node to send the data to the third party through API.</li>
+</ol>
+<img width="350" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/153.png" class="medium-zoom-image">
+<ol start="6">
+<li>Deploy the flow, and data will be pushed to the third party when the topic data changes.</li>
+</ol>
+<div class="pdf-content-heading pdf-h2">Obtaining Data Directly from Tier0 Database<a href="#obtaining-data-directly-from-tier0-database" class="hash-link" aria-label="Direct link to Obtaining Data Directly from Tier0 Database" title="Direct link to Obtaining Data Directly from Tier0 Database">​</a></div>
+<div class="pdf-admonition pdf-admonition-info">
+      <div class="pdf-admonition-title">
+        <span class="pdf-admonition-icon">ⓘ</span>
+        <span>info</span>
+      </div>
+      <div class="pdf-admonition-content">
+        <p>This method is suitable for requests on history data.</p>
+      </div>
+    </div>
+<ol>
+<li>Log in to Tier0, and then select <strong>UNS</strong> &gt; <strong>Event Flow</strong>.</li>
+<li>Click <strong>New Event Flow</strong>, enter a name and click <strong>Save</strong>.</li>
+<li>Click the flow you just added, drag an <code>inject</code> node.</li>
+<li>Drag a <code>postgres</code> node to the canvas, and connect to Tier0 PostgreSQL database.<!-- -->
+<ul>
+<li><strong>Connection</strong>
+<ul>
+<li>Host: <code>postgresql</code></li>
+<li>Port: <code>5432</code></li>
+<li>Database: <code>postgres</code></li>
+<li>SSL: <code>false</code></li>
+</ul>
+</li>
+<li><strong>Security</strong>
+<ul>
+<li>User: <code>postgres</code></li>
+<li>Password: <code>postgres</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<img width="350" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/154.png" class="medium-zoom-image">
+<img width="350" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/155.png" class="medium-zoom-image">
+<ol start="5">
+<li>Write SQL statements to query data from Tier0 database.</li>
+</ol>
+<div class="pdf-admonition pdf-admonition-info">
+      <div class="pdf-admonition-title">
+        <span class="pdf-admonition-icon">ⓘ</span>
+        <span>info</span>
+      </div>
+      <div class="pdf-admonition-content">
+        <p>Get the table name from topic <strong>Details</strong> under <strong>Namespace</strong>.</p><img width="550" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/157.png" class="medium-zoom-image">
+      </div>
+    </div>
+<div class="language-sql codeBlockContainer_Ckt0 theme-code-block" style="--prism-color: #393A34; --prism-background-color: #f6f8fa;"><div class="codeBlockContent_biex"><pre tabindex="0" class="prism-code language-sql codeBlock_bY9V thin-scrollbar" style="color: rgb(57, 58, 52); background-color: rgb(246, 248, 250);"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token keyword" style="color: rgb(0, 0, 159);">SELECT</span><span class="token plain"> </span><span class="token operator" style="color: rgb(57, 58, 52);">*</span><span class="token plain"> </span><span class="token keyword" style="color: rgb(0, 0, 159);">FROM</span><span class="token plain"> _order_0baa755c15544f81a302</span><span class="token punctuation" style="color: rgb(57, 58, 52);">;</span><br></span></code></pre></div></div>
+<img width="350" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/156.png" class="medium-zoom-image">
+<ol start="6">
+<li>Add an <code>http request</code> or <code>mqtt out</code> node to transmit the queried data to the third party.</li>
+</ol></div>
+      </div>
+    </section>
+  
+
+      <h1 class="pdf-sidebar-category pdf-level-1">
+        Advanced Guide
+      </h1>
+    
+
+    <section class="pdf-doc">
+      <h2 class="pdf-doc-title pdf-bookmark-only pdf-level-2">
+        Container Management
+      </h2>
+      <div class="doc-content">
+        <div class="theme-doc-markdown markdown"><header><div class="pdf-content-heading pdf-h1">Container Management</div></header><p>Tier0 uses Portainer to manage containers, making it easy to deploy, manage, and scale applications.</p>
+<div class="pdf-admonition pdf-admonition-info">
+      <div class="pdf-admonition-title">
+        <span class="pdf-admonition-icon">ⓘ</span>
+        <span>info</span>
+      </div>
+      <div class="pdf-admonition-content">
+        <p>In this guide, simple operations that relate to general container management are introduced. For detailed Portainer usage, see <a href="https://docs.portainer.io/" target="_blank" rel="noopener noreferrer">Portainer Documentation</a>.</p>
+      </div>
+    </div>
+<div class="pdf-content-heading pdf-h2">Accessing Container Management<a href="#accessing-container-management" class="hash-link" aria-label="Direct link to Accessing Container Management" title="Direct link to Accessing Container Management">​</a></div>
+<ol>
+<li>Log in to Tier0, and then select <strong>Dev Tools</strong> &gt; <strong>Containers</strong>.</li>
+</ol>
+<img width="350" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/183.png" class="medium-zoom-image">
+<ol start="2">
+<li>Click <strong>Login with OAuth</strong>, and then click <strong>Live connect</strong> to start managing containers.</li>
+</ol>
+<img width="650" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/184.png" class="medium-zoom-image">
+<div class="pdf-content-heading pdf-h2">General Operations on Containers<a href="#general-operations-on-containers" class="hash-link" aria-label="Direct link to General Operations on Containers" title="Direct link to General Operations on Containers">​</a></div>
+<ol>
+<li>On the dashboard, click <strong>Containers</strong>.</li>
+</ol>
+<img width="650" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/185.png" class="medium-zoom-image">
+<ol start="2">
+<li>Select a container, and then you can start, stop, restart, pause, or remove the container.</li>
+</ol>
+<img width="550" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/186.png" class="medium-zoom-image">
+<ol start="3">
+<li>(Optional) Click <strong>Console</strong> to access the container terminal for more complex operations.</li>
+</ol>
+<img width="650" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/187.png" class="medium-zoom-image">
+<div class="pdf-content-heading pdf-h2">Accessing Database on Container<a href="#accessing-database-on-container" class="hash-link" aria-label="Direct link to Accessing Database on Container" title="Direct link to Accessing Database on Container">​</a></div>
+<ol>
+<li>On the dashboard, click <strong>Containers</strong>.</li>
+<li>On page 2, select <strong>postgresql</strong>, and then click <strong>Console</strong>.</li>
+</ol>
+<img width="450" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/188.png" class="medium-zoom-image">
+<ol start="3">
+<li>Click <strong>Connect</strong>, and then use the following command to access the database.</li>
+</ol>
+<div class="language-bash codeBlockContainer_Ckt0 theme-code-block" style="--prism-color: #393A34; --prism-background-color: #f6f8fa;"><div class="codeBlockContent_biex"><pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar" style="color: rgb(57, 58, 52); background-color: rgb(246, 248, 250);"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">psql -U postgres -d postgres</span><br></span></code></pre></div></div>
+<img width="650" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/189.png" class="medium-zoom-image"></div>
+      </div>
+    </section>
+  
+
+    <section class="pdf-doc">
+      <h2 class="pdf-doc-title pdf-bookmark-only pdf-level-2">
+        Notebook
+      </h2>
+      <div class="doc-content">
+        <div class="theme-doc-markdown markdown"><header><div class="pdf-content-heading pdf-h1">Notebook</div></header><p>Tier0 adopts Marimo for easy python script usage. For example, you can train models, run SQL queries and design dashboards with data connected in <strong>Namespace</strong>.</p>
+<div class="pdf-content-heading pdf-h2">Using Notebook to Run SQL Queries<a href="#using-notebook-to-run-sql-queries" class="hash-link" aria-label="Direct link to Using Notebook to Run SQL Queries" title="Direct link to Using Notebook to Run SQL Queries">​</a></div>
+<div class="pdf-admonition pdf-admonition-info">
+      <div class="pdf-admonition-title">
+        <span class="pdf-admonition-icon">ⓘ</span>
+        <span>note</span>
+      </div>
+      <div class="pdf-admonition-content">
+        <p>Tier0 databases are initially connected.</p>
+      </div>
+    </div>
+<ol>
+<li>Log in to Tier0, and then select <strong>Dev Tools</strong> &gt; <strong>Notebook</strong>.</li>
+</ol>
+<img width="450" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/164.png" class="medium-zoom-image">
+<ol start="2">
+<li>Click <strong>Create a new notebook</strong>, and then click <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/165.png" class="medium-zoom-image pdf-inline-icon" style="display: inline-block; vertical-align: middle; margin: 0px 4px;"> to run the first cell.</li>
+</ol>
+<img width="750" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/166.png" class="medium-zoom-image">
+<ol start="3">
+<li>Click <strong>SQL</strong> to add a new cell, and then select a connected database to run SQL statements.</li>
+</ol>
+<img width="750" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/167.png" class="medium-zoom-image">
+<ol start="4">
+<li>Get the table name from topic <strong>Details</strong> under <strong>Namespace</strong>, and then write SQL statements.</li>
+</ol>
+<img width="650" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/168.png" class="medium-zoom-image">
+<div class="pdf-admonition pdf-admonition-tip">
+      <div class="pdf-admonition-title">
+        <span class="pdf-admonition-icon">✓</span>
+        <span>tip</span>
+      </div>
+      <div class="pdf-admonition-content">
+        <ul>
+<li>Click <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/169.png" class="medium-zoom-image pdf-inline-icon" style="display: inline-block; vertical-align: middle; margin: 0px 4px;"> on the left panel to view the list of connected databases.</li>
+<li>Find the table you need, click <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/170.png" class="medium-zoom-image pdf-inline-icon" style="display: inline-block; vertical-align: middle; margin: 0px 4px;"> next to the table name to generate SQL statements automatically.</li>
+</ul>
+      </div>
+    </div>
+<div class="pdf-content-heading pdf-h2">Using Notebook to Draw Charts<a href="#using-notebook-to-draw-charts" class="hash-link" aria-label="Direct link to Using Notebook to Draw Charts" title="Direct link to Using Notebook to Draw Charts">​</a></div>
+<ol>
+<li>Log in to Tier0, and then select <strong>Dev Tools</strong> &gt; <strong>Notebook</strong>.</li>
+<li>Click <strong>Create a new notebook</strong>, and then add the following 3 cells to draw a simple line chart.</li>
+</ol>
+<ul>
+<li>Cell 1: Import libraries</li>
+</ul>
+<div class="language-python codeBlockContainer_Ckt0 theme-code-block" style="--prism-color: #393A34; --prism-background-color: #f6f8fa;"><div class="codeBlockContent_biex"><pre tabindex="0" class="prism-code language-python codeBlock_bY9V thin-scrollbar" style="color: rgb(57, 58, 52); background-color: rgb(246, 248, 250);"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token keyword" style="color: rgb(0, 0, 159);">import</span><span class="token plain"> marimo </span><span class="token keyword" style="color: rgb(0, 0, 159);">as</span><span class="token plain"> mo</span><br></span></code></pre></div></div>
+<ul>
+<li>Cell 2: Query data from the database</li>
+</ul>
+<div class="language-python codeBlockContainer_Ckt0 theme-code-block" style="--prism-color: #393A34; --prism-background-color: #f6f8fa;"><div class="codeBlockContent_biex"><pre tabindex="0" class="prism-code language-python codeBlock_bY9V thin-scrollbar" style="color: rgb(57, 58, 52); background-color: rgb(246, 248, 250);"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">_df </span><span class="token operator" style="color: rgb(57, 58, 52);">=</span><span class="token plain"> mo</span><span class="token punctuation" style="color: rgb(57, 58, 52);">.</span><span class="token plain">sql</span><span class="token punctuation" style="color: rgb(57, 58, 52);">(</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">    </span><span class="token string-interpolation string" style="color: rgb(227, 17, 108);">f"""</span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token string-interpolation string" style="color: rgb(227, 17, 108);">    SELECT *</span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token string-interpolation string" style="color: rgb(227, 17, 108);">    FROM "table_name"</span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token string-interpolation string" style="color: rgb(227, 17, 108);">    LIMIT 100</span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token string-interpolation string" style="color: rgb(227, 17, 108);">    """</span><span class="token punctuation" style="color: rgb(57, 58, 52);">,</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">    engine</span><span class="token operator" style="color: rgb(57, 58, 52);">=</span><span class="token plain">tsdb_engine</span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain"></span><span class="token punctuation" style="color: rgb(57, 58, 52);">)</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">data </span><span class="token operator" style="color: rgb(57, 58, 52);">=</span><span class="token plain"> _df</span><br></span></code></pre></div></div>
+<div class="pdf-admonition pdf-admonition-tip">
+      <div class="pdf-admonition-title">
+        <span class="pdf-admonition-icon">✓</span>
+        <span>tip</span>
+      </div>
+      <div class="pdf-admonition-content">
+        <p>Use a SQL cell to write queries and then click <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/171.png" class="medium-zoom-image pdf-inline-icon" style="display: inline-block; vertical-align: middle; margin: 0px 4px;"> on the cell end to switch the cell to Python. Make sure you assign the query result to a variable (e.g. <code>data</code>).</p>
+      </div>
+    </div>
+<ul>
+<li>Cell 3: Draw a line chart</li>
+</ul>
+<div class="language-python codeBlockContainer_Ckt0 theme-code-block" style="--prism-color: #393A34; --prism-background-color: #f6f8fa;"><div class="codeBlockContent_biex"><pre tabindex="0" class="prism-code language-python codeBlock_bY9V thin-scrollbar" style="color: rgb(57, 58, 52); background-color: rgb(246, 248, 250);"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token keyword" style="color: rgb(0, 0, 159);">import</span><span class="token plain"> matplotlib</span><span class="token punctuation" style="color: rgb(57, 58, 52);">.</span><span class="token plain">pyplot </span><span class="token keyword" style="color: rgb(0, 0, 159);">as</span><span class="token plain"> plt</span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain" style="display: inline-block;"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">plt</span><span class="token punctuation" style="color: rgb(57, 58, 52);">.</span><span class="token plain">figure</span><span class="token punctuation" style="color: rgb(57, 58, 52);">(</span><span class="token plain">figsize</span><span class="token operator" style="color: rgb(57, 58, 52);">=</span><span class="token punctuation" style="color: rgb(57, 58, 52);">(</span><span class="token number" style="color: rgb(54, 172, 170);">10</span><span class="token punctuation" style="color: rgb(57, 58, 52);">,</span><span class="token number" style="color: rgb(54, 172, 170);">5</span><span class="token punctuation" style="color: rgb(57, 58, 52);">)</span><span class="token punctuation" style="color: rgb(57, 58, 52);">)</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">plt</span><span class="token punctuation" style="color: rgb(57, 58, 52);">.</span><span class="token plain">plot</span><span class="token punctuation" style="color: rgb(57, 58, 52);">(</span><span class="token plain">data</span><span class="token punctuation" style="color: rgb(57, 58, 52);">[</span><span class="token string" style="color: rgb(227, 17, 108);">"actual_runtime"</span><span class="token punctuation" style="color: rgb(57, 58, 52);">]</span><span class="token punctuation" style="color: rgb(57, 58, 52);">)</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">plt</span><span class="token punctuation" style="color: rgb(57, 58, 52);">.</span><span class="token plain">title</span><span class="token punctuation" style="color: rgb(57, 58, 52);">(</span><span class="token string" style="color: rgb(227, 17, 108);">"Actual Runtime"</span><span class="token punctuation" style="color: rgb(57, 58, 52);">)</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">plt</span><span class="token punctuation" style="color: rgb(57, 58, 52);">.</span><span class="token plain">xlabel</span><span class="token punctuation" style="color: rgb(57, 58, 52);">(</span><span class="token string" style="color: rgb(227, 17, 108);">"Index"</span><span class="token punctuation" style="color: rgb(57, 58, 52);">)</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">plt</span><span class="token punctuation" style="color: rgb(57, 58, 52);">.</span><span class="token plain">ylabel</span><span class="token punctuation" style="color: rgb(57, 58, 52);">(</span><span class="token string" style="color: rgb(227, 17, 108);">"actual_runtime"</span><span class="token punctuation" style="color: rgb(57, 58, 52);">)</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">plt</span><span class="token punctuation" style="color: rgb(57, 58, 52);">.</span><span class="token plain">grid</span><span class="token punctuation" style="color: rgb(57, 58, 52);">(</span><span class="token boolean" style="color: rgb(54, 172, 170);">True</span><span class="token punctuation" style="color: rgb(57, 58, 52);">)</span><span class="token plain"></span><br></span><span class="token-line" style="color: rgb(57, 58, 52);"><span class="token plain">plt</span><span class="token punctuation" style="color: rgb(57, 58, 52);">.</span><span class="token plain">show</span><span class="token punctuation" style="color: rgb(57, 58, 52);">(</span><span class="token punctuation" style="color: rgb(57, 58, 52);">)</span><br></span></code></pre></div></div>
+<ol start="3">
+<li>Click <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/172.png" class="medium-zoom-image pdf-inline-icon" style="display: inline-block; vertical-align: middle; margin: 0px 4px;"> at the lower-right corner to run all cells and view the chart.</li>
+</ol>
+<img width="650" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/173.png" class="medium-zoom-image"></div>
+      </div>
+    </section>
+  
+
+    <section class="pdf-doc">
+      <h2 class="pdf-doc-title pdf-bookmark-only pdf-level-2">
+        Advanced Use
+      </h2>
+      <div class="doc-content">
+        <div class="theme-doc-markdown markdown"><header><div class="pdf-content-heading pdf-h1">Advanced Use</div></header><p>Tier0 empowers you to use open source products that are closely integrated with it, with full permissions.</p>
+<ol>
+<li>Log in to Tier0, and then select <strong>Advanced Use</strong> under <strong>Dev Tools</strong>.</li>
+</ol>
+<img width="650" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/181.png" class="medium-zoom-image">
+<ol start="2">
+<li>Click an open source product to access its management page.</li>
+</ol>
+<img width="650" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/182.png" class="medium-zoom-image"></div>
+      </div>
+    </section>
+  
+
+      <h1 class="pdf-sidebar-category pdf-level-1">
+        System
+      </h1>
+    
+
+    <section class="pdf-doc">
+      <h2 class="pdf-doc-title pdf-bookmark-only pdf-level-2">
+        Routing Management
+      </h2>
+      <div class="doc-content">
+        <div class="theme-doc-markdown markdown"><header><div class="pdf-content-heading pdf-h1">Routing Management</div></header><p>Tier0 supports service routing based on Konga, and you can add your application to Tier0 for integrated entry. Following certain rules, you can:</p>
+<ul>
+<li>Set the routing path to your backend service.</li>
+<li>Fashion access authorization mechanisms.</li>
+<li>Add external service to Tier0 frontend as one of the applications.</li>
+</ul>
+<div class="pdf-content-heading pdf-h2">Creating Service<a href="#creating-service" class="hash-link" aria-label="Direct link to Creating Service" title="Direct link to Creating Service">​</a></div>
+<ol>
+<li>Select <strong>System</strong> &gt; <strong>Routing Management</strong>, and then click <strong>SERVICES</strong>.</li>
+</ol>
+<div class="pdf-admonition pdf-admonition-tip">
+      <div class="pdf-admonition-title">
+        <span class="pdf-admonition-icon">✓</span>
+        <span>tip</span>
+      </div>
+      <div class="pdf-admonition-content">
+        <p>If the <strong>DASHBOARD</strong> shows no active connection, go to <strong>CONNECTIONS</strong>, and then click <strong>ACTIVATE</strong> next to <strong>Kong</strong>.</p><img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/29.png" class="medium-zoom-image">
+      </div>
+    </div>
+<ol start="2">
+<li>Click <strong>ADD NEW SERVICE</strong>, and then enter the information of your backend service.</li>
+</ol>
+<div class="pdf-admonition pdf-admonition-info">
+      <div class="pdf-admonition-title">
+        <span class="pdf-admonition-icon">ⓘ</span>
+        <span>info</span>
+      </div>
+      <div class="pdf-admonition-content">
+        <p>These parameters are necessary. For instance, you have a backend resource <strong><a href="https://example.com:8080" target="_blank" rel="noopener noreferrer">https://example.com:8080</a></strong>.</p><ul>
+<li><strong>Protocol</strong>: https</li>
+<li><strong>Host</strong>: example.com</li>
+<li><strong>Port</strong>: 8080</li>
+<li><strong>Path</strong>: Request path prefix, which will added to the path of request from client before the request gets forwarded to your service.</li>
+</ul><img width="650" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/30.png" class="medium-zoom-image">
+      </div>
+    </div>
+<ol start="3">
+<li>Click <strong>SUBMIT SERVICE</strong>.</li>
+</ol>
+<div class="pdf-content-heading pdf-h2">Building Routes<a href="#building-routes" class="hash-link" aria-label="Direct link to Building Routes" title="Direct link to Building Routes">​</a></div>
+<p>Build the routing path for accessing the service.</p>
+<ol>
+<li>On the <strong>Service Details</strong> page, click <strong>Routes</strong>.</li>
+<li>Click <strong>ADD ROUTE</strong>, and then enter the information of the route to access your service.</li>
+</ol>
+<ul>
+<li><strong>Tags</strong>: We have mapped some tags with fixed meanings.</li>
+</ul>
+<table><thead><tr><th>Tag</th><th>Description</th></tr></thead><tbody><tr><td>menu</td><td>The service will appear as an application on Tier0 homepage.</td></tr><tr><td>parentName<!-- -->:menu<!-- -->.tag.xxx</td><td>xxx is the name of an existing first-level menu in Tier0 (all in lowercase). It indicates that the current route appears as a second-level menu of xxx.</td></tr><tr><td>homeParentName<!-- -->:menu<!-- -->.tag.xxx</td><td>xxx is the name of an existing first-level menu in Tier0 (all in lowercase). It indicates that the current route appears in the navigation bar and serves as a second-level menu of xxx.</td></tr><tr><td>description<!-- -->:menu<!-- -->.desc.xxx</td><td>xxx is the name of the route. It represents the description information corresponding to xxx.</td></tr></tbody></table>
+<ul>
+<li><strong>Paths</strong>: Request paths that will be recognized by Kong and Kong will match and forward the request to your service.</li>
+</ul>
+<img width="650" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/31.png" class="medium-zoom-image">
+<ol start="3">
+<li>Click <strong>SUBMIT ROUTE</strong>.</li>
+</ol>
+<div class="pdf-content-heading pdf-h2">Setting Authentication<a href="#setting-authentication" class="hash-link" aria-label="Direct link to Setting Authentication" title="Direct link to Setting Authentication">​</a></div>
+<p>Set authentication mechanisms for your service.</p>
+<ol>
+<li>On the <strong>Service Details</strong> page, click <strong>Plugins</strong>.</li>
+<li>Click <strong>ADD PLUGIN</strong>, and select <strong>Key Auth</strong>.</li>
+</ol>
+<div class="pdf-admonition pdf-admonition-info">
+      <div class="pdf-admonition-title">
+        <span class="pdf-admonition-icon">ⓘ</span>
+        <span>note</span>
+      </div>
+      <div class="pdf-admonition-content">
+        <p>You can add other authentication methods. For more details, see <a href="https://github.com/pantsel/konga/blob/master/README.md">Konga</a>.</p>
+      </div>
+    </div>
+<ol start="3">
+<li>Enter the <strong>Key names</strong> and decide how the anthentication information should be transmitted.</li>
+</ol>
+<img width="650" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/32.png" class="medium-zoom-image">
+<ol start="4">
+<li>Click <strong>ADD PLUGIN</strong>.</li>
+<li>Click <strong>CONSUMERS</strong> on the left side menu to add an authentication key.</li>
+</ol>
+<ol><ol><li>Click <b>CREATE CONSUMER</b>, and give it a username or ID.</li><li>On the details page, select <b>Credentials</b>.</li><li>Select <b>API KEYS</b>, and then create an API key.</li><img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/33.png" class="medium-zoom-image"><li>Leave it empty and click <b>SUBMIT</b>, Konga will generate a custom key, which is necessary when accessing your service.</li></ol></ol></div>
+      </div>
+    </section>
+  
+
+    <section class="pdf-doc">
+      <h2 class="pdf-doc-title pdf-bookmark-only pdf-level-2">
+        User Management
+      </h2>
+      <div class="doc-content">
+        <div class="theme-doc-markdown markdown"><header><div class="pdf-content-heading pdf-h1">User Management</div></header><p>In Tier0, you can add users and assign different roles to them, easily managing module access. Meanwhile, you can also allow users to register account by themselves.</p>
+<div class="pdf-admonition pdf-admonition-info">
+      <div class="pdf-admonition-title">
+        <span class="pdf-admonition-icon">ⓘ</span>
+        <span>info</span>
+      </div>
+      <div class="pdf-admonition-content">
+        <p>We adopted <strong>Keycloak</strong> to achieve comprehensive user management. You can customize it under <strong>System</strong> &gt; <strong>Authentication</strong>.</p>
+      </div>
+    </div>
+<div class="pdf-content-heading pdf-h2">Adding User<a href="#adding-user" class="hash-link" aria-label="Direct link to Adding User" title="Direct link to Adding User">​</a></div>
+<ol>
+<li>Log in to Tier0, and then select <strong>User Management</strong> under <strong>System</strong>.</li>
+<li>Click <strong>New User</strong> at the upper-right corner.</li>
+</ol>
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/18.png" class="medium-zoom-image">
+<ol start="3">
+<li>Enter the information and select a role for the user, and then click <strong>Save</strong>.</li>
+</ol>
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/19.png" class="medium-zoom-image">
+<ul>
+<li>You can disable, edit, delete user and reset password of it.</li>
+<li>The default user cannot be disabled or deleted.</li>
+</ul>
+<div class="pdf-content-heading pdf-h2">Registering User<a href="#registering-user" class="hash-link" aria-label="Direct link to Registering User" title="Direct link to Registering User">​</a></div>
+<p>For user registration, email is necessary. You need to set up an Email server for sending validation email.</p>
+<ol>
+<li>Select <strong>System</strong> &gt; <strong>Authentication</strong>, and then log in to Keycloak with <strong>admin/tier0</strong>.</li>
+<li>Switch the realm to <strong>tier0</strong>, and then select <strong>Realm settings</strong>.</li>
+</ol>
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/20.png" class="medium-zoom-image">
+<ol start="3">
+<li>Click <strong>Email</strong>, and then enter the email template and server information.</li>
+</ol>
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/26.png" class="medium-zoom-image">
+<ol start="4">
+<li>Save the settings, and then click <strong>Login</strong> to enable <strong>User registration</strong>.</li>
+</ol>
+<img width="450" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/27.png" class="medium-zoom-image">
+<ol start="5">
+<li>Go to the Tier0 login page, and then click <strong>Register</strong>.</li>
+<li>Enter the information to apply for a user account.</li>
+</ol>
+<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/28.png" class="medium-zoom-image"></div>
+      </div>
+    </section>
+  
+
+    <section class="pdf-doc">
+      <h2 class="pdf-doc-title pdf-bookmark-only pdf-level-2">
+        Open Data
+      </h2>
+      <div class="doc-content">
+        <div class="theme-doc-markdown markdown"><header><div class="pdf-content-heading pdf-h1">Open Data</div></header><div class="pdf-content-heading pdf-h2">How to Access Data in Tier0<a href="#how-to-access-data-in-tier0" class="hash-link" aria-label="Direct link to How to Access Data in Tier0" title="Direct link to How to Access Data in Tier0">​</a></div>
+<p>Tier0 provides 3 types of data subscription and invocation methods: API, MQTT, and MCP.</p>
+<div class="pdf-content-heading pdf-h3">API<a href="#api" class="hash-link" aria-label="Direct link to API" title="Direct link to API">​</a></div>
+<p>To access data through API, you need to use the URL and secret key provided in the platform.</p>
+<ol>
+<li>Log in to Tier0, and select <strong>System</strong> &gt; <strong>Open Data</strong>.</li>
+<li>Click <strong>New Key</strong> to create a secret key.</li>
+</ol>
+<img width="550" src="http://enterpriseimage.oss-cn-hangzhou.aliyuncs.com/5.png" class="medium-zoom-image">
+<ol start="3">
+<li>Use the URL displayed on the bottom, and the created key to obtain data from Tier0.</li>
+</ol>
+<div class="pdf-admonition pdf-admonition-info">
+      <div class="pdf-admonition-title">
+        <span class="pdf-admonition-icon">ⓘ</span>
+        <span>info</span>
+      </div>
+      <div class="pdf-admonition-content">
+        <p>Click <strong>API List</strong> to read the API documentation.</p>
+      </div>
+    </div>
+<div class="pdf-content-heading pdf-h3">MQTT<a href="#mqtt" class="hash-link" aria-label="Direct link to MQTT" title="Direct link to MQTT">​</a></div>
+<p>You can use third-party clients like MQTTX, MQTT Explorer, or custom code to subscribe to data through MQTT.</p>
+<ol>
+<li>Log in to Tier0, and select <strong>System</strong> &gt; <strong>Open Data</strong>.</li>
+<li>Click <strong>MQTT</strong> to view the MQTT connection information, including the broker address, port and topic.</li>
+</ol>
+<img width="550" src="http://enterpriseimage.oss-cn-hangzhou.aliyuncs.com/6.png" class="medium-zoom-image">
+<div class="pdf-admonition pdf-admonition-info">
+      <div class="pdf-admonition-title">
+        <span class="pdf-admonition-icon">ⓘ</span>
+        <span>info</span>
+      </div>
+      <div class="pdf-admonition-content">
+        <p>Tier0 provides script samples in both JavaScript and Java to help you get started.</p>
+      </div>
+    </div>
+<div class="pdf-content-heading pdf-h3">MCP Server<a href="#mcp-server" class="hash-link" aria-label="Direct link to MCP Server" title="Direct link to MCP Server">​</a></div>
+<p>Tier0 enables you to use an MCP server to get data from the platform through a custom LLM.</p>
+<ol>
+<li>Log in to Tier0, and select <strong>System</strong> &gt; <strong>Open Data</strong>.</li>
+<li>Click <strong>MCP Server</strong> to view the MCP connection details and example.</li>
+</ol>
+<img width="550" src="http://enterpriseimage.oss-cn-hangzhou.aliyuncs.com/7.png" class="medium-zoom-image">
+<div class="pdf-admonition pdf-admonition-info">
+      <div class="pdf-admonition-title">
+        <span class="pdf-admonition-icon">ⓘ</span>
+        <span>info</span>
+      </div>
+      <div class="pdf-admonition-content">
+        <ul>
+<li>Cline plugin usage is used as an example.</li>
+<li>The required URL and key can be obtained on the <strong>RestAPI</strong> tab.</li>
+<li>You can click <strong>API List</strong> on the <strong>RestAPI</strong> tab, and copy the address as the <strong>SUPOS_OPEN_PATH</strong> in the scriptto help AI understand.</li>
+</ul>
+      </div>
+    </div></div>
+      </div>
+    </section>
+  
+
+    <section class="pdf-doc">
+      <h2 class="pdf-doc-title pdf-bookmark-only pdf-level-2">
+        Menu Config
+      </h2>
+      <div class="doc-content">
+        <div class="theme-doc-markdown markdown"><header><div class="pdf-content-heading pdf-h1">Menu Config</div></header><p>Tier0 enables basic configuration on function modules in the style of menus, including module position, visibility, and detailed information. Meanwhile, it can be used as an application manager where you can add and configure your web app on Tier0.</p>
+<div class="pdf-content-heading pdf-h2">Adding Menu<a href="#adding-menu" class="hash-link" aria-label="Direct link to Adding Menu" title="Direct link to Adding Menu">​</a></div>
+<ol>
+<li>Log in to Tier0, and then select <strong>System</strong> &gt; <strong>Menu Config</strong>.</li>
+</ol>
+<img width="650" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/174.png" class="medium-zoom-image">
+<table><thead><tr><th>No.</th><th>Name</th><th>Description</th></tr></thead><tbody><tr><td>1</td><td>Operation</td><td>Add menu in floder/file structure and refresh the menu list.</td></tr><tr><td>2</td><td>List</td><td>Lists existing structured menus.</td></tr><tr><td>3</td><td>Information</td><td>Displays information of the selected menu.</td></tr></tbody></table>
+<ol start="2">
+<li>Click <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/5.png" class="medium-zoom-image pdf-inline-icon" style="display: inline-block; vertical-align: middle; margin: 0px 4px;"> on the top to add a menu folder.</li>
+<li>Enter the folder information and then click <strong>Save</strong>.</li>
+</ol>
+<img width="650" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/175.png" class="medium-zoom-image">
+<div class="pdf-admonition pdf-admonition-info">
+      <div class="pdf-admonition-title">
+        <span class="pdf-admonition-icon">ⓘ</span>
+        <span>info</span>
+      </div>
+      <div class="pdf-admonition-content">
+        <p>Menu code cannot be duplicated.</p>
+      </div>
+    </div>
+<ol start="4">
+<li>Select the created folder, and then click <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/7.png" class="medium-zoom-image pdf-inline-icon" style="display: inline-block; vertical-align: middle; margin: 0px 4px;"> to add a menu file.</li>
+<li>Enter the menu information and then click <strong>Save</strong>.</li>
+</ol>
+<img width="550" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/176.png" class="medium-zoom-image">
+<table><thead><tr><th>Parameter</th><th>Description</th></tr></thead><tbody><tr><td>Menu Source</td><td>Select menu source between manual addition and existing options.</td></tr><tr><td>Menu Code</td><td>Unique identification of the menu.</td></tr><tr><td>Open with</td><td>Directly open the menu on the current page or on a new page.</td></tr><tr><td>Menu URL</td><td>Access address of the added function module (menu).</td></tr><tr><td>Homepage Display</td><td>Whether or not to display the menu on the homepage.</td></tr></tbody></table>
+<ol start="6">
+<li>(Optional) Go back to <strong>Home</strong> to check the added menu if it is set to display on homepage.</li>
+</ol>
+<div class="pdf-content-heading pdf-h2">Editing Existing Menus<a href="#editing-existing-menus" class="hash-link" aria-label="Direct link to Editing Existing Menus" title="Direct link to Editing Existing Menus">​</a></div>
+<ol>
+<li>Log in to Tier0, and then select <strong>System</strong> &gt; <strong>Menu Config</strong>.</li>
+<li>Select a menu from the list, eidt its information on the right side, and then click <strong>Save</strong>.</li>
+</ol>
+<img width="650" src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/177.png" class="medium-zoom-image">
+<div class="pdf-admonition pdf-admonition-warning">
+      <div class="pdf-admonition-title">
+        <span class="pdf-admonition-icon">⚠</span>
+        <span>warning</span>
+      </div>
+      <div class="pdf-admonition-content">
+        <p>For original menus provided by Tier0, do not change the menu source, URL and operation code. Otherwise the module may not work properly.</p>
+      </div>
+    </div>
+<div class="pdf-content-heading pdf-h2">Managing Menu Position and Visibility<a href="#managing-menu-position-and-visibility" class="hash-link" aria-label="Direct link to Managing Menu Position and Visibility" title="Direct link to Managing Menu Position and Visibility">​</a></div>
+<ul>
+<li>On the left list, drag a menu to change its position in the folder/file structure, and it will show on the homepage automatically.</li>
+<li>Click <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/178.png" class="medium-zoom-image pdf-inline-icon" style="display: inline-block; vertical-align: middle; margin: 0px 4px;"> next to a menu to hide it from homepage.</li>
+<li>Click <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/179.png" class="medium-zoom-image pdf-inline-icon" style="display: inline-block; vertical-align: middle; margin: 0px 4px;"> to delete a menu.</li>
+</ul>
+<div class="pdf-admonition pdf-admonition-warning">
+      <div class="pdf-admonition-title">
+        <span class="pdf-admonition-icon">⚠</span>
+        <span>warning</span>
+      </div>
+      <div class="pdf-admonition-content">
+        <ul>
+<li>Deleting a folder will delete all menus under it.</li>
+<li>Deleting a menu cannot be restored. Please proceed with caution.</li>
+</ul>
+      </div>
+    </div></div>
+      </div>
+    </section>
+  
+
+    <section class="pdf-doc">
+      <h1 class="pdf-doc-title pdf-bookmark-only pdf-level-1">
+        Glossary
+      </h1>
+      <div class="doc-content">
+        <div class="theme-doc-markdown markdown"><header><div class="pdf-content-heading pdf-h1">Glossary</div></header><table><caption>Key Terms and Definitions</caption><thead><tr><th>Term</th><th>Definition</th></tr></thead><tbody><tr><td>Tier0</td><td>An open-source industrial data integration platform built on the Unified Namespace (UNS) methodology, designed for managing, processing, and optimizing industrial data.</td></tr><tr><td>UNS (Unified Namespace)</td><td>A data management method that centralizes data from various devices and systems, providing a structured and unified framework to prevent data silos.</td></tr><tr><td>Node-RED</td><td>An open-source automation tool that enables users to wire together devices, APIs, and online services using a flow-based programming approach.</td></tr><tr><td>Grafana</td><td>An open-source platform for monitoring and data visualization, which allows users to create dashboards to view real-time data from various sources.</td></tr><tr><td>MQTT</td><td>A lightweight messaging protocol for small sensors and mobile devices optimized for high-latency or unreliable networks, commonly used for IoT communication.</td></tr><tr><td>JSON</td><td>JavaScript Object Notation, a lightweight data-interchange format that is easy for humans to read and write and easy for machines to parse and generate.</td></tr><tr><td>TimescaleDB</td><td>An open-source time-series database built on PostgreSQL, designed for handling large-scale time-series data, especially useful for monitoring systems and IoT applications.</td></tr><tr><td>PostgreSQL</td><td>An advanced open-source relational database management system that uses SQL for querying and is designed for high performance and reliability.</td></tr><tr><td>API (Application Programming Interface)</td><td>A set of protocols and tools that allows different software applications to communicate and interact with each other.</td></tr><tr><td>Topic</td><td>A unique identifier for data in the Tier0 system that helps classify and organize data from various sources for easy access and management.</td></tr><tr><td>OEE (Overall Equipment Effectiveness)</td><td>A metric used to assess the efficiency and effectiveness of equipment in a manufacturing environment, considering availability, performance, and quality.</td></tr><tr><td>AGV (Automated Guided Vehicle)</td><td>An automated vehicle used in manufacturing or warehouse environments to transport materials, reducing human intervention in logistics operations.</td></tr><tr><td>REST API</td><td>A web service interface that allows applications to communicate over HTTP, using standard methods like GET, POST, PUT, and DELETE to access resources.</td></tr><tr><td>Time-Series Data</td><td>Data that is collected and recorded at regular intervals over time, such as equipment run time, temperature, and other performance metrics.</td></tr><tr><td>JSON Payload</td><td>Data transferred in the form of a JSON object that contains relevant information, such as sensor readings or device states, to be processed or stored.</td></tr><tr><td>Authentication</td><td>The process of verifying the identity of a user or system to ensure that only authorized entities can access resources.</td></tr><tr><td>Event-Driven</td><td>A programming paradigm in which the flow of the program is determined by events, such as user actions, sensor data, or messages from other systems.</td></tr><tr><td>JSONB</td><td>A PostgreSQL data type that stores JSON data in a binary format, offering efficient indexing, faster querying, and improved performance compared to plain JSON fields.</td></tr></tbody></table></div>
+      </div>
+    </section>
+  
+</body>
+</html>
