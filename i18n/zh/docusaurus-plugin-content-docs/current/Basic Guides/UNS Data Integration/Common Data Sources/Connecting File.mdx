@@ -8,9 +8,7 @@ sidebar_label: 连接文件
 在**数据连接**中处理文件前，需将文件放入对应的容器中。
 ```js
 scp C:\Users\you\Desktop\myfile.txt username@server IP:/home/username/  
- //将文件从本地复制到服务器
 docker cp /root/config.json <容器名称或ID>:/app/config.json  
- //将文件从服务器复制到容器
 ```
 :::
 :::tip 常用Docker命令
@@ -64,6 +62,9 @@ docker cp /root/config.json <容器名称或ID>:/app/config.json
 <img width={300} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/99.png" />
 
 4. 单击 **Done**，然后按顺序连接 `book`、`sheet` 和 `sheet to json` 节点，将表格数据转换为JSON格式。
+:::info
+安装 **node-red-contrib-spreadsheet-in** 节点以获取转换所需的节点。
+:::
 
 <img width={400} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/100.png" />
 

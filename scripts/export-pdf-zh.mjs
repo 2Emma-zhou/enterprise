@@ -8,9 +8,11 @@ const require = createRequire(import.meta.url);
 const sidebarsModule = require('../sidebars.js');
 const sidebars = sidebarsModule.default || sidebarsModule;
 
-const BASE_URL = 'http://localhost:3002';
+const BASE_URL = 'http://localhost:3001';
 const SIDEBAR_KEY = 'tutorialSidebar';
 const DOCS_BASE = '/zh';
+
+const COVER_IMAGE_URL = 'http://enterpriseimage.oss-cn-hangzhou.aliyuncs.com/pdf-zh.png';
 
 const ROUTE_MAP = {
   Introduction: '/zh/',
@@ -24,6 +26,52 @@ const sidebarItems = sidebars[SIDEBAR_KEY];
 if (!Array.isArray(sidebarItems)) {
   console.log('Available sidebar keys:', Object.keys(sidebars));
   throw new Error(`Sidebar key "${SIDEBAR_KEY}" not found or is not an array.`);
+}
+
+async function imageUrlToDataUrl(url) {
+  const candidates = [
+    url,
+    url.replace(/^http:\/\//, 'https://'),
+  ];
+
+  let lastError;
+
+  for (const candidate of candidates) {
+    try {
+      const response = await fetch(candidate);
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch ${candidate}: ${response.status} ${response.statusText}`);
+      }
+
+      const contentType = response.headers.get('content-type') || 'image/png';
+      const buffer = Buffer.from(await response.arrayBuffer());
+      const base64 = buffer.toString('base64');
+
+      return `data:${contentType};base64,${base64}`;
+    } catch (error) {
+      lastError = error;
+    }
+  }
+
+  throw lastError;
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
+
+function slugify(value) {
+  return String(value)
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9\u4e00-\u9fa5]+/gi, '-')
+    .replace(/^-+|-+$/g, '');
 }
 
 function getDocLabel(id) {
@@ -75,12 +123,26 @@ function collectEntries(items, level = 1) {
   return entries;
 }
 
+function buildToc(entries) {
+  return entries
+    .map((entry) => {
+      const indent = Math.max(entry.level - 1, 0) * 18;
+      const className = entry.type === 'category' ? 'toc-category' : 'toc-doc';
+
+      return `
+        <a class="toc-row ${className} toc-level-${entry.level}" href="#${entry.anchor}" style="padding-left: ${indent}px;">
+          <span class="toc-title">${escapeHtml(entry.label)}</span>
+        </a>
+      `;
+    })
+    .join('\n');
+}
+
 async function getZhSidebarEntries(page) {
   await page.goto(`${BASE_URL}/zh/`, {
     waitUntil: 'networkidle',
   });
 
-  // 尽量展开 sidebar，避免子项没渲染
   await page.evaluate(() => {
     document
       .querySelectorAll('.menu__caret, .menu__list-item-collapsible button')
@@ -163,7 +225,12 @@ async function getZhSidebarEntries(page) {
   });
 }
 
-const entries = collectEntries(sidebarItems);
+const coverImageDataUrl = await imageUrlToDataUrl(COVER_IMAGE_URL);
+
+const entries = collectEntries(sidebarItems).map((entry, index) => ({
+  ...entry,
+  anchor: `${entry.type}-${index}-${slugify(entry.label || entry.id || index)}`,
+}));
 
 const browser = await chromium.launch();
 const page = await browser.newPage();
@@ -173,6 +240,7 @@ const zhCategoryEntries = zhSidebarEntries.filter((item) => item.type === 'categ
 let zhCategoryIndex = 0;
 
 const sections = [];
+const tocEntries = [];
 
 for (const entry of entries) {
   if (entry.type === 'category') {
@@ -182,9 +250,16 @@ for (const entry of entries) {
     const categoryLabel = zhCategory?.label || entry.label;
     zhCategoryIndex += 1;
 
+    const localizedCategory = {
+      ...entry,
+      label: categoryLabel,
+    };
+
+    tocEntries.push(localizedCategory);
+
     sections.push(`
-      <h${headingLevel} class="pdf-sidebar-category pdf-level-${entry.level}">
-        ${categoryLabel}
+      <h${headingLevel} id="${entry.anchor}" class="pdf-sidebar-category pdf-level-${entry.level}">
+        ${escapeHtml(categoryLabel)}
       </h${headingLevel}>
     `);
 
@@ -235,11 +310,30 @@ for (const entry of entries) {
       article.prepend(h1);
     }
 
+    // 确保 HTML 表格有 thead，这样跨页时可以重复表头。
+    article.querySelectorAll('table').forEach((table) => {
+      if (table.querySelector('thead')) {
+        return;
+      }
+
+      const firstRow = table.querySelector('tr');
+
+      if (!firstRow || !firstRow.querySelector('th')) {
+        return;
+      }
+
+      const thead = document.createElement('thead');
+      const firstTbody = table.querySelector('tbody');
+
+      table.insertBefore(thead, firstTbody || table.firstChild);
+      thead.appendChild(firstRow);
+    });
+
     const title =
       article.querySelector('h1')?.textContent?.trim() ||
       document.title.replace(/ \| .+$/, '').trim();
 
-    // 重建 Docusaurus admonition，去掉异常引用线/括号，保留干净的小图标和有色底
+    // 重建 Docusaurus admonition，去掉异常引用线/括号，保留干净的小图标和有色底。
     article
       .querySelectorAll('.alert, .theme-admonition, [class*="admonition"]')
       .forEach((box) => {
@@ -284,10 +378,8 @@ for (const entry of entries) {
         `;
       });
 
-    // 标记正文里的小图标，避免被当成大图截图换行显示
+    // 标记正文里的小图标，避免被当成大图截图换行显示。
     article.querySelectorAll('img, svg').forEach((el) => {
-      // 只跳过我们自己生成的提示框标题图标；
-      // 提示内容里的 img/svg 仍然要按 inline icon 处理
       if (el.closest('.pdf-admonition-title')) {
         return;
       }
@@ -314,7 +406,7 @@ for (const entry of entries) {
       }
     });
 
-    // 正文标题不进 PDF 书签，但保留标题样式
+    // 正文标题不进 PDF 书签，但保留标题样式。
     article.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach((heading) => {
       const div = document.createElement('div');
       div.className = `pdf-content-heading pdf-${heading.tagName.toLowerCase()}`;
@@ -335,10 +427,17 @@ for (const entry of entries) {
     continue;
   }
 
+  const docTitle = data.title || doc.label;
+
+  tocEntries.push({
+    ...doc,
+    label: docTitle,
+  });
+
   sections.push(`
     <section class="pdf-doc">
-      <h${Math.min(doc.level, 3)} class="pdf-doc-title pdf-bookmark-only pdf-level-${doc.level}">
-        ${data.title || doc.label}
+      <h${Math.min(doc.level, 3)} id="${doc.anchor}" class="pdf-doc-title pdf-bookmark-only pdf-level-${doc.level}">
+        ${escapeHtml(docTitle)}
       </h${Math.min(doc.level, 3)}>
       <div class="doc-content">
         ${data.html}
@@ -347,27 +446,119 @@ for (const entry of entries) {
   `);
 }
 
+const tocHtml = buildToc(tocEntries);
+
 const html = `
 <!doctype html>
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>用户手册</title>
+  <title>Tier0 Enterprise 用户手册</title>
 
   <base href="${BASE_URL}/" />
 
   <style>
+    @page {
+      size: A4;
+      margin: 22mm 18mm 28mm 18mm;
+    }
+
+    @page:first {
+      size: A4;
+      margin: 0;
+    }
+
+    html,
     body {
-      font-family: "SimSun", "Microsoft YaHei", Arial, sans-serif;
-      line-height: 1.6;
+      margin: 0;
+      padding: 0;
       color: #222;
-      max-width: 920px;
-      margin: 0 auto;
-      padding: 40px;
+      font-family: "SimSun", "Microsoft YaHei", Arial, sans-serif;
       font-size: 15px;
+      line-height: 1.6;
+      background: #fff;
       font-weight: 400;
       font-synthesis: none;
       -webkit-font-smoothing: antialiased;
+    }
+
+    .cover-page {
+      width: 210mm;
+      height: 297mm;
+      margin: 0;
+      padding: 0;
+      page-break-after: always;
+      break-after: page;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .cover-image {
+      width: 210mm;
+      height: 297mm;
+      object-fit: cover;
+      display: block;
+    }
+
+    .toc-page {
+      page-break-after: always;
+      break-after: page;
+    }
+
+    .manual-body,
+    .toc-page {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 0;
+    }
+
+    .manual-content,
+    .toc-content {
+      max-width: 920px;
+      margin: 0 auto;
+    }
+
+    .toc-title-main {
+      font-size: 30px;
+      line-height: 1.25;
+      color: #111827;
+      margin: 0 0 24px;
+      font-weight: 700;
+      font-family: "Microsoft YaHei", "SimHei", Arial, sans-serif;
+    }
+
+    .toc-list {
+      border-top: 1px solid #e5e7eb;
+      padding-top: 12px;
+    }
+
+    .toc-row {
+      display: flex;
+      align-items: center;
+      min-height: 28px;
+      color: #1f2937;
+      text-decoration: none;
+      border-bottom: 1px solid #f1f5f9;
+      box-sizing: border-box;
+    }
+
+    .toc-row:hover {
+      color: #73b200;
+    }
+
+    .toc-category {
+      font-weight: 700;
+      margin-top: 6px;
+      font-family: "Microsoft YaHei", "SimHei", Arial, sans-serif;
+    }
+
+    .toc-doc {
+      font-weight: 400;
+      color: #4b5563;
+    }
+
+    .toc-title {
+      display: inline-block;
     }
 
     .doc-content,
@@ -408,28 +599,26 @@ const html = `
       font-weight: 600 !important;
     }
 
-    .cover-title {
-      font-size: 38px;
-      font-weight: 700;
-      text-align: center;
-      margin: 140px 0 100px;
-      page-break-after: always;
-    }
-
     .pdf-sidebar-category {
       color: #1f2937;
       font-weight: 700;
       margin-top: 36px;
       margin-bottom: 18px;
       line-height: 1.35;
+      break-after: avoid;
+      page-break-after: avoid;
     }
 
     .pdf-sidebar-category.pdf-level-1 {
       font-size: 30px;
+      break-before: page;
       page-break-before: always;
+      break-after: avoid;
+      page-break-after: avoid;
     }
 
     .pdf-sidebar-category.pdf-level-1:first-of-type {
+      break-before: auto;
       page-break-before: auto;
     }
 
@@ -451,6 +640,8 @@ const html = `
       line-height: 1.35;
       margin-top: 22px;
       margin-bottom: 12px;
+      break-after: avoid;
+      page-break-after: avoid;
     }
 
     .pdf-doc-title.pdf-level-1 {
@@ -480,6 +671,8 @@ const html = `
       margin-top: 28px;
       margin-bottom: 12px;
       color: #1f2937;
+      break-after: avoid;
+      page-break-after: avoid;
     }
 
     .pdf-h1 {
@@ -529,6 +722,19 @@ const html = `
       border-collapse: collapse;
       margin: 16px 0;
       font-size: 14px;
+      break-inside: auto;
+      page-break-inside: auto;
+    }
+
+    thead {
+      display: table-header-group;
+    }
+
+    tfoot {
+      display: table-footer-group;
+    }
+
+    tr {
       break-inside: avoid;
       page-break-inside: avoid;
     }
@@ -686,16 +892,27 @@ const html = `
     [class*="buttonGroup"] {
       display: none !important;
     }
-
-    @page {
-      size: A4;
-      margin: 18mm 16mm;
-    }
   </style>
 </head>
 <body>
-  <div class="cover-title">用户手册</div>
-  ${sections.join('\n')}
+  <section class="cover-page">
+    <img class="cover-image" src="${coverImageDataUrl}" alt="Tier0 Enterprise User Manual Cover" />
+  </section>
+
+  <section class="toc-page">
+    <div class="toc-content">
+      <div class="toc-title-main">目录</div>
+      <div class="toc-list">
+        ${tocHtml}
+      </div>
+    </div>
+  </section>
+
+  <main class="manual-body">
+    <div class="manual-content">
+      ${sections.join('\n')}
+    </div>
+  </main>
 </body>
 </html>
 `;
@@ -709,18 +926,66 @@ await page.goto(`file://${htmlPath}`, {
   waitUntil: 'networkidle',
 });
 
+await page.waitForLoadState('networkidle');
+
+await page.evaluate(async () => {
+  await document.fonts.ready;
+
+  const images = Array.from(document.images);
+  await Promise.all(
+    images.map((img) => {
+      if (img.complete) return Promise.resolve();
+
+      return new Promise((resolve) => {
+        img.onload = resolve;
+        img.onerror = resolve;
+      });
+    })
+  );
+});
+
 await page.pdf({
   path: pdfPath,
   format: 'A4',
   printBackground: true,
   outline: true,
   tagged: true,
-  margin: {
-    top: '18mm',
-    right: '16mm',
-    bottom: '18mm',
-    left: '16mm',
-  },
+  preferCSSPageSize: true,
+  displayHeaderFooter: true,
+  headerTemplate: `<div></div>`,
+  footerTemplate: `
+    <div style="
+      width: 100%;
+      font-size: 9px;
+      color: #8a8f98;
+      text-align: center;
+      font-family: Arial, 'Microsoft YaHei', sans-serif;
+      margin-bottom: 8mm;
+    ">
+      <span style="
+        display: inline-block;
+        width: 28px;
+        height: 1px;
+        background: #cbd5e1;
+        vertical-align: middle;
+        margin-right: 8px;
+      "></span>
+      <span class="pageNumber" style="
+        display: inline-block;
+        min-width: 12px;
+        color: #6b7280;
+        vertical-align: middle;
+      "></span>
+      <span style="
+        display: inline-block;
+        width: 28px;
+        height: 1px;
+        background: #cbd5e1;
+        vertical-align: middle;
+        margin-left: 8px;
+      "></span>
+    </div>
+  `,
 });
 
 await browser.close();

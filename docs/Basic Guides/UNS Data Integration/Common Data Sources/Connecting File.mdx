@@ -2,9 +2,7 @@
 Before processing files in **Source Flow**, you need to put the file in to the corresponding docker.
 ```js
 scp C:\Users\you\Desktop\myfile.txt username@server IP:/home/username/  
- //copy the file from local to server
 docker cp /root/config.json <docker name or ID>:/app/config.json  
- //copy the file from server to docker
 ```
 :::
 :::tip general docker commands
@@ -58,6 +56,9 @@ docker cp /root/config.json <docker name or ID>:/app/config.json
 <img width={300} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/99.png" />
 
 4. Click **Done**, and then connect a **book**, a **sheet** and a **sheet to json** node by order to convert table data to json.
+:::info
+Install the **node-red-contrib-spreadsheet-in** node to get necessary nodes for conversion.
+:::
 
 <img width={400} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/100.png" />
 

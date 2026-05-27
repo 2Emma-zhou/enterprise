@@ -8,9 +8,11 @@ const require = createRequire(import.meta.url);
 const sidebarsModule = require('../sidebars.js');
 const sidebars = sidebarsModule.default || sidebarsModule;
 
-const BASE_URL = 'http://localhost:3002';
+const BASE_URL = 'http://localhost:3001';
 const SIDEBAR_KEY = 'tutorialSidebar';
 const DOCS_BASE = '';
+
+const COVER_IMAGE_URL = 'http://enterpriseimage.oss-cn-hangzhou.aliyuncs.com/pdf.png';
 
 const ROUTE_MAP = {
   Introduction: '/',
@@ -24,6 +26,52 @@ const sidebarItems = sidebars[SIDEBAR_KEY];
 if (!Array.isArray(sidebarItems)) {
   console.log('Available sidebar keys:', Object.keys(sidebars));
   throw new Error(`Sidebar key "${SIDEBAR_KEY}" not found or is not an array.`);
+}
+
+async function imageUrlToDataUrl(url) {
+  const candidates = [
+    url,
+    url.replace(/^http:\/\//, 'https://'),
+  ];
+
+  let lastError;
+
+  for (const candidate of candidates) {
+    try {
+      const response = await fetch(candidate);
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch ${candidate}: ${response.status} ${response.statusText}`);
+      }
+
+      const contentType = response.headers.get('content-type') || 'image/png';
+      const buffer = Buffer.from(await response.arrayBuffer());
+      const base64 = buffer.toString('base64');
+
+      return `data:${contentType};base64,${base64}`;
+    } catch (error) {
+      lastError = error;
+    }
+  }
+
+  throw lastError;
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
+
+function slugify(value) {
+  return String(value)
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9\u4e00-\u9fa5]+/gi, '-')
+    .replace(/^-+|-+$/g, '');
 }
 
 function getDocLabel(id) {
@@ -75,7 +123,27 @@ function collectEntries(items, level = 1) {
   return entries;
 }
 
-const entries = collectEntries(sidebarItems);
+function buildToc(entries) {
+  return entries
+    .map((entry) => {
+      const indent = Math.max(entry.level - 1, 0) * 18;
+      const className = entry.type === 'category' ? 'toc-category' : 'toc-doc';
+
+      return `
+        <a class="toc-row ${className} toc-level-${entry.level}" href="#${entry.anchor}" style="padding-left: ${indent}px;">
+          <span class="toc-title">${escapeHtml(entry.label)}</span>
+        </a>
+      `;
+    })
+    .join('\n');
+}
+
+const coverImageDataUrl = await imageUrlToDataUrl(COVER_IMAGE_URL);
+
+const entries = collectEntries(sidebarItems).map((entry, index) => ({
+  ...entry,
+  anchor: `${entry.type}-${index}-${slugify(entry.label || entry.id || index)}`,
+}));
 
 const browser = await chromium.launch();
 const page = await browser.newPage();
@@ -87,8 +155,8 @@ for (const entry of entries) {
     const headingLevel = Math.min(entry.level, 3);
 
     sections.push(`
-      <h${headingLevel} class="pdf-sidebar-category pdf-level-${entry.level}">
-        ${entry.label}
+      <h${headingLevel} id="${entry.anchor}" class="pdf-sidebar-category pdf-level-${entry.level}">
+        ${escapeHtml(entry.label)}
       </h${headingLevel}>
     `);
 
@@ -129,88 +197,104 @@ for (const entry of entries) {
       )
       .forEach((el) => el.remove());
 
+    // 确保 HTML 表格有 thead，这样跨页时可以重复表头。
+    article.querySelectorAll('table').forEach((table) => {
+      if (table.querySelector('thead')) {
+        return;
+      }
+
+      const firstRow = table.querySelector('tr');
+
+      if (!firstRow || !firstRow.querySelector('th')) {
+        return;
+      }
+
+      const thead = document.createElement('thead');
+      const firstTbody = table.querySelector('tbody');
+
+      table.insertBefore(thead, firstTbody || table.firstChild);
+      thead.appendChild(firstRow);
+    });
+
     const title =
       article.querySelector('h1')?.textContent?.trim() ||
       document.title.replace(/ \| .+$/, '');
 
-    // 删除 admonition 里的 SVG 图标，避免 PDF 中出现异常大括号/黑色残影
-    // 重建 Docusaurus admonition，去掉异常引用线/括号，保留干净的小图标和有色底
-article
-  .querySelectorAll('.alert, .theme-admonition, [class*="admonition"]')
-  .forEach((box) => {
-    const className = box.className || '';
+    // 重建 Docusaurus admonition，避免 SVG / blockquote 打印异常。
+    article
+      .querySelectorAll('.alert, .theme-admonition, [class*="admonition"]')
+      .forEach((box) => {
+        const className = box.className || '';
 
-    let type = 'info';
-    let icon = 'ⓘ';
+        let type = 'info';
+        let icon = 'ⓘ';
 
-    if (className.includes('warning')) {
-      type = 'warning';
-      icon = '⚠';
-    } else if (className.includes('danger') || className.includes('caution')) {
-      type = 'danger';
-      icon = '!';
-    } else if (className.includes('tip') || className.includes('success')) {
-      type = 'tip';
-      icon = '✓';
-    }
+        if (className.includes('warning')) {
+          type = 'warning';
+          icon = '⚠';
+        } else if (className.includes('danger') || className.includes('caution')) {
+          type = 'danger';
+          icon = '!';
+        } else if (className.includes('tip') || className.includes('success')) {
+          type = 'tip';
+          icon = '✓';
+        }
 
-    const heading =
-      box.querySelector('[class*="admonitionHeading"]') ||
-      box.querySelector('[class*="admonitionTitle"]');
+        const heading =
+          box.querySelector('[class*="admonitionHeading"]') ||
+          box.querySelector('[class*="admonitionTitle"]');
 
-    const content =
-      box.querySelector('[class*="admonitionContent"]') || box;
+        const content =
+          box.querySelector('[class*="admonitionContent"]') || box;
 
-    const titleText =
-      heading?.textContent?.replace(/[ⓘ⚠✓!]/g, '').trim() ||
-      type;
+        const titleText =
+          heading?.textContent?.replace(/[ⓘ⚠✓!]/g, '').trim() ||
+          type;
 
-    const contentHtml = content.innerHTML;
+        const contentHtml = content.innerHTML;
 
-    box.className = `pdf-admonition pdf-admonition-${type}`;
+        box.className = `pdf-admonition pdf-admonition-${type}`;
 
-    box.innerHTML = `
-      <div class="pdf-admonition-title">
-        <span class="pdf-admonition-icon">${icon}</span>
-        <span>${titleText}</span>
-      </div>
-      <div class="pdf-admonition-content">
-        ${contentHtml}
-      </div>
-    `;
-  });
-  // 标记正文里的小图标，避免被当成大图截图换行显示
-article.querySelectorAll('img, svg').forEach((el) => {
-  // 只跳过我们自己生成的提示框标题图标；
-  // 提示内容里的 img/svg 仍然要按 inline icon 处理
-  if (el.closest('.pdf-admonition-title')) {
-    return;
-  }
+        box.innerHTML = `
+          <div class="pdf-admonition-title">
+            <span class="pdf-admonition-icon">${icon}</span>
+            <span>${titleText}</span>
+          </div>
+          <div class="pdf-admonition-content">
+            ${contentHtml}
+          </div>
+        `;
+      });
 
-  const rect = el.getBoundingClientRect();
+    // 标记正文小图标，避免被当成大图独占一行。
+    article.querySelectorAll('img, svg').forEach((el) => {
+      if (el.closest('.pdf-admonition-title')) {
+        return;
+      }
 
-  const width =
-    rect.width ||
-    Number(el.getAttribute('width')) ||
-    Number(el.style.width?.replace('px', '')) ||
-    0;
+      const rect = el.getBoundingClientRect();
 
-  const height =
-    rect.height ||
-    Number(el.getAttribute('height')) ||
-    Number(el.style.height?.replace('px', '')) ||
-    0;
+      const width =
+        rect.width ||
+        Number(el.getAttribute('width')) ||
+        Number(el.style.width?.replace('px', '')) ||
+        0;
 
-  if (width <= 64 && height <= 64) {
-    el.classList.add('pdf-inline-icon');
-    el.style.display = 'inline-block';
-    el.style.verticalAlign = 'middle';
-    el.style.margin = '0 4px';
-  }
-});
+      const height =
+        rect.height ||
+        Number(el.getAttribute('height')) ||
+        Number(el.style.height?.replace('px', '')) ||
+        0;
 
-    // 去掉正文标题的 h 语义，避免正文 h2/h3/h4 进入 PDF 侧边书签；
-    // 但保留 class，用 CSS 让它看起来仍然像标题。
+      if (width <= 64 && height <= 64) {
+        el.classList.add('pdf-inline-icon');
+        el.style.display = 'inline-block';
+        el.style.verticalAlign = 'middle';
+        el.style.margin = '0 4px';
+      }
+    });
+
+    // 正文 h2/h3 不进入 PDF 书签，但保留标题视觉样式。
     article.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach((heading) => {
       const div = document.createElement('div');
       div.className = `pdf-content-heading pdf-${heading.tagName.toLowerCase()}`;
@@ -233,8 +317,8 @@ article.querySelectorAll('img, svg').forEach((el) => {
 
   sections.push(`
     <section class="pdf-doc">
-      <h${Math.min(doc.level, 3)} class="pdf-doc-title pdf-bookmark-only pdf-level-${doc.level}">
-        ${doc.label || data.title}
+      <h${Math.min(doc.level, 3)} id="${doc.anchor}" class="pdf-doc-title pdf-bookmark-only pdf-level-${doc.level}">
+        ${escapeHtml(doc.label || data.title)}
       </h${Math.min(doc.level, 3)}>
       <div class="doc-content">
         ${data.html}
@@ -243,32 +327,114 @@ article.querySelectorAll('img, svg').forEach((el) => {
   `);
 }
 
+const tocHtml = buildToc(entries);
+
 const html = `
 <!doctype html>
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>User Manual</title>
+  <title>Tier0 Enterprise User Manual</title>
 
   <base href="${BASE_URL}/" />
 
   <style>
-    body {
-      font-family: Arial, "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
-      line-height: 1.6;
-      color: #222;
-      max-width: 920px;
-      margin: 0 auto;
-      padding: 40px;
-      font-size: 15px;
+    @page {
+      size: A4;
+      margin: 22mm 18mm 28mm 18mm;
     }
 
-    .cover-title {
-      font-size: 38px;
-      font-weight: 700;
-      text-align: center;
-      margin: 140px 0 100px;
+    @page:first {
+      size: A4;
+      margin: 0;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      color: #222;
+      font-family: Arial, "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      background: #fff;
+    }
+
+    .cover-page {
+      width: 210mm;
+      height: 297mm;
+      margin: 0;
+      padding: 0;
       page-break-after: always;
+      break-after: page;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .cover-image {
+      width: 210mm;
+      height: 297mm;
+      object-fit: cover;
+      display: block;
+    }
+
+    .toc-page {
+      page-break-after: always;
+      break-after: page;
+    }
+
+    .manual-body,
+    .toc-page {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 0;
+    }
+
+    .manual-content,
+    .toc-content {
+      max-width: 920px;
+      margin: 0 auto;
+    }
+
+    .toc-title-main {
+      font-size: 30px;
+      line-height: 1.25;
+      color: #111827;
+      margin: 0 0 24px;
+      font-weight: 700;
+    }
+
+    .toc-list {
+      border-top: 1px solid #e5e7eb;
+      padding-top: 12px;
+    }
+
+    .toc-row {
+      display: flex;
+      align-items: center;
+      min-height: 28px;
+      color: #1f2937;
+      text-decoration: none;
+      border-bottom: 1px solid #f1f5f9;
+      box-sizing: border-box;
+    }
+
+    .toc-row:hover {
+      color: #73b200;
+    }
+
+    .toc-category {
+      font-weight: 700;
+      margin-top: 6px;
+    }
+
+    .toc-doc {
+      font-weight: 400;
+      color: #4b5563;
+    }
+
+    .toc-title {
+      display: inline-block;
     }
 
     .pdf-sidebar-category {
@@ -277,14 +443,20 @@ const html = `
       margin-top: 36px;
       margin-bottom: 18px;
       line-height: 1.35;
+      break-after: avoid;
+      page-break-after: avoid;
     }
 
     .pdf-sidebar-category.pdf-level-1 {
       font-size: 30px;
+      break-before: page;
       page-break-before: always;
+      break-after: avoid;
+      page-break-after: avoid;
     }
 
     .pdf-sidebar-category.pdf-level-1:first-of-type {
+      break-before: auto;
       page-break-before: auto;
     }
 
@@ -306,6 +478,8 @@ const html = `
       line-height: 1.35;
       margin-top: 22px;
       margin-bottom: 12px;
+      break-after: avoid;
+      page-break-after: avoid;
     }
 
     .pdf-doc-title.pdf-level-1 {
@@ -320,7 +494,6 @@ const html = `
       font-size: 19px;
     }
 
-    /* 只用于 PDF 侧边书签，不在正文中显示 */
     .pdf-bookmark-only {
       font-size: 1px !important;
       line-height: 1px !important;
@@ -336,6 +509,8 @@ const html = `
       margin-top: 28px;
       margin-bottom: 12px;
       color: #1f2937;
+      break-after: avoid;
+      page-break-after: avoid;
     }
 
     .pdf-h1 {
@@ -385,6 +560,19 @@ const html = `
       border-collapse: collapse;
       margin: 16px 0;
       font-size: 14px;
+      break-inside: auto;
+      page-break-inside: auto;
+    }
+
+    thead {
+      display: table-header-group;
+    }
+
+    tfoot {
+      display: table-footer-group;
+    }
+
+    tr {
       break-inside: avoid;
       page-break-inside: avoid;
     }
@@ -463,76 +651,76 @@ const html = `
     }
 
     .pdf-admonition {
-  border-radius: 8px;
-  padding: 14px 16px;
-  margin: 16px 0;
-  border-left: 5px solid;
-  break-inside: avoid;
-  page-break-inside: avoid;
-}
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin: 16px 0;
+      border-left: 5px solid;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
 
-.pdf-admonition-info {
-  background: #eef6ff !important;
-  border-left-color: #3b82f6 !important;
-}
+    .pdf-admonition-info {
+      background: #eef6ff !important;
+      border-left-color: #3b82f6 !important;
+    }
 
-.pdf-admonition-tip {
-  background: #ecfdf5 !important;
-  border-left-color: #10b981 !important;
-}
+    .pdf-admonition-tip {
+      background: #ecfdf5 !important;
+      border-left-color: #10b981 !important;
+    }
 
-.pdf-admonition-warning {
-  background: #fffbeb !important;
-  border-left-color: #f59e0b !important;
-}
+    .pdf-admonition-warning {
+      background: #fffbeb !important;
+      border-left-color: #f59e0b !important;
+    }
 
-.pdf-admonition-danger {
-  background: #fef2f2 !important;
-  border-left-color: #ef4444 !important;
-}
+    .pdf-admonition-danger {
+      background: #fef2f2 !important;
+      border-left-color: #ef4444 !important;
+    }
 
-.pdf-admonition-title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 700;
-  margin-bottom: 8px;
-}
+    .pdf-admonition-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
 
-.pdf-admonition-icon {
-  width: 16px;
-  height: 16px;
-  min-width: 16px;
-  max-width: 16px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-  line-height: 1;
-}
+    .pdf-admonition-icon {
+      width: 16px;
+      height: 16px;
+      min-width: 16px;
+      max-width: 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      line-height: 1;
+    }
 
-.pdf-admonition-content > :first-child {
-  margin-top: 0;
-}
+    .pdf-admonition-content > :first-child {
+      margin-top: 0;
+    }
 
-.pdf-admonition-content > :last-child {
-  margin-bottom: 0;
-}
+    .pdf-admonition-content > :last-child {
+      margin-bottom: 0;
+    }
 
-.pdf-admonition blockquote,
-.pdf-admonition-content blockquote {
-  border-left: none !important;
-  margin: 0 !important;
-  padding-left: 0 !important;
-}
+    .pdf-admonition blockquote,
+    .pdf-admonition-content blockquote {
+      border-left: none !important;
+      margin: 0 !important;
+      padding-left: 0 !important;
+    }
 
-.pdf-admonition *::before,
-.pdf-admonition *::after,
-.pdf-admonition::before,
-.pdf-admonition::after {
-  content: none !important;
-  display: none !important;
-}
+    .pdf-admonition *::before,
+    .pdf-admonition *::after,
+    .pdf-admonition::before,
+    .pdf-admonition::after {
+      content: none !important;
+      display: none !important;
+    }
 
     button,
     .clean-btn,
@@ -542,16 +730,27 @@ const html = `
     [class*="buttonGroup"] {
       display: none !important;
     }
-
-    @page {
-      size: A4;
-      margin: 18mm 16mm;
-    }
   </style>
 </head>
 <body>
-  <div class="cover-title">User Manual</div>
-  ${sections.join('\n')}
+  <section class="cover-page">
+    <img class="cover-image" src="${coverImageDataUrl}" alt="Tier0 Enterprise User Manual Cover" />
+  </section>
+
+  <section class="toc-page">
+    <div class="toc-content">
+      <div class="toc-title-main">Table of Contents</div>
+      <div class="toc-list">
+        ${tocHtml}
+      </div>
+    </div>
+  </section>
+
+  <main class="manual-body">
+    <div class="manual-content">
+      ${sections.join('\n')}
+    </div>
+  </main>
 </body>
 </html>
 `;
@@ -565,18 +764,66 @@ await page.goto(`file://${htmlPath}`, {
   waitUntil: 'networkidle',
 });
 
+await page.waitForLoadState('networkidle');
+
+await page.evaluate(async () => {
+  await document.fonts.ready;
+
+  const images = Array.from(document.images);
+  await Promise.all(
+    images.map((img) => {
+      if (img.complete) return Promise.resolve();
+
+      return new Promise((resolve) => {
+        img.onload = resolve;
+        img.onerror = resolve;
+      });
+    })
+  );
+});
+
 await page.pdf({
   path: pdfPath,
   format: 'A4',
   printBackground: true,
   outline: true,
   tagged: true,
-  margin: {
-    top: '18mm',
-    right: '16mm',
-    bottom: '18mm',
-    left: '16mm',
-  },
+  preferCSSPageSize: true,
+  displayHeaderFooter: true,
+  headerTemplate: `<div></div>`,
+  footerTemplate: `
+    <div style="
+      width: 100%;
+      font-size: 9px;
+      color: #8a8f98;
+      text-align: center;
+      font-family: Arial, sans-serif;
+      margin-bottom: 8mm;
+    ">
+      <span style="
+        display: inline-block;
+        width: 28px;
+        height: 1px;
+        background: #cbd5e1;
+        vertical-align: middle;
+        margin-right: 8px;
+      "></span>
+      <span class="pageNumber" style="
+        display: inline-block;
+        min-width: 12px;
+        color: #6b7280;
+        vertical-align: middle;
+      "></span>
+      <span style="
+        display: inline-block;
+        width: 28px;
+        height: 1px;
+        background: #cbd5e1;
+        vertical-align: middle;
+        margin-left: 8px;
+      "></span>
+    </div>
+  `,
 });
 
 await browser.close();

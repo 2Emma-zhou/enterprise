@@ -17,8 +17,9 @@ It connects data through Node-RED, organizes it into a unified structure, and ma
 
 Tier0 moves and structures data in a single workflow:
 
+- According to Unified Namespace (UNS) concept, build data models with clear structures.
 - Node-RED connects and processes data from devices and systems  
-- Data is published into the Unified Namespace (UNS), structured and stored in Tier0 database
+- Data is published into the Unified Namespace (UNS) data models and stored in Tier0 database
 - Data is consumed by dashboards, applications and analytics  
 
 <img width={550} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/191.png" />

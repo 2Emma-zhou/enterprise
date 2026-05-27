@@ -1,12 +1,27 @@
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import './styles.css';
 
-const API_URL = 'https://enterprisebot.tier0.dev/chat';
+const PROD_API_URL = 'https://enterprisebot.tier0.dev/chat';
+const LOCAL_API_URL = 'http://127.0.0.1:8001/chat';
 
 const LIGHT_ICON_URL = 'https://communityimage2.oss-cn-hangzhou.aliyuncs.com/bot.png';
 const DARK_ICON_URL = 'https://communityimage2.oss-cn-hangzhou.aliyuncs.com/bot1.png';
+
+function getApiUrl() {
+  if (typeof window === 'undefined') {
+    return PROD_API_URL;
+  }
+
+  const host = window.location.hostname;
+
+  if (host === 'localhost' || host === '127.0.0.1') {
+    return LOCAL_API_URL;
+  }
+
+  return PROD_API_URL;
+}
 
 function getPageLang() {
   if (typeof window === 'undefined') {
@@ -32,7 +47,9 @@ function getColorMode() {
 
 export default function DocChatBot() {
   const lang = useMemo(() => getPageLang(), []);
+  const apiUrl = useMemo(() => getApiUrl(), []);
   const [colorMode, setColorMode] = useState(() => getColorMode());
+  const messagesEndRef = useRef(null);
 
   useEffect(() => {
     if (typeof document === 'undefined') {
@@ -63,30 +80,49 @@ export default function DocChatBot() {
     if (lang === 'zh') {
       return {
         entryTip: '快来问我问题吧',
-        welcome: '你好，我可以根据 Tier0 文档回答你的问题。',
+        welcome: '你好，我是 Tier0 Onboarding 助手，可以根据文档帮你理解产品、完成操作和排查问题。',
         placeholder: '请输入你的问题...',
-        title: 'Tier0 文档助手',
-        subtitle: '基于 Tier0 文档回答问题',
+        title: 'Tier0 Onboarding 助手',
+        subtitle: '基于 Tier0 文档帮助你更快上手',
         send: '发送',
         thinking: '思考中...',
         unavailable: '抱歉，文档助手暂时不可用，请检查 AI Bot API 是否正在运行。',
         noAnswer: '未返回答案。',
         references: '参考文档',
+        suggestedTitle: '你可以这样问',
+        suggestedQuestions: [
+          '我该怎么建模？',
+          '如何连接数据？',
+          '高级一点的数据分析怎么做？',
+          'Tier0 的基础操作顺序是什么？',
+          '如何创建仪表盘？',
+          '如何管理用户和权限？',
+        ],
       };
     }
 
     return {
       entryTip: 'Come and ask me a question',
-      welcome: 'Hi, I can help answer questions based on the Tier0 documentation.',
+      welcome:
+        'Hi, I am the Tier0 Onboarding Assistant. I can help you understand the product, complete tasks, and troubleshoot issues based on the documentation.',
       placeholder: 'Ask about Tier0...',
-      title: 'Tier0 Documentation Assistant',
-      subtitle: 'Ask questions about Tier0',
+      title: 'Tier0 Onboarding Assistant',
+      subtitle: 'Guided help based on Tier0 documentation',
       send: 'Send',
       thinking: 'Thinking...',
       unavailable:
         'Sorry, the documentation assistant is temporarily unavailable. Please check whether the AI bot API is running.',
       noAnswer: 'No answer returned.',
       references: 'References',
+      suggestedTitle: 'Try asking',
+      suggestedQuestions: [
+        'How should I build a data model?',
+        'How do I connect data?',
+        'How can I do more advanced data analysis?',
+        'What is the basic workflow for using Tier0?',
+        'How do I create a dashboard?',
+        'How do I manage users and permissions?',
+      ],
     };
   }, [lang]);
 
@@ -98,11 +134,35 @@ export default function DocChatBot() {
       role: 'assistant',
       content: texts.welcome,
       references: [],
+      suggestedQuestions: texts.suggestedQuestions,
     },
   ]);
 
-  async function sendMessage() {
-    const text = input.trim();
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    messagesEndRef.current?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'end',
+    });
+  }, [messages, loading, open]);
+
+  const lastMessage = messages[messages.length - 1];
+  const currentSuggestedQuestions =
+    lastMessage?.role === 'assistant' && lastMessage?.suggestedQuestions?.length
+      ? lastMessage.suggestedQuestions
+      : texts.suggestedQuestions;
+
+  const shouldShowSuggestions =
+    !loading &&
+    messages.length > 0 &&
+    lastMessage.role === 'assistant' &&
+    currentSuggestedQuestions.length > 0;
+
+  async function sendMessage(overrideText) {
+    const text = (overrideText || input).trim();
 
     if (!text || loading) {
       return;
@@ -114,19 +174,21 @@ export default function DocChatBot() {
       role: 'user',
       content: text,
       references: [],
+      suggestedQuestions: [],
     };
 
     setMessages((prev) => [...prev, userMessage]);
     setLoading(true);
 
     try {
-      const res = await fetch(API_URL, {
+      const res = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           message: text,
+          lang,
         }),
       });
 
@@ -135,6 +197,9 @@ export default function DocChatBot() {
       }
 
       const data = await res.json();
+      const suggestedQuestions = Array.isArray(data.suggested_questions) && data.suggested_questions.length > 0
+        ? data.suggested_questions
+        : texts.suggestedQuestions;
 
       setMessages((prev) => [
         ...prev,
@@ -142,6 +207,7 @@ export default function DocChatBot() {
           role: 'assistant',
           content: data.answer || texts.noAnswer,
           references: data.references || [],
+          suggestedQuestions,
         },
       ]);
     } catch (error) {
@@ -151,6 +217,7 @@ export default function DocChatBot() {
           role: 'assistant',
           content: texts.unavailable,
           references: [],
+          suggestedQuestions: texts.suggestedQuestions,
         },
       ]);
     } finally {
@@ -168,11 +235,7 @@ export default function DocChatBot() {
   return (
     <>
       <div className="doc-chatbot-entry">
-        {!open && (
-          <div className="doc-chatbot-tip">
-            {texts.entryTip}
-          </div>
-        )}
+        {!open && <div className="doc-chatbot-tip">{texts.entryTip}</div>}
 
         <button
           className={`doc-chatbot-button ${open ? 'doc-chatbot-button-open' : ''}`}
@@ -183,11 +246,7 @@ export default function DocChatBot() {
           {open ? (
             <span className="doc-chatbot-close-icon">×</span>
           ) : (
-            <img
-              className="doc-chatbot-icon"
-              src={botIconUrl}
-              alt="AI assistant"
-            />
+            <img className="doc-chatbot-icon" src={botIconUrl} alt="AI assistant" />
           )}
         </button>
       </div>
@@ -234,11 +293,7 @@ export default function DocChatBot() {
                       <ul>
                         {message.references.map((ref, refIndex) => (
                           <li key={refIndex}>
-                            <a
-                              href={ref.url}
-                              target="_blank"
-                              rel="noreferrer"
-                            >
+                            <a href={ref.url} target="_blank" rel="noreferrer">
                               {ref.title}
                             </a>
                             {ref.section ? (
@@ -261,6 +316,29 @@ export default function DocChatBot() {
                 <div className="doc-chatbot-bubble">{texts.thinking}</div>
               </div>
             )}
+
+            {shouldShowSuggestions && (
+              <div className="doc-chatbot-suggestions">
+                <div className="doc-chatbot-suggestions-title">
+                  {texts.suggestedTitle}
+                </div>
+                <div className="doc-chatbot-suggestions-list">
+                  {currentSuggestedQuestions.map((question) => (
+                    <button
+                      key={question}
+                      className="doc-chatbot-suggestion"
+                      type="button"
+                      onClick={() => sendMessage(question)}
+                      disabled={loading}
+                    >
+                      {question}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div ref={messagesEndRef} />
           </div>
 
           <div className="doc-chatbot-input-area">
@@ -275,7 +353,7 @@ export default function DocChatBot() {
             <button
               className="doc-chatbot-send"
               type="button"
-              onClick={sendMessage}
+              onClick={() => sendMessage()}
               disabled={loading || !input.trim()}
             >
               {texts.send}

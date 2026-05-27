@@ -37,12 +37,10 @@ sidebar_label: 从 Tier0 获取数据（事件流程）
 
 4. 拖拽一个 `function` 节点至画布，编写脚本将获取到的数据按第三方接收API的要求格式化。
 ```js
-// 若负载为字符串类型，则解析为JSON
 if (typeof msg.payload === "string") {
     msg.payload = JSON.parse(msg.payload);
 }
 
-// 设置请求头
 msg.headers = {
     "Content-Type": "application/json"
 };

@@ -37,12 +37,10 @@ This method is suitable for third parties who do not support MQTT and need event
 
 4. Drag a `function` node to the canvas, and write a script to format the data obtained according to third-party receiver API.
 ```js
-// parse payload if it's a string
 if (typeof msg.payload === "string") {
     msg.payload = JSON.parse(msg.payload);
 }
 
-// set headers
 msg.headers = {
     "Content-Type": "application/json"
 };

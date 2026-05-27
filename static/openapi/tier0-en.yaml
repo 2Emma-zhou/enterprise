@@ -1,19 +1,19 @@
 openapi: 3.0.1
 info:
-  title: Tier0 UNS Open API
-  description: UNS Open API for managing paths, topics, templates, labels, and users
+  title: Tier0 Open API
+  description: Open API for managing paths, topics, templates, labels, and users
   version: 1.0.0
 tags:
 - name: Path/Topic Management
-  description: Path and topic management operations
+  description:
 - name: Template Management
-  description: Template management operations
+  description: 
 - name: Label Management
-  description: Label management operations
+  description: 
 - name: Batch Operations
-  description: Batch operations for paths and topics
+  description: 
 - name: User Management
-  description: User management operations
+  description: 
 paths:
   /open-api/uns/attachment:
     post:

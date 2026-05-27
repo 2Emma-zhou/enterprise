@@ -52,38 +52,7 @@ Tier0 uses UNS (Unified Namespace) to organize data into a clear tree structure.
 </tr>
 </table>
 
-{/* - **Topic-Data Type**
 
-<table>
-<tr>
-<th>Type</th>
-<th>Description</th>
-</tr>
-<tr>
-<td>Time Series</td>
-<td>Receive real-time data and store it in TimescaleDB.</td>
-</tr>
-<tr>
-<td>Relational</td>
-<td>Receive relational data and store it in a Postgres database.</td>
-</tr>
-<tr>
-<td>Calculation</td>
-<td>Perform basic calculations on the added time series attributes.</td>
-</tr>
-<tr>
-<td>Aggregation</td>
-<td>Aggregate the added data sources into JSON at a fixed frequency.</td>
-</tr>
-<tr>
-<td>Reference</td>
-<td>Select an existing file and copy its attributes.</td>
-</tr>
-<tr>
-<td>JSONB</td>
-<td>JSON data in binary format.</td>
-</tr>
-</table> */}
 
 - **Topic-Attribute Generation Method**
 
@@ -120,14 +89,7 @@ Tier0 uses UNS (Unified Namespace) to organize data into a clear tree structure.
     </tr>
   </thead>
   <tbody>
-  {/* <tr>
-      <td><strong>Mock Data</strong></td>
-      <td>Generates a data flow with mock data in <strong>UNS</strong> &gt; <strong>Source Flow</strong>.</td>
-    </tr>
-    <tr>
-      <td><strong>Generate Dashboard</strong></td>
-      <td>Generates a dashboard in <strong>UNS</strong> &gt; <strong>Dashboards</strong>.</td>
-    </tr> */}
+
     <tr>
       <td><strong>Enable History</strong></td>
       <td>Enable historical data storage for the topic.</td>
@@ -156,58 +118,9 @@ Based on simple folder-file structure, you can define the data hierarchy to a tr
 
 5. Enter the information of the topic, and then click **Save**.
 
-{/* ### Generating Models through JSON
-1. Log in to Tier0, and then select **UNS** > **Namespace**.
-2. Click <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/40.png" /> on the **Topic** page.
 
-<img width={350} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/40-1.png" />
 
-3. Select the data type, and then write JSON text for the model according to the data tree structure.
 
-```json
-{
-    "Factory1": {
-        "workshop1": {
-            "equipment1": {
-                "CNC1": [
-                    {
-                        "actualRuntime1": 1380,
-                        "plannedRuntime1": 1440
-                    }
-                ]
-            }
-        }
-    }
-}
-```
-
-<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/41.png" />
-
-4. Click **Next**, and select the model on the left side.
-:::tip
-Click on each data level, you can change its information and add attributes on the right side.
-:::
-
-<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/42.png" />
-
-5. Click **Save**. */}
-
-{/* ### Converting Models through MQTT
-1. Use an MQTT client to connect to the internal broker of Tier0.
-  - **Host**: Your Tier0 domain.
-  - **Port**: 1883.
-
-<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/118.png" />
-
-2. Define a topic and message payload on the client, and then send it to Tier0.
-
-<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/119.png" />
-
-3. Log in to Tier0, and then select **UNS** > **Namespace**.
-4. Expand **Unmodeled Topics**, find the topic you defined.
-5. Click **Convert** icon next to the topic, and then edit the information and complete the model creation.
-
-<img width={650} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/120.png" /> */}
 
 ### Importing Models
 1. Log in to Tier0, landed on the **Namespace** page.
@@ -233,64 +146,7 @@ You can manually add a path and topic, export it and use it as an example for im
 
 4. Click **Save**.
 
-{/* ### Creating Models with Data Source through Source Flow
-1. Log in to Tier0, and then select **UNS** > **Source Flow**.
-2. Click **New Source Flow** to create a flow.
-3. Click the flow and drag the **UNS Mapper** node to the canvas.
-4. Double-click the node, and configure its properties.
-    1. Set the node name, and then under <b>Basic Info</b>, select a protocol next to <b>Select Protocol</b> through which the data is transmitted. 
 
-    <img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/145.png" />
-
-    2. (Optional) Select a model next to <b>Select Model</b> to get an example for subsequent model attributes creation.
-    3. Click <b>Tags Mapping</b>, click <b>New Row</b>, and then enter the model information.
-
-    <img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/146.png" />
-    <table>
-    <thead>
-    <tr>
-    <th>Parameter</th>
-    <th>Description</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-    <td>FilePath (Required)</td>
-    <td>Namespace topic path. Use folder/file style, only last level sends data. Example: Workshop1/Line2/CNC01/SpindleTemperature.</td>
-    </tr>
-    <tr>
-    <td>Alias (Optional)</td>
-    <td>Custom alias. If blank, system auto-generates unique ID.</td>
-    </tr>
-    <tr>
-    <td>AttributeName (Required)</td>
-    <td>Key name in output JSON (e.g., value).</td>
-    </tr>
-    <tr>
-    <td>AttributeType (Required)</td>
-    <td>Data type: Float, Integer, String, or Boolean. Node auto-converts.</td>
-    </tr>
-    <tr>
-    <td>TagConfiguration (Required)</td>
-    <td>Upstream data locator. Format depends on protocol: OPC UA (nodeId), Modbus (register index), MQTT (payload path), OPC DA (tag path).</td>
-    </tr>
-    </tbody>
-    </table>
-5. Complete the node configuration, and then connect a data source node (in this example, **Modbus read**) to the **UNS Mapper** and a **mqtt out** at the end.
-
-<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/147.png" />
-
-6. Edit properties of both the data source node and **mqtt out** node.
-
-<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/148.png" /><img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/149.png" />
-
-:::tip
-For details on property configuration of common data source nodes, see <a href="../../category/common-data-sources">Common Data Sources</a>.
-:::
-
-7. Deploy the flow and trigger it, check the data on **Namespace**.
-
-<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/150.png" /> */}
 
 ## Optional Features
 ### Building Template

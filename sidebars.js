@@ -1,21 +1,4 @@
-// @ts-check
-
-// This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
-
-/**
- * Creating a sidebar enables you to:
- - create an ordered group of docs
- - render a sidebar for each doc of that group
- - provide next/previous navigation
-
- The sidebars can be generated from the filesystem, or explicitly defined here.
-
- Create as many sidebars as you want.
-
- @type {import('@docusaurus/plugin-content-docs').SidebarsConfig}
- */
 const sidebars = {
-  // By default, Docusaurus generates a sidebar from the docs folder structure
   tutorialSidebar: [
     
     
@@ -29,9 +12,7 @@ const sidebars = {
             items: [
               'Introduction',
               'Feature List',
-              // 'What Can Tier0 Do',
               'Basic Guides/UNS Data Integration/User Journey',
-              // 'Use Case/OEE Evaluation',
               
             ]
             },
@@ -106,12 +87,9 @@ const sidebars = {
             description: 'This section provides guides on advanced features on Tier0.',
         },
             items: [
-              // 'Basic Guides/Database Management/Data Source Management',
-              // 'Basic Guides/Database Management/SQL Editor',
               
               'Basic Guides/Database Management/Container Management',
               'Basic Guides/Database Management/Notebook',
-              // 'Basic Guides/Database Management/App Space',
               'Basic Guides/Database Management/Advanced Use',
 
             ]
@@ -125,11 +103,8 @@ const sidebars = {
             items: [
               'Basic Guides/System Management/Routing Management',
               'Basic Guides/System Management/User Management',
-              // 'Basic Guides/System Management/Permission Management',
               'Basic Guides/System Management/Open Data',
-              // 'Basic Guides/System Management/I18n Management',
               'Basic Guides/System Management/Menu Config',
-              // 'Basic Guides/System Management/Theme Management',
             ]
             },
             
@@ -137,17 +112,8 @@ const sidebars = {
             'Glossary'
   ],
 
-  // But you can create a sidebar manually
-  
   usecase: [
-    // 'Use Case/OEE Evaluation',
     'Use Case/PCBA Process Simulation',
-
-    // {
-    //   type: 'category',
-    //   label: 'Tutorial',
-    //   items: ['tutorial-basics/create-a-document'],
-    // },
   ],
    
 };

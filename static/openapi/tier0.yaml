@@ -1,19 +1,18 @@
 openapi: 3.0.1
 info:
-  title: Tier0 UNS Open API
-  description: UNS Open API for managing folders, files, templates, labels, and users
-  version: 1.0.0
+  title: Tier0 Open API
+  description: 用于管理文件夹，文件，模板，标签及用户的Open API。
 tags:
   - name: 文件夹/文件管理
-    description: Folder and file management operations
+    description: 
   - name: 模板管理
-    description: Template management operations
+    description: 
   - name: 标签管理
-    description: Label management operations
+    description: 
   - name: 批量操作
-    description: Batch operations for files and folders
+    description: 
   - name: 用户管理
-    description: User management operations
+    description: 
 paths:
   /open-api/uns/attachment:
     post:

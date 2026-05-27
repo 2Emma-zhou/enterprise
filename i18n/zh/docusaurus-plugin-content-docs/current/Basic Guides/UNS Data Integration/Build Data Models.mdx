@@ -53,38 +53,7 @@ Tier0 采用统一命名空间（UNS）将数据组织成清晰的树形结构�
 </tr>
 </table>
 
-{/* - **文件-数据类型**
 
-<table>
-<tr>
-<th>类型</th>
-<th>说明</th>
-</tr>
-<tr>
-<td>时序型</td>
-<td>接收实时数据并存储至 TimescaleDB。</td>
-</tr>
-<tr>
-<td>关系型</td>
-<td>接收关系型数据并存储至 Postgres 数据库。</td>
-</tr>
-<tr>
-<td>计算型</td>
-<td>对已添加的时序属性执行基础计算。</td>
-</tr>
-<tr>
-<td>聚合</td>
-<td>按固定频率将已添加数据源聚合为 JSON 格式。</td>
-</tr>
-<tr>
-<td>引用</td>
-<td>选择已有文件并复制其属性。</td>
-</tr>
-<tr>
-<td>JSONB</td>
-<td>二进制格式的 JSON 数据。</td>
-</tr>
-</table> */}
 
 - **文件-属性生成方式**
 
@@ -121,14 +90,7 @@ Tier0 采用统一命名空间（UNS）将数据组织成清晰的树形结构�
     </tr>
   </thead>
   <tbody>
-  {/* <tr>
-      <td><strong>模拟数据</strong></td>
-      <td>在 <strong>数据管理</strong> &gt; <strong>数据连接</strong> 中生成含模拟数据的数据流。</td>
-    </tr>
-    <tr>
-      <td><strong>生成数据看板</strong></td>
-      <td>在 <strong>数据管理</strong> &gt; <strong>Dashboards</strong> 中生成可视化仪表盘。</td>
-    </tr> */}
+
     <tr>
       <td><strong>启用历史数据</strong></td>
       <td>为选中文件开启历史数据存储功能。</td>
@@ -156,58 +118,9 @@ Tier0 采用统一命名空间（UNS）将数据组织成清晰的树形结构�
 
 5. 输入文件相关信息，单击**保存**。
 
-{/* ### 通过 JSON 生成模型
-1. 登录 Tier0，选择 **数据管理** > **数据建模**。
-2. 在**工厂模型**栏，单击 <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/40.png" />。
 
-<img width={350} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/40-3.png" />
 
-3. 选择数据类型，根据数据树形结构编写模型 JSON 文本。
 
-```json
-{
-    "Factory1": {
-        "workshop1": {
-            "equipment1": {
-                "CNC1": [
-                    {
-                        "actualRuntime1": 1380,
-                        "plannedRuntime1": 1440
-                    }
-                ]
-            }
-        }
-    }
-}
-```
-
-<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/40-2.png" />
-
-4. 单击**下一步**，在左侧选中模型。
-:::tip
-单击每个数据层级，可在右侧修改其信息并添加属性。
-:::
-
-<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/41-1.png" />
-
-5. 单击**保存**。 */}
-
-{/* ### Converting Models through MQTT
-1. Use an MQTT client to connect to the internal broker of Tier0.
-  - **Host**: Your Tier0 domain.
-  - **Port**: 1883.
-
-<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/118.png" />
-
-2. Define a topic and message payload on the client, and then send it to Tier0.
-
-<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/119.png" />
-
-3. Log in to Tier0, and then select **UNS** > **Namespace**.
-4. Expand **Unmodeled Topics**, find the topic you defined.
-5. Click **Convert** icon next to the topic, and then edit the information and complete the model creation.
-
-<img width={650} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/120.png" /> */}
 
 ### 导入模型
 1. 登录 Tier0，即进入**数据建模**。
@@ -233,64 +146,7 @@ Tier0 采用统一命名空间（UNS）将数据组织成清晰的树形结构�
 
 4. 单击**保存**。
 
-{/* ### Creating Models with Data Source through Source Flow
-1. Log in to Tier0, and then select **UNS** > **Source Flow**.
-2. Click **New Source Flow** to create a flow.
-3. Click the flow and drag the **UNS Mapper** node to the canvas.
-4. Double-click the node, and configure its properties.
-    1. Set the node name, and then under <b>Basic Info</b>, select a protocol next to <b>Select Protocol</b> through which the data is transmitted. 
 
-    <img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/145.png" />
-
-    2. (Optional) Select a model next to <b>Select Model</b> to get an example for subsequent model attributes creation.
-    3. Click <b>Tags Mapping</b>, click <b>New Row</b>, and then enter the model information.
-
-    <img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/146.png" />
-    <table>
-    <thead>
-    <tr>
-    <th>Parameter</th>
-    <th>Description</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-    <td>FilePath (Required)</td>
-    <td>Namespace topic path. Use folder/file style, only last level sends data. Example: Workshop1/Line2/CNC01/SpindleTemperature.</td>
-    </tr>
-    <tr>
-    <td>Alias (Optional)</td>
-    <td>Custom alias. If blank, system auto-generates unique ID.</td>
-    </tr>
-    <tr>
-    <td>AttributeName (Required)</td>
-    <td>Key name in output JSON (e.g., value).</td>
-    </tr>
-    <tr>
-    <td>AttributeType (Required)</td>
-    <td>Data type: Float, Integer, String, or Boolean. Node auto-converts.</td>
-    </tr>
-    <tr>
-    <td>TagConfiguration (Required)</td>
-    <td>Upstream data locator. Format depends on protocol: OPC UA (nodeId), Modbus (register index), MQTT (payload path), OPC DA (tag path).</td>
-    </tr>
-    </tbody>
-    </table>
-5. Complete the node configuration, and then connect a data source node (in this example, **Modbus read**) to the **UNS Mapper** and a **mqtt out** at the end.
-
-<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/147.png" />
-
-6. Edit properties of both the data source node and **mqtt out** node.
-
-<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/148.png" /><img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/149.png" />
-
-:::tip
-For details on property configuration of common data source nodes, see <a href="../../category/common-data-sources">Common Data Sources</a>.
-:::
-
-7. Deploy the flow and trigger it, check the data on **Namespace**.
-
-<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/150.png" /> */}
 
 ## 可选功能
 ### 创建模板
