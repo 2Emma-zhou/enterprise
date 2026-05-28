@@ -56,24 +56,13 @@ html[data-theme='dark'] .doc-chatbot-panel {
   --doc-chatbot-shadow-hover: 2px 4px 18px rgba(0, 0, 0, 0.38);
 }
 
-/* 不同主题下微调图标视觉大小 */
-html[data-theme='light'] {
-  --doc-chatbot-icon-scale: 1.16;
-  --doc-chatbot-icon-hover-scale: 1.22;
-}
-
-html[data-theme='dark'] {
-  --doc-chatbot-icon-scale: 0.94;
-  --doc-chatbot-icon-hover-scale: 1;
-}
-
 /* 入口提示 */
 .doc-chatbot-tip {
   position: absolute;
-  right: 104px;
+  right: 140px;
   bottom: 32px;
   width: max-content;
-  max-width: 260px;
+  max-width: min(360px, calc(100vw - 180px));
   padding: 8px 12px;
   border: 1px solid var(--doc-chatbot-border);
   border-radius: var(--doc-chatbot-radius);
@@ -83,7 +72,8 @@ html[data-theme='dark'] {
   font-weight: 500;
   line-height: 1.35;
   box-shadow: var(--doc-chatbot-shadow);
-  white-space: nowrap;
+  white-space: normal;
+  word-break: keep-all;
 
   opacity: 0;
   transform: translateY(4px) scale(0.96);
@@ -137,14 +127,14 @@ html[data-theme='dark'] {
   object-fit: contain;
   background: transparent;
   filter: drop-shadow(0 8px 14px rgba(5, 11, 20, 0.14));
-  transform: scale(var(--doc-chatbot-icon-scale));
+  transform: scale(1.08);
   transition:
     transform 0.18s ease,
     filter 0.18s ease;
 }
 
 .doc-chatbot-entry:hover .doc-chatbot-icon {
-  transform: scale(var(--doc-chatbot-icon-hover-scale));
+  transform: scale(1.14);
   filter: drop-shadow(0 10px 18px rgba(5, 11, 20, 0.18));
 }
 
@@ -565,27 +555,18 @@ html[data-theme='dark'] {
 }
 
 @media (max-width: 600px) {
-  html[data-theme='light'] {
-    --doc-chatbot-icon-scale: 1.14;
-    --doc-chatbot-icon-hover-scale: 1.18;
-  }
-
-  html[data-theme='dark'] {
-    --doc-chatbot-icon-scale: 0.94;
-    --doc-chatbot-icon-hover-scale: 1;
-  }
-
-  .doc-chatbot-entry {
+.doc-chatbot-entry {
     right: 16px;
     bottom: 16px;
   }
 
-  .doc-chatbot-tip {
-    right: 84px;
+.doc-chatbot-tip {
+    right: 112px;
     bottom: 24px;
-    max-width: 190px;
+    max-width: min(260px, calc(100vw - 150px));
     padding: 7px 10px;
     font-size: 12px;
+    white-space: normal;
   }
 
   .doc-chatbot-button {

@@ -105,6 +105,7 @@ const sidebars = {
               'Basic Guides/System Management/User Management',
               'Basic Guides/System Management/Open Data',
               'Basic Guides/System Management/Menu Config',
+              'Basic Guides/System Management/Audit Log',
             ]
             },
             

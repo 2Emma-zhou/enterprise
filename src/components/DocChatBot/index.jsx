@@ -6,8 +6,7 @@ import './styles.css';
 const PROD_API_URL = 'https://enterprisebot.tier0.dev/chat';
 const LOCAL_API_URL = 'http://127.0.0.1:8001/chat';
 
-const LIGHT_ICON_URL = 'https://communityimage2.oss-cn-hangzhou.aliyuncs.com/bot.png';
-const DARK_ICON_URL = 'https://communityimage2.oss-cn-hangzhou.aliyuncs.com/bot1.png';
+const ICON_URL = 'https://enterpriseimage.oss-cn-hangzhou.aliyuncs.com/icon.png';
 
 function getApiUrl() {
   if (typeof window === 'undefined') {
@@ -37,49 +36,15 @@ function getPageLang() {
   return 'en';
 }
 
-function getColorMode() {
-  if (typeof document === 'undefined') {
-    return 'light';
-  }
-
-  return document.documentElement.getAttribute('data-theme') || 'light';
-}
-
 export default function DocChatBot() {
   const lang = useMemo(() => getPageLang(), []);
   const apiUrl = useMemo(() => getApiUrl(), []);
-  const [colorMode, setColorMode] = useState(() => getColorMode());
   const messagesEndRef = useRef(null);
-
-  useEffect(() => {
-    if (typeof document === 'undefined') {
-      return undefined;
-    }
-
-    const root = document.documentElement;
-
-    const updateColorMode = () => {
-      setColorMode(getColorMode());
-    };
-
-    updateColorMode();
-
-    const observer = new MutationObserver(updateColorMode);
-
-    observer.observe(root, {
-      attributes: true,
-      attributeFilter: ['data-theme'],
-    });
-
-    return () => observer.disconnect();
-  }, []);
-
-  const botIconUrl = colorMode === 'dark' ? DARK_ICON_URL : LIGHT_ICON_URL;
 
   const texts = useMemo(() => {
     if (lang === 'zh') {
       return {
-        entryTip: '快来问我问题吧',
+        entryTip: '准备好开始使用 Tier0 了么？',
         welcome: '你好，我是 Tier0 Onboarding 助手，可以根据文档帮你理解产品、完成操作和排查问题。',
         placeholder: '请输入你的问题...',
         title: 'Tier0 Onboarding 助手',
@@ -102,7 +67,7 @@ export default function DocChatBot() {
     }
 
     return {
-      entryTip: 'Come and ask me a question',
+      entryTip: 'Are you ready to get started with Tier0?',
       welcome:
         'Hi, I am the Tier0 Onboarding Assistant. I can help you understand the product, complete tasks, and troubleshoot issues based on the documentation.',
       placeholder: 'Ask about Tier0...',
@@ -197,9 +162,10 @@ export default function DocChatBot() {
       }
 
       const data = await res.json();
-      const suggestedQuestions = Array.isArray(data.suggested_questions) && data.suggested_questions.length > 0
-        ? data.suggested_questions
-        : texts.suggestedQuestions;
+      const suggestedQuestions =
+        Array.isArray(data.suggested_questions) && data.suggested_questions.length > 0
+          ? data.suggested_questions
+          : texts.suggestedQuestions;
 
       setMessages((prev) => [
         ...prev,
@@ -246,7 +212,11 @@ export default function DocChatBot() {
           {open ? (
             <span className="doc-chatbot-close-icon">×</span>
           ) : (
-            <img className="doc-chatbot-icon" src={botIconUrl} alt="AI assistant" />
+            <img
+              className="doc-chatbot-icon"
+              src={ICON_URL}
+              alt="AI assistant"
+            />
           )}
         </button>
       </div>
