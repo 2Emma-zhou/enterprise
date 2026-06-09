@@ -1,6 +1,6 @@
 ---
 sidebar_position: 1
-slug: /
+slug: /introduction
 title: Tier0 是什么?
 sidebar_label: Tier0 是什么?
 ---

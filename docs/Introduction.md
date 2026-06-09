@@ -1,6 +1,6 @@
 ---
 sidebar_position: 1
-slug: /
+slug: /introduction
 hide_title: true
 sidebar_label: What is Tier0?
 ---

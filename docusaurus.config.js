@@ -116,6 +116,7 @@ const config = {
         logo: {
           alt: 'Tier0',
           src: 'img/black logo.svg',
+          href: '/introduction',
           srcDark: 'img/white logo.svg',
         },
         items: [
