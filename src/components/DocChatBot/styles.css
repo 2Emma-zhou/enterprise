@@ -104,8 +104,8 @@ html[data-theme='dark'] .doc-chatbot-panel {
 
 /* 图标按钮：保持无底框，只保留图标本身 */
 .doc-chatbot-button {
-  width: 112px;
-  height: 112px;
+  width: 80px;
+  height: 80px;
   flex: 0 0 auto;
   padding: 0;
   border: none;
@@ -140,8 +140,8 @@ html[data-theme='dark'] .doc-chatbot-panel {
 
 /* 打开状态按钮 */
 .doc-chatbot-button-open {
-  width: 56px;
-  height: 56px;
+  width: 40px;
+  height: 40px;
   border: 1px solid var(--doc-chatbot-border);
   border-radius: var(--doc-chatbot-radius);
   background: var(--doc-chatbot-bg);
@@ -160,7 +160,7 @@ html[data-theme='dark'] .doc-chatbot-panel {
   width: 100%;
   height: 100%;
   color: var(--doc-chatbot-text);
-  font-size: 30px;
+  font-size: 24px;
   font-weight: 400;
   line-height: 1;
   transition: transform 0.18s ease;
@@ -570,13 +570,13 @@ html[data-theme='dark'] .doc-chatbot-panel {
   }
 
   .doc-chatbot-button {
-    width: 88px;
-    height: 88px;
+    width: 72px;
+    height: 72px;
   }
 
   .doc-chatbot-button-open {
-    width: 52px;
-    height: 52px;
+    width: 40px;
+    height: 40px;
   }
 
   .doc-chatbot-panel {
