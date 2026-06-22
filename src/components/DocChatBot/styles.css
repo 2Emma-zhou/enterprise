@@ -59,7 +59,7 @@ html[data-theme='dark'] .doc-chatbot-panel {
 /* 入口提示 */
 .doc-chatbot-tip {
   position: absolute;
-  right: 140px;
+  right: 84px;
   bottom: 32px;
   width: max-content;
   max-width: min(360px, calc(100vw - 180px));
@@ -560,8 +560,8 @@ html[data-theme='dark'] .doc-chatbot-panel {
     bottom: 16px;
   }
 
-.doc-chatbot-tip {
-    right: 112px;
+  .doc-chatbot-tip {
+    right: 80px;
     bottom: 24px;
     max-width: min(260px, calc(100vw - 150px));
     padding: 7px 10px;
