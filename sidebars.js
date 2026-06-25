@@ -24,6 +24,7 @@ const sidebars = {
         description: 'This section guides you through the initial setup and configuration of Tier0.',
     },
         items: [
+          'Getting Started/High Availability Deployment',
           'Getting Started/Deploy Tier0',
             'Getting Started/Login',
         ]

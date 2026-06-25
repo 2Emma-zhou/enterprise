@@ -1,0 +1,1417 @@
+---
+title: High Availability Deployment Plan
+sidebar_label: High Availability Deployment Plan
+slug: /getting-started/high-availability-deployment
+---
+
+## Plan Objective
+
+This plan deploys one Tier0 Enterprise environment in an offline or private deployment environment. It uses 6 virtual machines in total:
+
+- 3 application nodes: form the `Docker Swarm` cluster base and run the single-replica Tier0 Enterprise service and the stateful **EMQX** service.
+- 2 database nodes: form the `PostgreSQL + TimescaleDB` primary-standby cluster.
+- 1 `Witness` node: participates in database monitoring, arbitration, and failover.
+
+:::note Optional
+- An external `NFS/NAS` shared storage can be added and mounted by the three Swarm nodes. It is used for Tier0 Enterprise shared files across nodes.
+- This shared storage is an external dependency and is not counted as one of the 6 business VMs in this plan.
+:::
+
+:::info
+This plan assumes that each database VM has `4C / 8G / 500G`. If the user requirement is `4C / 8G / 500G` for the whole database cluster, performance and capacity must be recalculated before implementation.
+:::
+
+## Planned IP Addresses
+
+:::info
+The following IP addresses are placeholders. Replace them with the actual on-site network addresses before implementation.
+:::
+
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Name</th>
+      <th>Planned IP</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Logical entry</td>
+      <td>APP VIP</td>
+      <td>10.60.10.10</td>
+      <td>Unified business entry. It can fail over between the 3 Swarm nodes.</td>
+    </tr>
+    <tr>
+      <td>External dependency</td>
+      <td>NFS/NAS</td>
+      <td>10.60.40.10</td>
+      <td>Optional shared storage. It is not counted as one of the 6 VMs.</td>
+    </tr>
+    <tr>
+      <td>Application node</td>
+      <td>ent-swarm-01</td>
+      <td>10.60.10.11</td>
+      <td>Docker Swarm manager/worker. Runs services that can be rescheduled. It can also be used as the fixed EMQX node or as an EMQX cluster node.</td>
+    </tr>
+    <tr>
+      <td>Application node</td>
+      <td>ent-swarm-02</td>
+      <td>10.60.10.12</td>
+      <td>Docker Swarm manager/worker. Runs services that can be rescheduled. It can also be used as an EMQX cluster node.</td>
+    </tr>
+    <tr>
+      <td>Application node</td>
+      <td>ent-swarm-03</td>
+      <td>10.60.10.13</td>
+      <td>Docker Swarm manager/worker. Runs services that can be rescheduled. It can also be used as an EMQX cluster node.</td>
+    </tr>
+    <tr>
+      <td>Logical entry</td>
+      <td>DB VIP</td>
+      <td>10.60.20.10</td>
+      <td>Unified database entry. It only points to the current primary database.</td>
+    </tr>
+    <tr>
+      <td>Database node</td>
+      <td>ent-db-01</td>
+      <td>10.60.20.11</td>
+      <td>PostgreSQL + TimescaleDB primary candidate.</td>
+    </tr>
+    <tr>
+      <td>Database node</td>
+      <td>ent-db-02</td>
+      <td>10.60.20.12</td>
+      <td>PostgreSQL + TimescaleDB standby candidate.</td>
+    </tr>
+    <tr>
+      <td>Arbitration node</td>
+      <td>ent-db-witness-01</td>
+      <td>10.60.20.13</td>
+      <td>repmgr witness / arbitration and monitoring node.</td>
+    </tr>
+  </tbody>
+</table>
+
+## Overall Topology
+
+<img width={650} src="http://enterpriseimage.oss-cn-hangzhou.aliyuncs.com/image.png" />
+
+:::info
+The diagram only shows the core links.
+:::
+
+- Business access path: users / on-site systems -> `APP VIP` -> three `Docker Swarm` nodes -> `DB VIP` -> current primary database.
+- The topology is arranged from top to bottom to show request entry, application processing, database access, and high availability monitoring.
+- The topology diagram does not show internal cluster ports, SSH O&M links, or monitoring links. These are described in the <a href="#connection-list">Connection List</a> and <a href="#detailed-port-list">Detailed Port List</a>.
+- `Witness` only participates in database arbitration, primary selection, and health checks. It is not in the business access path.
+- `APP VIP` distributes traffic to the three Swarm nodes. The Swarm nodes access the database through `DB VIP`.
+- `APP VIP` can fail over between the three Swarm nodes. `DB VIP` follows the current PostgreSQL Primary role and can fail over between the two database nodes.
+- Tier0 Enterprise runs as a single-replica service. If the current node fails, Swarm reschedules and restarts it on another healthy node.
+- `EMQX` is a stateful service. It should not be randomly rescheduled like a normal stateless service. By default, it should be fixed to one node with persistent storage. If high availability is required for the messaging layer, deploy a three-node EMQX cluster.
+- The optional `NFS/NAS` is only used as shared file storage for the Swarm nodes. It is not part of the main database request path.
+
+## Database Monitoring and Failover
+
+#### Database failover path:
+
+<table>
+  <thead>
+    <tr>
+      <th>Stage</th>
+      <th>Link</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Normal access</td>
+      <td>Tier0 Enterprise replica on a Swarm node -&gt; <code>DB VIP</code> -&gt; current primary database</td>
+      <td>The application always connects only to <code>10.60.20.10:5432</code>.</td>
+    </tr>
+    <tr>
+      <td>Normal replication</td>
+      <td>Current primary database -&gt; current standby database</td>
+      <td>Data is synchronized through PostgreSQL WAL streaming replication.</td>
+    </tr>
+    <tr>
+      <td>Normal monitoring</td>
+      <td><code>DB-01</code> / <code>DB-02</code> -&gt; <code>Witness</code></td>
+      <td><code>repmgrd</code> reports status, and <code>Witness</code> participates in arbitration.</td>
+    </tr>
+    <tr>
+      <td>Primary database failure</td>
+      <td>Standby database -&gt; <code>Witness</code></td>
+      <td>The standby database requests arbitration to avoid split-brain.</td>
+    </tr>
+    <tr>
+      <td>Standby promotion</td>
+      <td>Standby database <code>promote</code></td>
+      <td>After <code>Witness</code> confirms the failover, the standby database is promoted to the new primary database.</td>
+    </tr>
+    <tr>
+      <td>VIP failover</td>
+      <td><code>DB VIP</code> -&gt; new primary database</td>
+      <td><code>10.60.20.10</code> is bound to the new primary database.</td>
+    </tr>
+    <tr>
+      <td>Application recovery</td>
+      <td>Tier0 Enterprise replica on a Swarm node -&gt; <code>DB VIP</code> -&gt; new primary database</td>
+      <td>The application connection pool reconnects, and read/write access is restored.</td>
+    </tr>
+  </tbody>
+</table>
+
+#### Key boundaries:
+
+- `Witness` does not store business data, does not handle business read/write traffic, and does not expose database access to applications.
+- Business services only connect to `DB VIP:5432`. Direct connections to `ent-db-01/02` are not allowed.
+- `DB VIP` must be bound to the current PostgreSQL Primary node. It must not fail over based only on whether the database process is alive.
+- `TimescaleDB` is deployed as a PostgreSQL extension on both database nodes. It is not separated into an independent database instance.
+- The recommended design is `PostgreSQL streaming replication + repmgr + repmgr witness + keepalived DB VIP`.
+- Automatic failover only handles primary database unavailability. After the original primary database recovers, it should rejoin as a standby database first. It should not automatically take the primary role back.
+
+## Node Configuration List
+
+<table>
+  <thead>
+    <tr>
+      <th>Node</th>
+      <th>Role</th>
+      <th>vCPU</th>
+      <th>Memory</th>
+      <th>Storage</th>
+      <th>System Disk Recommendation</th>
+      <th>Data Disk Recommendation</th>
+      <th>Main Components</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>ent-swarm-01</code></td>
+      <td>Swarm manager/worker</td>
+      <td>8</td>
+      <td>32G</td>
+      <td>100G</td>
+      <td>Single system disk / 100G</td>
+      <td>No separate data disk</td>
+      <td>Docker Engine, Swarm, Keepalived, HAProxy/Nginx</td>
+    </tr>
+    <tr>
+      <td><code>ent-swarm-02</code></td>
+      <td>Swarm manager/worker</td>
+      <td>8</td>
+      <td>32G</td>
+      <td>100G</td>
+      <td>Single system disk / 100G</td>
+      <td>No separate data disk</td>
+      <td>Docker Engine, Swarm, Keepalived, HAProxy/Nginx</td>
+    </tr>
+    <tr>
+      <td><code>ent-swarm-03</code></td>
+      <td>Swarm manager/worker</td>
+      <td>8</td>
+      <td>32G</td>
+      <td>100G</td>
+      <td>Single system disk / 100G</td>
+      <td>No separate data disk</td>
+      <td>Docker Engine, Swarm, Keepalived, HAProxy/Nginx</td>
+    </tr>
+    <tr>
+      <td><code>ent-db-01</code></td>
+      <td>PostgreSQL/TSDB primary candidate</td>
+      <td>4</td>
+      <td>8G</td>
+      <td>500G</td>
+      <td><code>/</code> 80G</td>
+      <td><code>/pgdata</code> 360G, <code>/pgwal</code> 40G, <code>/backup-staging</code> 20G</td>
+      <td>PostgreSQL, TimescaleDB, repmgr, keepalived</td>
+    </tr>
+    <tr>
+      <td><code>ent-db-02</code></td>
+      <td>PostgreSQL/TSDB standby candidate</td>
+      <td>4</td>
+      <td>8G</td>
+      <td>500G</td>
+      <td><code>/</code> 80G</td>
+      <td><code>/pgdata</code> 360G, <code>/pgwal</code> 40G, <code>/backup-staging</code> 20G</td>
+      <td>PostgreSQL, TimescaleDB, repmgr, keepalived</td>
+    </tr>
+    <tr>
+      <td><code>ent-db-witness-01</code></td>
+      <td>Witness / arbitration and monitoring</td>
+      <td>2</td>
+      <td>4G</td>
+      <td>40G</td>
+      <td><code>/</code> 40G</td>
+      <td>No separate data disk</td>
+      <td>repmgr witness, monitoring agent, audit logs</td>
+    </tr>
+  </tbody>
+</table>
+
+## Configuration Summary
+
+<table>
+  <thead>
+    <tr>
+      <th>Category</th>
+      <th>Quantity</th>
+      <th>Specification per Node</th>
+      <th>Subtotal vCPU</th>
+      <th>Subtotal Memory</th>
+      <th>Subtotal Storage</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Docker Swarm application nodes</td>
+      <td>3</td>
+      <td>8C / 32G / 100G</td>
+      <td>24C</td>
+      <td>96G</td>
+      <td>300G</td>
+    </tr>
+    <tr>
+      <td>PostgreSQL + TimescaleDB nodes</td>
+      <td>2</td>
+      <td>4C / 8G / 500G</td>
+      <td>8C</td>
+      <td>16G</td>
+      <td>1000G</td>
+    </tr>
+    <tr>
+      <td>Witness node</td>
+      <td>1</td>
+      <td>2C / 4G / 40G</td>
+      <td>2C</td>
+      <td>4G</td>
+      <td>40G</td>
+    </tr>
+    <tr>
+      <td>NFS/NAS shared storage</td>
+      <td>1</td>
+      <td>Existing on-site storage or separately provided storage</td>
+      <td>Not counted</td>
+      <td>Not counted</td>
+      <td>Plan based on file volume</td>
+    </tr>
+    <tr>
+      <td>Total</td>
+      <td>6</td>
+      <td>-</td>
+      <td>34C</td>
+      <td>116G</td>
+      <td>1340G</td>
+    </tr>
+  </tbody>
+</table>
+
+Converted hardware requirements:
+
+- Total VMs: 6
+- Total vCPU: 34
+- Total memory: 116G
+- Total storage: 1.34T
+- Optional external shared storage: not counted in the 6 VM total. Capacity should be planned separately based on attachments, reports, import/export files, and log archive retention.
+
+### Swarm Service Runtime Rules
+
+<table>
+  <thead>
+    <tr>
+      <th>Service</th>
+      <th>Runtime Mode</th>
+      <th>State Type</th>
+      <th>Failure Handling</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Tier0 Enterprise</td>
+      <td><code>replicas: 1</code></td>
+      <td>Stateless or weakly stateful</td>
+      <td>If the current node fails, Swarm reschedules and restarts the service on another node.</td>
+      <td>Data must be stored in PostgreSQL/TimescaleDB. Do not rely on local container files.</td>
+    </tr>
+    <tr>
+      <td>EMQX single-node mode</td>
+      <td>Fixed to a specified Swarm node</td>
+      <td>Stateful</td>
+      <td>If the fixed node fails, restore the node or recover from backup.</td>
+      <td>Suitable for small-scale scenarios where a single point of failure in the messaging layer is acceptable.</td>
+    </tr>
+    <tr>
+      <td>EMQX three-node cluster mode</td>
+      <td>Run one fixed EMQX instance on each of the three Swarm nodes</td>
+      <td>Stateful cluster</td>
+      <td>If one EMQX node fails, the remaining EMQX nodes continue to serve traffic.</td>
+      <td>Use this mode first if high availability is required for the messaging layer.</td>
+    </tr>
+    <tr>
+      <td>APP VIP / HAProxy / Nginx</td>
+      <td>Deployed on three nodes, with VIP failover</td>
+      <td>Runtime configuration</td>
+      <td>A healthy node takes over the VIP.</td>
+      <td>Only used as an entry point. It does not store business data.</td>
+    </tr>
+    <tr>
+      <td>NFS/NAS shared directory</td>
+      <td>Mounted by all three Swarm nodes</td>
+      <td>File state</td>
+      <td>If NFS fails, functions that depend on shared files are affected.</td>
+      <td>Only used for shared files such as uploads, imports, exports, and reports.</td>
+    </tr>
+  </tbody>
+</table>
+
+**Key rules:**
+
+- Tier0 Enterprise can run as a single replica. Swarm only provides the cluster base and failover rescheduling capability.
+- `EMQX` cannot use the same random single-replica rescheduling strategy as Tier0 Enterprise, because it has sessions, subscriptions, retained messages, rule engine state, and persistent directories.
+- If `EMQX` is deployed as a single node, it must be treated as a single point of failure in the messaging layer and fixed to one Swarm node with a persistent directory.
+- If the business cannot accept a single point of failure in `EMQX`, deploy a three-node EMQX cluster on the three Swarm nodes. Each node must have a fixed hostname, node name, and persistent directory.
+
+### NFS/NAS Shared Storage Rules
+
+NFS is introduced so that the Tier0 Enterprise single replica can still access the same business files after it is rescheduled between Swarm nodes. It does not change the boundaries of database primary-standby replication or the stateful EMQX service.
+
+**Suitable content for NFS:**
+
+- User-uploaded attachments
+- Import/export files
+- Report files
+- Offline packages, templates, and reproducible intermediate files
+- Business static files that must be read across nodes
+
+**Content not recommended for NFS:**
+
+- PostgreSQL / TimescaleDB data directories and WAL directories
+- EMQX core data directories, Mnesia data, and runtime state
+- Docker Engine data directory `/var/lib/docker`
+- High-frequency database-like writes, lock-sensitive files, and strongly consistent queues
+
+**Recommended mount rules:**
+
+<table>
+  <thead>
+    <tr>
+      <th>Item</th>
+      <th>Recommendation</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>NFS address</td>
+      <td><code>10.60.40.10:/exports/tier0-enterprise</code></td>
+    </tr>
+    <tr>
+      <td>Swarm mount point</td>
+      <td><code>/mnt/tier0-shared</code></td>
+    </tr>
+    <tr>
+      <td>Container mount point</td>
+      <td><code>/app/data/shared</code> or based on application configuration</td>
+    </tr>
+    <tr>
+      <td>Protocol version</td>
+      <td>Prefer NFSv4.1 or the standard version used on site</td>
+    </tr>
+    <tr>
+      <td>Mount options</td>
+      <td><code>rw,hard,timeo=600,retrans=2,_netdev,noatime</code>. Adjust based on on-site NAS compatibility.</td>
+    </tr>
+    <tr>
+      <td>Permissions</td>
+      <td>Use a fixed business UID/GID to avoid permission differences after containers move between nodes.</td>
+    </tr>
+    <tr>
+      <td>Backup</td>
+      <td>Include the shared directory in NAS snapshots or independent backups.</td>
+    </tr>
+  </tbody>
+</table>
+
+**NFS boundaries:**
+
+- NFS is a shared file dependency. It is not a database high availability component.
+- If NFS itself is a single point of failure, file-related functions will also have a single point of failure. In production, use an existing HA NAS or dual-controller storage.
+- Before the Tier0 Enterprise single replica is rescheduled to another Swarm node, the target node must have NFS mounted and verified for read/write access.
+- If Tier0 Enterprise does not write local files at all, NFS is not required.
+
+## Connection List
+
+### O&M Access
+
+<table>
+  <thead>
+    <tr>
+      <th>Target</th>
+      <th>Method</th>
+      <th>Port</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>All VMs</td>
+      <td><code>ssh -i ~/.ssh/chen-rsa ops@&lt;IP&gt;</code></td>
+      <td><code>22/TCP</code></td>
+      <td>Use after unified passwordless SSH is configured. Before that, use the on-site account.</td>
+    </tr>
+    <tr>
+      <td>APP VIP</td>
+      <td><code>https://10.60.10.10</code></td>
+      <td><code>443/TCP</code></td>
+      <td>Business entry</td>
+    </tr>
+    <tr>
+      <td>APP VIP</td>
+      <td><code>http://10.60.10.10</code></td>
+      <td><code>80/TCP</code></td>
+      <td>Optional. Recommended only for redirecting to HTTPS.</td>
+    </tr>
+    <tr>
+      <td>DB VIP</td>
+      <td><code>psql -h 10.60.20.10 -p 5432</code></td>
+      <td><code>5432/TCP</code></td>
+      <td>Only application nodes and O&M allowlists can access it.</td>
+    </tr>
+    <tr>
+      <td>NFS/NAS</td>
+      <td><code>10.60.40.10:/exports/tier0-enterprise</code></td>
+      <td><code>2049/TCP</code></td>
+      <td>Optional shared file storage</td>
+    </tr>
+  </tbody>
+</table>
+
+### Swarm Cluster Communication
+
+<table>
+  <thead>
+    <tr>
+      <th>Source</th>
+      <th>Target</th>
+      <th>Port</th>
+      <th>Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td><code>2377/TCP</code></td>
+      <td>Swarm manager control plane</td>
+    </tr>
+    <tr>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td><code>7946/TCP/UDP</code></td>
+      <td>Node discovery and gossip</td>
+    </tr>
+    <tr>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td><code>4789/UDP</code></td>
+      <td>Overlay network VXLAN</td>
+    </tr>
+    <tr>
+      <td><code>APP VIP</code></td>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td><code>80/443/TCP</code></td>
+      <td>Business entry forwarding</td>
+    </tr>
+  </tbody>
+</table>
+
+### EMQX Access and Cluster Communication
+
+<table>
+  <thead>
+    <tr>
+      <th>Source</th>
+      <th>Target</th>
+      <th>Port</th>
+      <th>Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Devices / on-site systems</td>
+      <td><code>APP VIP</code> or <code>EMQX</code> entry</td>
+      <td><code>1883/TCP</code></td>
+      <td>MQTT plaintext access. Open based on on-site security requirements.</td>
+    </tr>
+    <tr>
+      <td>Devices / on-site systems</td>
+      <td><code>APP VIP</code> or <code>EMQX</code> entry</td>
+      <td><code>8883/TCP</code></td>
+      <td>MQTT TLS access. Recommended first.</td>
+    </tr>
+    <tr>
+      <td>Devices / on-site systems</td>
+      <td><code>APP VIP</code> or <code>EMQX</code> entry</td>
+      <td><code>8083/TCP</code></td>
+      <td>MQTT WebSocket. Optional.</td>
+    </tr>
+    <tr>
+      <td>Devices / on-site systems</td>
+      <td><code>APP VIP</code> or <code>EMQX</code> entry</td>
+      <td><code>8084/TCP</code></td>
+      <td>MQTT WebSocket TLS. Optional.</td>
+    </tr>
+    <tr>
+      <td>O&M network segment</td>
+      <td><code>EMQX</code> management entry</td>
+      <td><code>18083/TCP</code></td>
+      <td>EMQX Dashboard. Only allow O&M allowlists.</td>
+    </tr>
+    <tr>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td><code>4369/TCP</code></td>
+      <td>EMQX/Erlang EPMD. Required only in three-node EMQX cluster mode.</td>
+    </tr>
+    <tr>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td><code>4370/TCP</code></td>
+      <td>EMQX node-to-node communication. Required only in three-node EMQX cluster mode.</td>
+    </tr>
+    <tr>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td><code>5370/TCP</code></td>
+      <td>EMQX cluster RPC. Confirm based on the actual EMQX version.</td>
+    </tr>
+  </tbody>
+</table>
+
+### Database and Monitoring Communication
+
+<table>
+  <thead>
+    <tr>
+      <th>Source</th>
+      <th>Target</th>
+      <th>Port</th>
+      <th>Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Tier0 Enterprise container</td>
+      <td><code>DB VIP</code></td>
+      <td><code>5432/TCP</code></td>
+      <td>Business database access</td>
+    </tr>
+    <tr>
+      <td><code>ent-db-01</code></td>
+      <td><code>ent-db-02</code></td>
+      <td><code>5432/TCP</code></td>
+      <td>PostgreSQL WAL streaming replication</td>
+    </tr>
+    <tr>
+      <td><code>ent-db-02</code></td>
+      <td><code>ent-db-01</code></td>
+      <td><code>5432/TCP</code></td>
+      <td>Reverse replication after failover recovery</td>
+    </tr>
+    <tr>
+      <td><code>ent-db-01/02</code></td>
+      <td><code>ent-db-witness-01</code></td>
+      <td><code>5432/TCP</code></td>
+      <td>repmgr metadata / witness communication</td>
+    </tr>
+    <tr>
+      <td><code>ent-db-01</code></td>
+      <td><code>ent-db-02</code></td>
+      <td><code>VRRP</code></td>
+      <td>DB VIP failover. Protocol 112 must be allowed.</td>
+    </tr>
+    <tr>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td><code>ent-db-01/02/Witness</code></td>
+      <td><code>9100/TCP</code></td>
+      <td>Optional node exporter monitoring</td>
+    </tr>
+  </tbody>
+</table>
+
+### NFS/NAS Shared Storage Communication
+
+<table>
+  <thead>
+    <tr>
+      <th>Source</th>
+      <th>Target</th>
+      <th>Port</th>
+      <th>Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td><code>NFS/NAS 10.60.40.10</code></td>
+      <td><code>2049/TCP</code></td>
+      <td>NFSv4 shared file access</td>
+    </tr>
+    <tr>
+      <td>O&M network segment</td>
+      <td><code>NFS/NAS 10.60.40.10</code></td>
+      <td>Based on on-site management ports</td>
+      <td>NAS management, snapshots, and backup</td>
+    </tr>
+  </tbody>
+</table>
+
+## Service Deployment Recommendations
+
+### Docker Swarm
+
+- Set all three application nodes as `manager + worker`.
+- Deploy Tier0 Enterprise by using `docker stack deploy`.
+- Tier0 Enterprise uses `replicas: 1` by default. Swarm reschedules it to another healthy node after a node failure.
+- Tier0 Enterprise containers do not store critical persistent data. Business data is stored in PostgreSQL/TimescaleDB.
+- Each Swarm node has only `100G` storage and uses it as a single system disk. The Docker data directory stays on the system disk. No separate data disk is planned.
+- Use `Docker config` for configuration files.
+- Use `Docker secret` for passwords, database credentials, and certificate private keys.
+- Use an on-site internal registry for container images to avoid public network dependencies during deployment.
+- Configure health checks when publishing services to avoid forwarding traffic to containers that are not ready.
+- If the application needs shared files across nodes, mount the shared directory from NFS/NAS. Do not rely on local temporary container directories for critical files.
+- Configure cleanup policies for images, container logs, and build caches to avoid filling `/var/lib/docker`.
+
+**Single-replica deployment example:**
+
+```yaml
+deploy:
+  replicas: 1
+  restart_policy:
+    condition: any
+  update_config:
+    order: stop-first
+```
+
+### EMQX Stateful Service
+
+`EMQX` must be handled as a stateful service. It must not be randomly rescheduled like a normal stateless Swarm replica.
+
+<table>
+  <thead>
+    <tr>
+      <th>Mode</th>
+      <th>Recommended Scenario</th>
+      <th>Deployment Rule</th>
+      <th>Risk</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Single-node fixed mode</td>
+      <td>Small-scale scenarios where short messaging-layer downtime is acceptable</td>
+      <td>Fix it to <code>ent-swarm-01</code>. Use a local persistent directory and backup.</td>
+      <td>If <code>ent-swarm-01</code> fails, EMQX cannot fail over automatically without data loss.</td>
+    </tr>
+    <tr>
+      <td>Three-node cluster mode</td>
+      <td>Production scenarios where a single point of failure in EMQX is not acceptable</td>
+      <td>Run one EMQX node on each of the three Swarm nodes. Use fixed hostnames, node names, and data directories.</td>
+      <td>Requires additional configuration for cluster ports, certificates, node discovery, and monitoring.</td>
+    </tr>
+  </tbody>
+</table>
+
+**Minimum requirements for single-node fixed mode:**
+
+- Use a Swarm placement constraint to fix the node, for example `node.labels.emqx == true`.
+- Fix the data directory to the host, for example `/data/emqx`.
+- Include configurations, certificates, plugins, and rule engine configurations in backup.
+- If the node fails, restore the original node first. If it cannot be restored, recover to a new node from backup. Do not handle it as a stateless random failover.
+
+**Minimum requirements for three-node cluster mode:**
+
+- Fix one EMQX instance on each Swarm node.
+- Use a fixed node name for each EMQX node. The node name must not change when the container is recreated.
+- Open cluster communication ports only between the three Swarm nodes.
+- Expose the Dashboard only to the O&M network segment.
+- MQTT access can be exposed through `APP VIP`, a separate MQTT VIP, or a layer 4 load balancer. Confirm the entry method before implementation.
+- Do not place the EMQX core data directory on NFS. In single-node fixed mode, use the fixed node local disk and backup it properly. In three-node mode, rely on the EMQX cluster mechanism.
+
+### NFS/NAS Shared Storage
+
+- NFS/NAS is an optional external dependency and does not count as one of the six VMs.
+- Mount the same shared directory on all three Swarm nodes.
+- Use it only for shared files that Tier0 Enterprise needs to access across nodes.
+- Do not use it for PostgreSQL/TimescaleDB data directories.
+- Do not use it for EMQX core runtime data.
+- Configure a pre-start mount check to avoid writing to a local directory after a service moves to a node where NFS is not mounted.
+- If NFS fails, database read/write access is not directly affected, but functions such as uploads, imports, exports, and reports may fail.
+
+### APP VIP
+
+- Deploy `APP VIP` on the three Swarm nodes. Use `keepalived + HAProxy` or `keepalived + Nginx`.
+- The VIP is only the unified entry. It does not require a separate VM.
+- Health checks should use the application `/health` or `/ready` endpoint.
+- If any Swarm node fails, the VIP moves to another healthy node.
+
+### PostgreSQL + TimescaleDB
+
+**Recommended baseline:**
+
+- PostgreSQL: `16` or a version certified on site.
+- TimescaleDB: choose a stable version that matches the PostgreSQL major version.
+- Primary-standby replication: physical streaming replication.
+- Failover: `repmgrd + witness`.
+- Database entry: `DB VIP`.
+- Connection pool: preferably use `PgBouncer` on the application side or in a separate container to avoid too many database connections.
+
+**Recommended starting parameters. Adjust them based on business pressure tests during implementation.**
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Recommended Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>shared_buffers</code></td>
+      <td><code>2GB</code></td>
+    </tr>
+    <tr>
+      <td><code>effective_cache_size</code></td>
+      <td><code>6GB</code></td>
+    </tr>
+    <tr>
+      <td><code>work_mem</code></td>
+      <td>Start from <code>16MB</code></td>
+    </tr>
+    <tr>
+      <td><code>maintenance_work_mem</code></td>
+      <td><code>512MB</code></td>
+    </tr>
+    <tr>
+      <td><code>max_connections</code></td>
+      <td>Keep within <code>200</code>. Prefer using a connection pool.</td>
+    </tr>
+    <tr>
+      <td><code>wal_level</code></td>
+      <td><code>replica</code></td>
+    </tr>
+    <tr>
+      <td><code>max_wal_senders</code></td>
+      <td><code>10</code></td>
+    </tr>
+    <tr>
+      <td><code>max_replication_slots</code></td>
+      <td><code>10</code></td>
+    </tr>
+    <tr>
+      <td><code>hot_standby</code></td>
+      <td><code>on</code></td>
+    </tr>
+    <tr>
+      <td>TimescaleDB compression</td>
+      <td>Enable it based on the retention period of time-series tables.</td>
+    </tr>
+  </tbody>
+</table>
+
+### Witness
+
+- The `Witness` node only stores `repmgr witness` metadata and helps database failure detection and arbitration.
+- `Witness` does not store business data, does not handle business read/write traffic, and does not expose database access to applications.
+- `Witness` needs stable network access. It does not require high storage performance.
+- A `Witness` failure should not stop current business access, but it lowers the reliability of automatic failover.
+- After `Witness` recovers, verify that it has rejoined the database cluster state.
+
+## Port and Firewall Baseline
+
+<table>
+  <thead>
+    <tr>
+      <th>Port/Protocol</th>
+      <th>Allowed Range</th>
+      <th>Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>22/TCP</code></td>
+      <td>O&M network segment to the 6 VMs</td>
+      <td>SSH</td>
+    </tr>
+    <tr>
+      <td><code>80/TCP</code></td>
+      <td>User network segment to <code>APP VIP</code></td>
+      <td>HTTP redirect or internal plaintext entry</td>
+    </tr>
+    <tr>
+      <td><code>443/TCP</code></td>
+      <td>User network segment to <code>APP VIP</code></td>
+      <td>HTTPS business entry</td>
+    </tr>
+    <tr>
+      <td><code>2377/TCP</code></td>
+      <td>Communication between the 3 Swarm nodes</td>
+      <td>Swarm management plane</td>
+    </tr>
+    <tr>
+      <td><code>7946/TCP/UDP</code></td>
+      <td>Communication between the 3 Swarm nodes</td>
+      <td>Swarm gossip</td>
+    </tr>
+    <tr>
+      <td><code>4789/UDP</code></td>
+      <td>Communication between the 3 Swarm nodes</td>
+      <td>Swarm overlay</td>
+    </tr>
+    <tr>
+      <td><code>1883/TCP</code></td>
+      <td>Devices / on-site systems to MQTT entry</td>
+      <td>EMQX MQTT plaintext. Optional.</td>
+    </tr>
+    <tr>
+      <td><code>8883/TCP</code></td>
+      <td>Devices / on-site systems to MQTT entry</td>
+      <td>EMQX MQTT TLS. Recommended.</td>
+    </tr>
+    <tr>
+      <td><code>8083/TCP</code></td>
+      <td>Devices / on-site systems to MQTT WebSocket entry</td>
+      <td>EMQX WebSocket. Optional.</td>
+    </tr>
+    <tr>
+      <td><code>8084/TCP</code></td>
+      <td>Devices / on-site systems to MQTT WebSocket TLS entry</td>
+      <td>EMQX WebSocket TLS. Optional.</td>
+    </tr>
+    <tr>
+      <td><code>18083/TCP</code></td>
+      <td>O&M network segment to EMQX management entry</td>
+      <td>EMQX Dashboard. Allowlist only.</td>
+    </tr>
+    <tr>
+      <td><code>5432/TCP</code></td>
+      <td>Swarm nodes to <code>DB VIP</code>; internal communication between DB/Witness nodes</td>
+      <td>PostgreSQL / repmgr</td>
+    </tr>
+    <tr>
+      <td><code>2049/TCP</code></td>
+      <td>Swarm nodes to NFS/NAS</td>
+      <td>NFSv4 shared file access. Optional.</td>
+    </tr>
+    <tr>
+      <td><code>112/VRRP</code></td>
+      <td>Between Swarm nodes and between DB nodes</td>
+      <td>VIP failover</td>
+    </tr>
+    <tr>
+      <td><code>9100/TCP</code></td>
+      <td>Monitoring system to the 6 VMs</td>
+      <td>node exporter. Optional.</td>
+    </tr>
+  </tbody>
+</table>
+
+## Detailed Port List
+
+### External Entry Ports
+
+<table>
+  <thead>
+    <tr>
+      <th>Port/Protocol</th>
+      <th>Listening Location</th>
+      <th>Access Source</th>
+      <th>Purpose</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>80/TCP</code></td>
+      <td><code>APP VIP 10.60.10.10</code></td>
+      <td>User network segment / O&M network segment</td>
+      <td>HTTP entry or redirect to HTTPS</td>
+      <td>Optional</td>
+    </tr>
+    <tr>
+      <td><code>443/TCP</code></td>
+      <td><code>APP VIP 10.60.10.10</code></td>
+      <td>User network segment / O&M network segment</td>
+      <td>HTTPS business entry</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td><code>1883/TCP</code></td>
+      <td>MQTT entry</td>
+      <td>Devices / on-site systems</td>
+      <td>EMQX MQTT plaintext</td>
+      <td>Optional</td>
+    </tr>
+    <tr>
+      <td><code>8883/TCP</code></td>
+      <td>MQTT entry</td>
+      <td>Devices / on-site systems</td>
+      <td>EMQX MQTT TLS</td>
+      <td>Recommended</td>
+    </tr>
+    <tr>
+      <td><code>8083/TCP</code></td>
+      <td>MQTT WebSocket entry</td>
+      <td>Devices / on-site systems</td>
+      <td>EMQX WebSocket</td>
+      <td>Optional</td>
+    </tr>
+    <tr>
+      <td><code>8084/TCP</code></td>
+      <td>MQTT WebSocket TLS entry</td>
+      <td>Devices / on-site systems</td>
+      <td>EMQX WebSocket TLS</td>
+      <td>Optional</td>
+    </tr>
+    <tr>
+      <td><code>18083/TCP</code></td>
+      <td>EMQX Dashboard</td>
+      <td>O&M allowlist</td>
+      <td>EMQX management console</td>
+      <td>Optional. Source must be restricted.</td>
+    </tr>
+    <tr>
+      <td><code>22/TCP</code></td>
+      <td>Management IPs of the 6 VMs</td>
+      <td>O&M network segment</td>
+      <td>SSH O&M login</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td><code>5432/TCP</code></td>
+      <td><code>DB VIP 10.60.20.10</code></td>
+      <td>3 Swarm nodes and O&M allowlist</td>
+      <td>PostgreSQL business access</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td><code>2049/TCP</code></td>
+      <td><code>NFS/NAS 10.60.40.10</code></td>
+      <td>3 Swarm nodes</td>
+      <td>NFSv4 shared file access</td>
+      <td>Depends on whether NFS is used</td>
+    </tr>
+  </tbody>
+</table>
+
+### Docker Swarm Node Ports
+
+<table>
+  <thead>
+    <tr>
+      <th>Port/Protocol</th>
+      <th>Listening Node</th>
+      <th>Access Source</th>
+      <th>Purpose</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>2377/TCP</code></td>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td>Swarm cluster management plane</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td><code>7946/TCP</code></td>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td>Swarm node discovery / gossip</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td><code>7946/UDP</code></td>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td>Swarm node discovery / gossip</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td><code>4789/UDP</code></td>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td>Swarm overlay VXLAN</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td><code>80/TCP</code></td>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td><code>APP VIP</code> / internal LB</td>
+      <td>Application HTTP backend</td>
+      <td>Depends on deployment method</td>
+    </tr>
+    <tr>
+      <td><code>443/TCP</code></td>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td><code>APP VIP</code> / internal LB</td>
+      <td>Application HTTPS backend</td>
+      <td>Depends on deployment method</td>
+    </tr>
+    <tr>
+      <td><code>4369/TCP</code></td>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td>EMQX/Erlang EPMD, three-node cluster mode</td>
+      <td>Depends on EMQX mode</td>
+    </tr>
+    <tr>
+      <td><code>4370/TCP</code></td>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td>EMQX node-to-node communication, three-node cluster mode</td>
+      <td>Depends on EMQX mode</td>
+    </tr>
+    <tr>
+      <td><code>5370/TCP</code></td>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td>EMQX cluster RPC. Confirm based on version.</td>
+      <td>Depends on EMQX mode</td>
+    </tr>
+  </tbody>
+</table>
+
+### Database Cluster Ports
+
+<table>
+  <thead>
+    <tr>
+      <th>Port/Protocol</th>
+      <th>Listening Node</th>
+      <th>Access Source</th>
+      <th>Purpose</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>5432/TCP</code></td>
+      <td><code>ent-db-01</code></td>
+      <td><code>ent-swarm-01/02/03</code>, <code>ent-db-02</code>, <code>ent-db-witness-01</code></td>
+      <td>Primary database business access, replication, and repmgr metadata</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td><code>5432/TCP</code></td>
+      <td><code>ent-db-02</code></td>
+      <td><code>ent-swarm-01/02/03</code>, <code>ent-db-01</code>, <code>ent-db-witness-01</code></td>
+      <td>Business access after standby promotion, replication, and repmgr metadata</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td><code>5432/TCP</code></td>
+      <td><code>ent-db-witness-01</code></td>
+      <td><code>ent-db-01/02</code></td>
+      <td>repmgr witness communication</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td><code>873/TCP</code></td>
+      <td><code>ent-db-01/02</code></td>
+      <td>O&M backup node</td>
+      <td>rsync backup channel</td>
+      <td>Optional</td>
+    </tr>
+    <tr>
+      <td><code>6432/TCP</code></td>
+      <td>PgBouncer container or database node</td>
+      <td>Tier0 Enterprise container</td>
+      <td>PostgreSQL connection pool entry</td>
+      <td>Optional</td>
+    </tr>
+  </tbody>
+</table>
+
+### VIP and Monitoring Ports
+
+<table>
+  <thead>
+    <tr>
+      <th>Port/Protocol</th>
+      <th>Listening Node</th>
+      <th>Access Source</th>
+      <th>Purpose</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>112/VRRP</code></td>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td>APP VIP failover</td>
+      <td>Yes, if Keepalived is used</td>
+    </tr>
+    <tr>
+      <td><code>112/VRRP</code></td>
+      <td><code>ent-db-01/02</code></td>
+      <td><code>ent-db-01/02</code></td>
+      <td>DB VIP failover</td>
+      <td>Yes, if Keepalived is used</td>
+    </tr>
+    <tr>
+      <td><code>9100/TCP</code></td>
+      <td>6 VMs</td>
+      <td>Monitoring system</td>
+      <td>node exporter</td>
+      <td>Recommended</td>
+    </tr>
+    <tr>
+      <td><code>9187/TCP</code></td>
+      <td><code>ent-db-01/02</code></td>
+      <td>Monitoring system</td>
+      <td>postgres exporter</td>
+      <td>Recommended</td>
+    </tr>
+    <tr>
+      <td><code>9323/TCP</code></td>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td>Monitoring system</td>
+      <td>Docker metrics. Must be explicitly enabled.</td>
+      <td>Optional</td>
+    </tr>
+    <tr>
+      <td>EMQX metrics port</td>
+      <td>EMQX node</td>
+      <td>Monitoring system</td>
+      <td>EMQX metrics. Confirm based on version and configuration.</td>
+      <td>Recommended</td>
+    </tr>
+  </tbody>
+</table>
+
+### Ports Not Open by Default
+
+<table>
+  <thead>
+    <tr>
+      <th>Port/Protocol</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>2375/TCP</code></td>
+      <td>Docker plaintext remote API. Do not open it.</td>
+    </tr>
+    <tr>
+      <td><code>2376/TCP</code></td>
+      <td>Docker TLS remote API. Do not open it by default. If it must be used, allow only the O&M network segment.</td>
+    </tr>
+    <tr>
+      <td>Database node <code>80/443</code></td>
+      <td>Database nodes do not host Web entries. Keep these ports closed by default.</td>
+    </tr>
+    <tr>
+      <td>Witness <code>5432</code> to application network segment</td>
+      <td>Witness does not handle business SQL. Application access is not allowed.</td>
+    </tr>
+    <tr>
+      <td>EMQX Dashboard to user network segment</td>
+      <td><code>18083/TCP</code> can only be opened to the O&M allowlist.</td>
+    </tr>
+    <tr>
+      <td>NFS to non-Swarm network segments</td>
+      <td><code>2049/TCP</code> can only be accessed by the three Swarm nodes and backup/O&M allowlists.</td>
+    </tr>
+  </tbody>
+</table>
+
+## High Availability Capabilities and Failure Boundaries
+
+<table>
+  <thead>
+    <tr>
+      <th>Failure Scenario</th>
+      <th>Expected Behavior</th>
+      <th>Business Impact</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>A single Swarm node fails and affects the Tier0 Enterprise single replica</td>
+      <td>Swarm reschedules the single replica to another healthy node. APP VIP continues to point to a healthy entry.</td>
+      <td>Seconds to minutes of interruption, depending on image pulling and health checks.</td>
+    </tr>
+    <tr>
+      <td>The EMQX node fails in single-node fixed mode</td>
+      <td>Restore the original node first. If it cannot be restored, recover to a new node from backup.</td>
+      <td>The messaging layer is interrupted. It cannot fail over without data loss like a stateless service.</td>
+    </tr>
+    <tr>
+      <td>One node fails in the three-node EMQX cluster</td>
+      <td>The remaining EMQX nodes continue to serve traffic. The failed node rejoins after recovery.</td>
+      <td>Connections reconnect, and capacity is reduced.</td>
+    </tr>
+    <tr>
+      <td>NFS/NAS fails</td>
+      <td>Functions that depend on shared files fail. The database and business processes already in memory may not be interrupted.</td>
+      <td>File-related functions such as uploads, imports, exports, and reports are affected.</td>
+    </tr>
+    <tr>
+      <td>Two Swarm nodes fail</td>
+      <td>The Swarm managers lose quorum. Running containers may continue, but reliable scheduling is not available.</td>
+      <td>High risk. Manual recovery is required.</td>
+    </tr>
+    <tr>
+      <td>The current primary database fails</td>
+      <td>The standby database is promoted after Witness arbitration, and DB VIP fails over.</td>
+      <td>Seconds to minutes of write interruption. The application must reconnect.</td>
+    </tr>
+    <tr>
+      <td>The standby database fails</td>
+      <td>The primary database continues to serve traffic, and a replication interruption alert is generated.</td>
+      <td>No direct business interruption, but the database hot standby is lost.</td>
+    </tr>
+    <tr>
+      <td>Witness fails</td>
+      <td>The current primary database continues to serve traffic, but automatic failover capability is reduced.</td>
+      <td>No direct business interruption. Restore Witness first.</td>
+    </tr>
+    <tr>
+      <td>DB VIP failover fails</td>
+      <td>The database has switched to a new primary, but the entry is unreachable.</td>
+      <td>Business is interrupted. Bind the VIP manually.</td>
+    </tr>
+  </tbody>
+</table>
+
+## Backup, Monitoring, and Inspection
+
+**Minimum delivery requirements:**
+
+- Perform a full database backup every day and keep backups for at least `7` days.
+- Enable WAL archiving or incremental backups to meet the on-site RPO.
+- Perform a restore drill every month to verify that backups are usable.
+- Monitor Swarm service health checks, container restart counts, node disk usage, memory, and CPU.
+- Monitor EMQX connections, subscriptions, message throughput, queue backlog, rule engine failures, and persistent directory usage.
+- Monitor NFS availability, mount status, capacity, inode usage, and read/write latency.
+- Monitor PostgreSQL primary-standby delay, replication slots, WAL backlog, connections, slow SQL, and database bloat.
+- Include the current VIP owner, repmgr cluster status, and Witness status in routine inspections.
+
+**Recommended inspection commands:**
+
+```bash
+docker node ls
+docker service ls
+docker stack ps tier0-enterprise
+ssh ent-db-01 'repmgr cluster show'
+ssh ent-db-01 'psql -h 10.60.20.10 -p 5432 -c "select now();"'
+ssh ent-db-01 'ip addr show | grep 10.60.20.10'
+```
+
+## Pre-Go-Live Checklist
+
+<table>
+  <thead>
+    <tr>
+      <th>Check Item</th>
+      <th>Pass Criteria</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Hostnames of the 6 VMs are fixed</td>
+      <td><code>hostnamectl</code> matches the plan.</td>
+    </tr>
+    <tr>
+      <td>Unified SSH is available</td>
+      <td>The O&M terminal can access all 6 VMs without a password.</td>
+    </tr>
+    <tr>
+      <td>Time is synchronized</td>
+      <td>The time difference between the 6 VMs is less than <code>1s</code>.</td>
+    </tr>
+    <tr>
+      <td>DNS/hosts are fixed</td>
+      <td>Node names can be resolved stably.</td>
+    </tr>
+    <tr>
+      <td>Firewall rules are applied</td>
+      <td>Ports in Section 9 are opened according to the required ranges.</td>
+    </tr>
+    <tr>
+      <td>Docker Swarm is normal</td>
+      <td><code>docker node ls</code> shows all three nodes as <code>Ready</code>.</td>
+    </tr>
+    <tr>
+      <td>Swarm disk usage is normal</td>
+      <td>The <code>/</code> usage of all three Swarm nodes is lower than <code>70%</code>. Docker log and image cache cleanup policies are configured.</td>
+    </tr>
+    <tr>
+      <td>Tier0 Enterprise single replica is normal</td>
+      <td><code>docker service ls</code> shows <code>1/1</code>, and one node failure rescheduling test has been completed.</td>
+    </tr>
+    <tr>
+      <td>EMQX status is confirmed</td>
+      <td>In single-node fixed mode, the persistent directory and backup are confirmed. In three-node cluster mode, the cluster health is confirmed.</td>
+    </tr>
+    <tr>
+      <td>NFS mount is confirmed</td>
+      <td>All three Swarm nodes can read and write <code>/mnt/tier0-shared</code>, and automatic mount after restart is verified.</td>
+    </tr>
+    <tr>
+      <td>DB primary-standby status is normal</td>
+      <td><code>repmgr cluster show</code> shows that primary, standby, and witness are normal.</td>
+    </tr>
+    <tr>
+      <td>DB VIP is normal</td>
+      <td>The application nodes can connect to <code>10.60.20.10:5432</code>.</td>
+    </tr>
+    <tr>
+      <td>APP VIP is normal</td>
+      <td>The user network segment can access <code>https://10.60.10.10</code>.</td>
+    </tr>
+    <tr>
+      <td>Primary database failure drill is completed</td>
+      <td>The standby database can be promoted, and DB VIP can fail over.</td>
+    </tr>
+    <tr>
+      <td>Application node failure drill is completed</td>
+      <td>APP VIP and the Swarm replica can recover.</td>
+    </tr>
+    <tr>
+      <td>Backup restore drill is completed</td>
+      <td>Data can be restored from backup to a test database.</td>
+    </tr>
+  </tbody>
+</table>
+
+## Implementation Sequence
+
+1. Create 6 VMs and fix hostnames, IP addresses, time synchronization, and SSH access.
+2. Initialize system baselines, firewall rules, disk mounts, and kernel parameters.
+3. If NFS/NAS is used, first complete shared directory setup, permissions, mounting, and restart auto-mount verification.
+4. Deploy the three-node Docker Swarm.
+5. Deploy `APP VIP + HAProxy/Nginx`.
+6. Deploy EMQX in either single-node fixed mode or three-node cluster mode.
+7. Deploy PostgreSQL + TimescaleDB primary-standby.
+8. Deploy repmgr witness, repmgrd, and the DB VIP failover script.
+9. Publish the Tier0 Enterprise single-replica stack.
+10. Verify connectivity, NFS read/write access, EMQX recovery, database failover, backup restore, and routine inspection.
+11. Finalize operation documents, archive account credentials, and set up routine inspection tasks.
+
+## Risks and Items to Confirm
+
+- The actual on-site network segment, gateway, DNS, NTP, certificates, and image registry address must be confirmed.
+- It is not yet confirmed whether Tier0 Enterprise needs local file persistence. If it does, add a shared storage or object storage solution.
+- It must be confirmed whether NFS/NAS is provided by existing on-site storage. If NFS is a single point of failure, shared file functions will also have a single point of failure.
+- Each Swarm node has only a `100G` single system disk. Control the number of images, container logs, and temporary files. It is not suitable for long-term business data storage.
+- `EMQX` is a stateful service. Before implementation, confirm whether to use single-node fixed mode or three-node cluster mode. In single-node fixed mode, the messaging layer has a single point of failure.
+- Database RPO/RTO has not been confirmed. The current plan uses primary-standby automatic failover and cannot promise zero data loss.
+- The `DB VIP` failover script must be verified on site, especially whether the virtualization platform allows VRRP.
+- If the on-site network does not allow VRRP, use a load balancer, DNS switch, or virtualization-platform floating IP instead.

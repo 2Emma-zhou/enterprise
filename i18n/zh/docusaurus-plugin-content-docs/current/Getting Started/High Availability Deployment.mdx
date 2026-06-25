@@ -1,0 +1,1418 @@
+---
+title: 高可用部署方案
+sidebar_label: 高可用部署方案
+slug: /getting-started/high-availability-deployment
+---
+
+
+## 方案目标
+
+在离线或私有化环境中部署一套 Tier0 企业版，总计使用6台虚拟机：
+
+- 3台：应用节点。组成 `Docker Swarm` 集群基座，承载 Tier0 企业版单副本服务和 **EMQX** 有状态服务
+- 2台：数据库节点。组成 `PostgreSQL + TimescaleDB` 主从集群
+- 1台：`Witness` 节点。参与数据库监督、仲裁和故障切换
+
+:::note 可选
+- 引入外部 `NFS/NAS` 共享存储，供三台 Swarm 节点挂载，用于 Tier0 企业版跨节点共享文件。
+- 该共享存储是外部依赖，不计入本方案6台业务虚拟机。
+:::
+
+:::info
+本方案假设每台数据库虚拟机规格为 `4C / 8G / 500G`。若用户实际要求为数据库集群合计 `4C / 8G / 500G`，则需要在实施前重新核算性能和容量。
+:::
+
+## 规划 IP
+:::info
+以下 IP 为规划占位，实施前必须替换为现场实际网段。
+:::
+
+<table>
+  <thead>
+    <tr>
+      <th>类型</th>
+      <th>名称</th>
+      <th>规划 IP</th>
+      <th>说明</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>逻辑入口</td>
+      <td>APP VIP</td>
+      <td>10.60.10.10</td>
+      <td>业务统一入口，漂移在 3 台 Swarm 节点之间</td>
+    </tr>
+    <tr>
+      <td>外部依赖</td>
+      <td>NFS/NAS</td>
+      <td>10.60.40.10</td>
+      <td>可选共享存储，不计入 6 台 VM</td>
+    </tr>
+    <tr>
+      <td>应用节点</td>
+      <td>ent-swarm-01</td>
+      <td>10.60.10.11</td>
+      <td>Docker Swarm manager/worker，承载可漂移服务；可作为 EMQX 固定节点或 EMQX 集群节点</td>
+    </tr>
+    <tr>
+      <td>应用节点</td>
+      <td>ent-swarm-02</td>
+      <td>10.60.10.12</td>
+      <td>Docker Swarm manager/worker，承载可漂移服务；可作为 EMQX 集群节点</td>
+    </tr>
+    <tr>
+      <td>应用节点</td>
+      <td>ent-swarm-03</td>
+      <td>10.60.10.13</td>
+      <td>Docker Swarm manager/worker，承载可漂移服务；可作为 EMQX 集群节点</td>
+    </tr>
+    <tr>
+      <td>逻辑入口</td>
+      <td>DB VIP</td>
+      <td>10.60.20.10</td>
+      <td>数据库统一入口，只指向当前主库</td>
+    </tr>
+    <tr>
+      <td>数据库节点</td>
+      <td>ent-db-01</td>
+      <td>10.60.20.11</td>
+      <td>PostgreSQL + TimescaleDB 主库候选</td>
+    </tr>
+    <tr>
+      <td>数据库节点</td>
+      <td>ent-db-02</td>
+      <td>10.60.20.12</td>
+      <td>PostgreSQL + TimescaleDB 备库候选</td>
+    </tr>
+    <tr>
+      <td>仲裁节点</td>
+      <td>ent-db-witness-01</td>
+      <td>10.60.20.13</td>
+      <td>repmgr witness / 仲裁监督节点</td>
+    </tr>
+  </tbody>
+</table>
+
+
+
+## 总体拓扑
+
+<img width={650} src="http://enterpriseimage.oss-cn-hangzhou.aliyuncs.com/image.png" />
+
+:::info
+图中只表达核心链路。
+:::
+- 业务访问路径：用户 / 现场系统 -> `APP VIP` -> 三台 `Docker Swarm` 节点 -> `DB VIP` -> 当前主库
+- 图面按南北向从上到下排列，表现请求进入、应用处理、数据库访问和高可用监督关系
+- 拓扑图不展示集群内部端口、SSH 运维链路和监控链路，统一放到<a href="#连接方式清单">连接方式清单</a>和<a href="#端口明细清单">端口明细清单</a>中
+- `Witness` 只参与数据库仲裁、选主和健康检查，不在业务访问路径中
+- `APP VIP` 直接分发到三台 Swarm 节点，并统一通过 `DB VIP` 访问数据库
+- `APP VIP` 漂移在三台 Swarm 节点之间，`DB VIP` 随当前 PostgreSQL Primary 角色在两台数据库节点之间漂移
+- Tier0 企业版按单副本服务运行，节点故障后由 Swarm 调度到其他健康节点重启
+- `EMQX` 是有状态服务，不按普通无状态服务随机漂移；默认应固定节点持久化，若要求消息层高可用则部署三节点 EMQX 集群
+- 可选 `NFS/NAS` 只作为 Swarm 节点共享文件存储，不进入主数据库请求链路
+
+## 数据库监督与故障切换
+
+#### 数据库切换链路：
+
+<table>
+  <thead>
+    <tr>
+      <th>阶段</th>
+      <th>链路</th>
+      <th>说明</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>正常访问</td>
+      <td>Swarm 节点上的 Tier0 企业版副本 -&gt; <code>DB VIP</code> -&gt; 当前主库</td>
+      <td>应用始终只连接 <code>10.60.20.10:5432</code></td>
+    </tr>
+    <tr>
+      <td>正常复制</td>
+      <td>当前主库 -&gt; 当前备库</td>
+      <td>通过 PostgreSQL WAL 流复制同步数据</td>
+    </tr>
+    <tr>
+      <td>正常监督</td>
+      <td><code>DB-01</code> / <code>DB-02</code> -&gt; <code>Witness</code></td>
+      <td><code>repmgrd</code> 上报状态，<code>Witness</code> 参与仲裁</td>
+    </tr>
+    <tr>
+      <td>主库故障</td>
+      <td>备库 -&gt; <code>Witness</code></td>
+      <td>备库请求仲裁，避免脑裂</td>
+    </tr>
+    <tr>
+      <td>备库提升</td>
+      <td>备库 <code>promote</code></td>
+      <td><code>Witness</code> 确认后，备库提升为新主库</td>
+    </tr>
+    <tr>
+      <td>VIP 漂移</td>
+      <td><code>DB VIP</code> -&gt; 新主库</td>
+      <td><code>10.60.20.10</code> 绑定到新主库</td>
+    </tr>
+    <tr>
+      <td>应用恢复</td>
+      <td>Swarm 节点上的 Tier0 企业版副本 -&gt; <code>DB VIP</code> -&gt; 新主库</td>
+      <td>应用连接池重连后恢复读写</td>
+    </tr>
+  </tbody>
+</table>
+
+#### 关键边界：
+
+- `Witness` 不承载业务数据，不参与业务读写，也不对应用开放数据库访问
+- 业务只连接 `DB VIP:5432`，禁止直连 `ent-db-01/02`
+- `DB VIP` 必须绑定当前 PostgreSQL Primary 节点，不能仅以数据库进程存活作为漂移依据
+- `TimescaleDB` 作为 PostgreSQL 扩展部署在两个数据库节点上，不单独拆库
+- 建议采用 `PostgreSQL streaming replication + repmgr + repmgr witness + keepalived DB VIP`
+- 自动故障切换只处理主库不可用场景；原主库恢复后先作为备库重新加入，不自动抢回主库
+
+## 节点配置清单
+
+<table>
+  <thead>
+    <tr>
+      <th>节点</th>
+      <th>角色</th>
+      <th>vCPU</th>
+      <th>内存</th>
+      <th>存储</th>
+      <th>系统盘建议</th>
+      <th>数据盘建议</th>
+      <th>主要组件</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>ent-swarm-01</code></td>
+      <td>Swarm manager/worker</td>
+      <td>8</td>
+      <td>32G</td>
+      <td>100G</td>
+      <td>单块系统盘 / 100G</td>
+      <td>不单独拆分</td>
+      <td>Docker Engine、Swarm、Keepalived、HAProxy/Nginx</td>
+    </tr>
+    <tr>
+      <td><code>ent-swarm-02</code></td>
+      <td>Swarm manager/worker</td>
+      <td>8</td>
+      <td>32G</td>
+      <td>100G</td>
+      <td>单块系统盘 / 100G</td>
+      <td>不单独拆分</td>
+      <td>Docker Engine、Swarm、Keepalived、HAProxy/Nginx</td>
+    </tr>
+    <tr>
+      <td><code>ent-swarm-03</code></td>
+      <td>Swarm manager/worker</td>
+      <td>8</td>
+      <td>32G</td>
+      <td>100G</td>
+      <td>单块系统盘 / 100G</td>
+      <td>不单独拆分</td>
+      <td>Docker Engine、Swarm、Keepalived、HAProxy/Nginx</td>
+    </tr>
+    <tr>
+      <td><code>ent-db-01</code></td>
+      <td>PostgreSQL/TSDB 主库候选</td>
+      <td>4</td>
+      <td>8G</td>
+      <td>500G</td>
+      <td><code>/</code> 80G</td>
+      <td><code>/pgdata</code> 360G、<code>/pgwal</code> 40G、<code>/backup-staging</code> 20G</td>
+      <td>PostgreSQL、TimescaleDB、repmgr、keepalived</td>
+    </tr>
+    <tr>
+      <td><code>ent-db-02</code></td>
+      <td>PostgreSQL/TSDB 备库候选</td>
+      <td>4</td>
+      <td>8G</td>
+      <td>500G</td>
+      <td><code>/</code> 80G</td>
+      <td><code>/pgdata</code> 360G、<code>/pgwal</code> 40G、<code>/backup-staging</code> 20G</td>
+      <td>PostgreSQL、TimescaleDB、repmgr、keepalived</td>
+    </tr>
+    <tr>
+      <td><code>ent-db-witness-01</code></td>
+      <td>Witness/仲裁监督</td>
+      <td>2</td>
+      <td>4G</td>
+      <td>40G</td>
+      <td><code>/</code> 40G</td>
+      <td>不单独规划</td>
+      <td>repmgr witness、监控 agent、审计日志</td>
+    </tr>
+  </tbody>
+</table>
+
+## 配置汇总清单
+
+<table>
+  <thead>
+    <tr>
+      <th>类别</th>
+      <th>数量</th>
+      <th>单台规格</th>
+      <th>小计 vCPU</th>
+      <th>小计内存</th>
+      <th>小计存储</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Docker Swarm 应用节点</td>
+      <td>3</td>
+      <td>8C / 32G / 100G</td>
+      <td>24C</td>
+      <td>96G</td>
+      <td>300G</td>
+    </tr>
+    <tr>
+      <td>PostgreSQL + TimescaleDB 节点</td>
+      <td>2</td>
+      <td>4C / 8G / 500G</td>
+      <td>8C</td>
+      <td>16G</td>
+      <td>1000G</td>
+    </tr>
+    <tr>
+      <td>Witness 节点</td>
+      <td>1</td>
+      <td>2C / 4G / 40G</td>
+      <td>2C</td>
+      <td>4G</td>
+      <td>40G</td>
+    </tr>
+    <tr>
+      <td>NFS/NAS 共享存储</td>
+      <td>1</td>
+      <td>现场已有或单独提供</td>
+      <td>不计入</td>
+      <td>不计入</td>
+      <td>按文件量规划</td>
+    </tr>
+    <tr>
+      <td>合计</td>
+      <td>6</td>
+      <td>-</td>
+      <td>34C</td>
+      <td>116G</td>
+      <td>1340G</td>
+    </tr>
+  </tbody>
+</table>
+
+换算后硬件需求为：
+
+- 虚拟机总数：6 台
+- vCPU 总量：34
+- 总内存：116G
+- 总存储：1.34T
+- 可选外部共享存储：不计入 6 台 VM 汇总，容量按附件、报表、导入导出和日志归档保留周期单独规划
+
+### Swarm 服务运行口径
+
+<table>
+  <thead>
+    <tr>
+      <th>服务</th>
+      <th>运行方式</th>
+      <th>状态属性</th>
+      <th>故障处理</th>
+      <th>说明</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Tier0 企业版</td>
+      <td><code>replicas: 1</code></td>
+      <td>无状态或弱状态</td>
+      <td>当前节点故障后由 Swarm 漂移重启到其他节点</td>
+      <td>数据必须落 PostgreSQL/TimescaleDB，不能依赖容器本地文件</td>
+    </tr>
+    <tr>
+      <td>EMQX 单节点模式</td>
+      <td>固定到指定 Swarm 节点</td>
+      <td>有状态</td>
+      <td>固定节点故障时需恢复节点或从备份恢复</td>
+      <td>适合规模较小但接受消息层单点的场景</td>
+    </tr>
+    <tr>
+      <td>EMQX 三节点集群模式</td>
+      <td>三台 Swarm 节点各固定 1 个 EMQX 实例</td>
+      <td>有状态集群</td>
+      <td>单节点故障后其余 EMQX 节点继续服务</td>
+      <td>若要求消息层高可用，优先采用此模式</td>
+    </tr>
+    <tr>
+      <td>APP VIP / HAProxy / Nginx</td>
+      <td>三节点部署，VIP 漂移</td>
+      <td>运行态配置</td>
+      <td>健康节点接管 VIP</td>
+      <td>只作为入口，不保存业务数据</td>
+    </tr>
+    <tr>
+      <td>NFS/NAS 共享目录</td>
+      <td>三台 Swarm 节点统一挂载</td>
+      <td>文件状态</td>
+      <td>NFS 故障时依赖共享文件的功能受影响</td>
+      <td>仅用于上传、导入导出、报表等共享文件</td>
+    </tr>
+  </tbody>
+</table>
+
+**关键口径：**
+
+- Tier0 企业版可以单副本运行，Swarm 只提供集群基座和故障漂移能力
+- `EMQX` 不能简单套用 Tier0 企业版的单副本随机漂移策略，因为它有会话、订阅、保留消息、规则引擎状态和持久化目录
+- 如果 `EMQX` 只部署单节点，应明确它是消息层单点，并固定到一台 Swarm 节点的持久化目录
+- 如果业务不能接受 `EMQX` 单点，应在三台 Swarm 节点上部署三节点 EMQX 集群，并为每个节点配置固定主机名，节点名和持久化目录
+
+### NFS/NAS 共享存储口径
+
+引入 NFS 的目的，是为了 Tier0 企业版单副本在 Swarm 节点之间漂移后仍能访问同一份业务文件。它不改变数据库主从和 EMQX 有状态服务边界。
+
+**适合放到 NFS 的内容：**
+
+- 用户上传附件
+- 导入 / 导出文件
+- 报表文件
+- 离线包、模板、可再生成的中间文件
+- 需要跨节点读取的业务静态文件
+
+**不建议放到 NFS 的内容：**
+
+- PostgreSQL / TimescaleDB 数据目录、WAL 目录
+- EMQX 核心数据目录、Mnesia 数据、运行时状态
+- Docker Engine 数据目录 `/var/lib/docker`
+- 高频数据库型写入、锁敏感文件、强一致队列
+
+**建议挂载口径：**
+
+<table>
+  <thead>
+    <tr>
+      <th>项</th>
+      <th>建议</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>NFS 地址</td>
+      <td><code>10.60.40.10:/exports/tier0-enterprise</code></td>
+    </tr>
+    <tr>
+      <td>Swarm 挂载点</td>
+      <td><code>/mnt/tier0-shared</code></td>
+    </tr>
+    <tr>
+      <td>容器内挂载点</td>
+      <td><code>/app/data/shared</code> 或按应用配置</td>
+    </tr>
+    <tr>
+      <td>协议版本</td>
+      <td>优先 NFSv4.1 或现场标准版本</td>
+    </tr>
+    <tr>
+      <td>挂载参数</td>
+      <td><code>rw,hard,timeo=600,retrans=2,_netdev,noatime</code>，按现场 NAS 兼容性调整</td>
+    </tr>
+    <tr>
+      <td>权限</td>
+      <td>固定业务 UID/GID，避免容器节点漂移后权限不一致</td>
+    </tr>
+    <tr>
+      <td>备份</td>
+      <td>共享目录纳入 NAS 快照或独立备份</td>
+    </tr>
+  </tbody>
+</table>
+
+**NFS 边界：**
+
+- NFS 是共享文件依赖，不是数据库高可用组件
+- NFS 本身如果是单点，会成为文件功能单点；生产建议使用已有 HA NAS 或双控存储
+- Tier0 企业版单副本漂移到其他 Swarm 节点前，目标节点必须已挂载并验证 NFS 可读写
+- 如果 Tier0 企业版完全不写本地文件，可不引入 NFS
+
+## 连接方式清单
+
+### 运维访问
+
+<table>
+  <thead>
+    <tr>
+      <th>目标</th>
+      <th>方式</th>
+      <th>端口</th>
+      <th>说明</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>所有虚拟机</td>
+      <td><code>ssh -i ~/.ssh/chen-rsa ops@&lt;IP&gt;</code></td>
+      <td><code>22/TCP</code></td>
+      <td>统一免密实施后使用；未实施前以现场账号为准</td>
+    </tr>
+    <tr>
+      <td>APP VIP</td>
+      <td><code>https://10.60.10.10</code></td>
+      <td><code>443/TCP</code></td>
+      <td>业务入口</td>
+    </tr>
+    <tr>
+      <td>APP VIP</td>
+      <td><code>http://10.60.10.10</code></td>
+      <td><code>80/TCP</code></td>
+      <td>可选，建议只用于跳转 HTTPS</td>
+    </tr>
+    <tr>
+      <td>DB VIP</td>
+      <td><code>psql -h 10.60.20.10 -p 5432</code></td>
+      <td><code>5432/TCP</code></td>
+      <td>只允许应用节点和运维白名单访问</td>
+    </tr>
+    <tr>
+      <td>NFS/NAS</td>
+      <td><code>10.60.40.10:/exports/tier0-enterprise</code></td>
+      <td><code>2049/TCP</code></td>
+      <td>可选共享文件存储</td>
+    </tr>
+  </tbody>
+</table>
+
+### Swarm 集群通信
+
+<table>
+  <thead>
+    <tr>
+      <th>源</th>
+      <th>目标</th>
+      <th>端口</th>
+      <th>用途</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td><code>2377/TCP</code></td>
+      <td>Swarm manager 管理面</td>
+    </tr>
+    <tr>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td><code>7946/TCP/UDP</code></td>
+      <td>节点发现和 gossip</td>
+    </tr>
+    <tr>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td><code>4789/UDP</code></td>
+      <td>overlay 网络 VXLAN</td>
+    </tr>
+    <tr>
+      <td><code>APP VIP</code></td>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td><code>80/443/TCP</code></td>
+      <td>业务入口转发</td>
+    </tr>
+  </tbody>
+</table>
+
+### EMQX 访问与集群通信
+
+<table>
+  <thead>
+    <tr>
+      <th>源</th>
+      <th>目标</th>
+      <th>端口</th>
+      <th>用途</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>设备 / 现场系统</td>
+      <td><code>APP VIP</code> 或 <code>EMQX</code> 入口</td>
+      <td><code>1883/TCP</code></td>
+      <td>MQTT 明文接入，按现场安全要求决定是否开放</td>
+    </tr>
+    <tr>
+      <td>设备 / 现场系统</td>
+      <td><code>APP VIP</code> 或 <code>EMQX</code> 入口</td>
+      <td><code>8883/TCP</code></td>
+      <td>MQTT TLS 接入，建议优先使用</td>
+    </tr>
+    <tr>
+      <td>设备 / 现场系统</td>
+      <td><code>APP VIP</code> 或 <code>EMQX</code> 入口</td>
+      <td><code>8083/TCP</code></td>
+      <td>MQTT WebSocket，可选</td>
+    </tr>
+    <tr>
+      <td>设备 / 现场系统</td>
+      <td><code>APP VIP</code> 或 <code>EMQX</code> 入口</td>
+      <td><code>8084/TCP</code></td>
+      <td>MQTT WebSocket TLS，可选</td>
+    </tr>
+    <tr>
+      <td>运维网段</td>
+      <td><code>EMQX</code> 管理入口</td>
+      <td><code>18083/TCP</code></td>
+      <td>EMQX Dashboard，仅允许运维白名单</td>
+    </tr>
+    <tr>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td><code>4369/TCP</code></td>
+      <td>EMQX/Erlang EPMD，只有三节点 EMQX 集群模式需要</td>
+    </tr>
+    <tr>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td><code>4370/TCP</code></td>
+      <td>EMQX 节点间通信，只有三节点 EMQX 集群模式需要</td>
+    </tr>
+    <tr>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td><code>5370/TCP</code></td>
+      <td>EMQX 集群 RPC，按实际 EMQX 版本确认</td>
+    </tr>
+  </tbody>
+</table>
+
+### 数据库与监督通信
+
+<table>
+  <thead>
+    <tr>
+      <th>源</th>
+      <th>目标</th>
+      <th>端口</th>
+      <th>用途</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Tier0 企业版容器</td>
+      <td><code>DB VIP</code></td>
+      <td><code>5432/TCP</code></td>
+      <td>业务数据库访问</td>
+    </tr>
+    <tr>
+      <td><code>ent-db-01</code></td>
+      <td><code>ent-db-02</code></td>
+      <td><code>5432/TCP</code></td>
+      <td>PostgreSQL WAL 流复制</td>
+    </tr>
+    <tr>
+      <td><code>ent-db-02</code></td>
+      <td><code>ent-db-01</code></td>
+      <td><code>5432/TCP</code></td>
+      <td>故障恢复后反向复制</td>
+    </tr>
+    <tr>
+      <td><code>ent-db-01/02</code></td>
+      <td><code>ent-db-witness-01</code></td>
+      <td><code>5432/TCP</code></td>
+      <td>repmgr metadata / witness 通信</td>
+    </tr>
+    <tr>
+      <td><code>ent-db-01</code></td>
+      <td><code>ent-db-02</code></td>
+      <td><code>VRRP</code></td>
+      <td>DB VIP 漂移，需允许协议 112</td>
+    </tr>
+    <tr>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td><code>ent-db-01/02/Witness</code></td>
+      <td><code>9100/TCP</code></td>
+      <td>可选 node exporter 监控</td>
+    </tr>
+  </tbody>
+</table>
+
+### NFS/NAS 共享存储通信
+
+<table>
+  <thead>
+    <tr>
+      <th>源</th>
+      <th>目标</th>
+      <th>端口</th>
+      <th>用途</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td><code>NFS/NAS 10.60.40.10</code></td>
+      <td><code>2049/TCP</code></td>
+      <td>NFSv4 共享文件访问</td>
+    </tr>
+    <tr>
+      <td>运维网段</td>
+      <td><code>NFS/NAS 10.60.40.10</code></td>
+      <td>按现场管理端口</td>
+      <td>NAS 管理、快照、备份</td>
+    </tr>
+  </tbody>
+</table>
+
+## 服务部署建议
+
+### Docker Swarm
+
+- 三台应用节点均作为 `manager + worker`
+- Tier0 企业版以 `docker stack deploy` 发布
+- Tier0 企业版默认 `replicas: 1`，Swarm 负责在节点故障后重新调度到其他健康节点
+- Tier0 企业版容器不保存关键持久数据，业务数据统一进入 PostgreSQL/TimescaleDB
+- Swarm 节点只有 `100G` 存储，按单块系统盘使用；Docker 数据目录保留在系统盘内，不单独规划数据盘
+- 配置文件使用 `Docker config`
+- 密码、数据库口令、证书私钥使用 `Docker secret`
+- 镜像仓库建议使用现场内网 registry，避免部署依赖公网
+- 发布时建议配置健康检查，避免入口转发到未就绪容器
+- 如应用需要跨节点共享文件，将共享目录挂载到 NFS/NAS，禁止依赖容器本地临时目录保存关键文件
+- 需要配置镜像、容器日志和构建缓存清理策略，避免 `/var/lib/docker` 占满系统盘
+
+**单副本部署示例口径：**
+
+```yaml
+deploy:
+  replicas: 1
+  restart_policy:
+    condition: any
+  update_config:
+    order: stop-first
+```
+
+### EMQX 有状态服务
+
+`EMQX` 需要按有状态服务处理，不能简单作为普通 Swarm 无状态副本随机漂移。
+
+<table>
+  <thead>
+    <tr>
+      <th>模式</th>
+      <th>推荐场景</th>
+      <th>部署口径</th>
+      <th>风险</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>单节点固定模式</td>
+      <td>小规模、能接受消息层短时不可用</td>
+      <td>固定部署到 <code>ent-swarm-01</code>，使用本地持久化目录和备份</td>
+      <td><code>ent-swarm-01</code> 故障时 EMQX 不自动无损漂移</td>
+    </tr>
+    <tr>
+      <td>三节点集群模式</td>
+      <td>正式生产、不能接受 EMQX 单点</td>
+      <td>三台 Swarm 节点各运行 1 个 EMQX 节点，固定 hostname、node name 和数据目录</td>
+      <td>需要额外配置集群端口、证书、节点发现和监控</td>
+    </tr>
+  </tbody>
+</table>
+
+**单节点固定模式最低要求：**
+
+- 使用 Swarm placement constraint 固定节点，例如 `node.labels.emqx == true`
+- 数据目录固定到宿主机，例如 `/data/emqx`
+- 配置、证书、插件、规则引擎配置纳入备份
+- 节点故障时按“恢复原节点优先，其次从备份恢复到新节点”处理，不做无状态式随机漂移
+
+**三节点集群模式最低要求：**
+
+- 每台 Swarm 节点固定一个 EMQX 实例
+- 每个 EMQX 节点使用固定 node name，不随容器重建变化
+- 集群通信端口只在三台 Swarm 节点之间开放
+- Dashboard 只对运维网段开放
+- MQTT 入口可通过 `APP VIP` / 独立 MQTT VIP / 四层负载均衡暴露，实施前需明确入口方式
+- 不建议把 EMQX 核心数据目录放到 NFS；EMQX 单节点固定模式应优先使用固定节点本地盘并做好备份，三节点模式依赖 EMQX 自身集群机制
+
+### NFS/NAS 共享存储
+
+- NFS/NAS 为可选外部依赖，不占用六台 VM 名额
+- 三台 Swarm 节点统一挂载同一个共享目录
+- 只承载 Tier0 企业版需要跨节点访问的共享文件
+- 不承载 PostgreSQL/TimescaleDB 数据目录
+- 不承载 EMQX 核心运行数据
+- 需要配置启动前挂载检查，避免服务漂移到 NFS 未挂载节点后写入本地目录
+- NFS 故障时，数据库读写不受影响，但上传、导入导出、报表等文件功能可能失败
+
+### APP VIP
+
+- `APP VIP` 建议使用 `keepalived + HAProxy` 或 `keepalived + Nginx`，部署在三台 Swarm 节点
+- VIP 只作为统一入口，不单独占用虚拟机
+- 健康检查应以应用 `/health` 或 `/ready` 为准
+- 任一 Swarm 节点故障时，VIP 漂移到其余健康节点
+
+### PostgreSQL + TimescaleDB
+
+**建议基线：**
+
+- PostgreSQL：`16` 或现场认证版本
+- TimescaleDB：选择与 PostgreSQL 主版本匹配的稳定版本
+- 主从复制：物理流复制
+- 故障切换：`repmgrd + witness`
+- 数据库入口：`DB VIP`
+- 连接池：优先在应用侧或单独容器内使用 `PgBouncer`，避免数据库连接数过高
+
+**建议参数起点，实施时需按业务压力测试调整：**
+
+<table>
+  <thead>
+    <tr>
+      <th>参数</th>
+      <th>建议值</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>shared_buffers</code></td>
+      <td><code>2GB</code></td>
+    </tr>
+    <tr>
+      <td><code>effective_cache_size</code></td>
+      <td><code>6GB</code></td>
+    </tr>
+    <tr>
+      <td><code>work_mem</code></td>
+      <td><code>16MB</code> 起步</td>
+    </tr>
+    <tr>
+      <td><code>maintenance_work_mem</code></td>
+      <td><code>512MB</code></td>
+    </tr>
+    <tr>
+      <td><code>max_connections</code></td>
+      <td><code>200</code> 以内，优先配连接池</td>
+    </tr>
+    <tr>
+      <td><code>wal_level</code></td>
+      <td><code>replica</code></td>
+    </tr>
+    <tr>
+      <td><code>max_wal_senders</code></td>
+      <td><code>10</code></td>
+    </tr>
+    <tr>
+      <td><code>max_replication_slots</code></td>
+      <td><code>10</code></td>
+    </tr>
+    <tr>
+      <td><code>hot_standby</code></td>
+      <td><code>on</code></td>
+    </tr>
+    <tr>
+      <td>TimescaleDB 压缩</td>
+      <td>按时序表保留周期开启</td>
+    </tr>
+  </tbody>
+</table>
+
+### Witness
+
+- `Witness` 节点仅保存 `repmgr witness` 元数据，用于辅助数据库故障判断和仲裁
+- `Witness` 不承载业务数据，不参与业务读写，也不对应用开放数据库访问
+- `Witness` 需要稳定网络，不要求高存储性能
+- `Witness` 故障不应中断当前业务访问，但会降低自动切换可信度
+- `Witness` 恢复后必须验证其重新加入数据库集群状态
+
+## 端口与防火墙基线
+
+<table>
+  <thead>
+    <tr>
+      <th>端口/协议</th>
+      <th>放行范围</th>
+      <th>用途</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>22/TCP</code></td>
+      <td>运维网段到 6 台 VM</td>
+      <td>SSH</td>
+    </tr>
+    <tr>
+      <td><code>80/TCP</code></td>
+      <td>用户网段到 <code>APP VIP</code></td>
+      <td>HTTP 跳转或内网明文入口</td>
+    </tr>
+    <tr>
+      <td><code>443/TCP</code></td>
+      <td>用户网段到 <code>APP VIP</code></td>
+      <td>HTTPS 业务入口</td>
+    </tr>
+    <tr>
+      <td><code>2377/TCP</code></td>
+      <td>3 台 Swarm 节点互通</td>
+      <td>Swarm 管理面</td>
+    </tr>
+    <tr>
+      <td><code>7946/TCP/UDP</code></td>
+      <td>3 台 Swarm 节点互通</td>
+      <td>Swarm gossip</td>
+    </tr>
+    <tr>
+      <td><code>4789/UDP</code></td>
+      <td>3 台 Swarm 节点互通</td>
+      <td>Swarm overlay</td>
+    </tr>
+    <tr>
+      <td><code>1883/TCP</code></td>
+      <td>设备 / 现场系统到 MQTT 入口</td>
+      <td>EMQX MQTT 明文，可选</td>
+    </tr>
+    <tr>
+      <td><code>8883/TCP</code></td>
+      <td>设备 / 现场系统到 MQTT 入口</td>
+      <td>EMQX MQTT TLS，建议</td>
+    </tr>
+    <tr>
+      <td><code>8083/TCP</code></td>
+      <td>设备 / 现场系统到 MQTT WebSocket 入口</td>
+      <td>EMQX WebSocket，可选</td>
+    </tr>
+    <tr>
+      <td><code>8084/TCP</code></td>
+      <td>设备 / 现场系统到 MQTT WebSocket TLS 入口</td>
+      <td>EMQX WebSocket TLS，可选</td>
+    </tr>
+    <tr>
+      <td><code>18083/TCP</code></td>
+      <td>运维网段到 EMQX 管理入口</td>
+      <td>EMQX Dashboard，仅白名单</td>
+    </tr>
+    <tr>
+      <td><code>5432/TCP</code></td>
+      <td>Swarm 节点到 <code>DB VIP</code>；DB/Witness 内部互通</td>
+      <td>PostgreSQL / repmgr</td>
+    </tr>
+    <tr>
+      <td><code>2049/TCP</code></td>
+      <td>Swarm 节点到 NFS/NAS</td>
+      <td>NFSv4 共享文件访问，可选</td>
+    </tr>
+    <tr>
+      <td><code>112/VRRP</code></td>
+      <td>Swarm 节点间、DB 节点间</td>
+      <td>VIP 漂移</td>
+    </tr>
+    <tr>
+      <td><code>9100/TCP</code></td>
+      <td>监控系统到 6 台 VM</td>
+      <td>node exporter，可选</td>
+    </tr>
+  </tbody>
+</table>
+
+## 端口明细清单
+
+### 对外入口端口
+
+<table>
+  <thead>
+    <tr>
+      <th>端口/协议</th>
+      <th>监听位置</th>
+      <th>访问来源</th>
+      <th>用途</th>
+      <th>必须开放</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>80/TCP</code></td>
+      <td><code>APP VIP 10.60.10.10</code></td>
+      <td>用户网段 / 运维网段</td>
+      <td>HTTP 入口或跳转 HTTPS</td>
+      <td>可选</td>
+    </tr>
+    <tr>
+      <td><code>443/TCP</code></td>
+      <td><code>APP VIP 10.60.10.10</code></td>
+      <td>用户网段 / 运维网段</td>
+      <td>HTTPS 业务入口</td>
+      <td>是</td>
+    </tr>
+    <tr>
+      <td><code>1883/TCP</code></td>
+      <td>MQTT 入口</td>
+      <td>设备 / 现场系统</td>
+      <td>EMQX MQTT 明文</td>
+      <td>可选</td>
+    </tr>
+    <tr>
+      <td><code>8883/TCP</code></td>
+      <td>MQTT 入口</td>
+      <td>设备 / 现场系统</td>
+      <td>EMQX MQTT TLS</td>
+      <td>建议</td>
+    </tr>
+    <tr>
+      <td><code>8083/TCP</code></td>
+      <td>MQTT WebSocket 入口</td>
+      <td>设备 / 现场系统</td>
+      <td>EMQX WebSocket</td>
+      <td>可选</td>
+    </tr>
+    <tr>
+      <td><code>8084/TCP</code></td>
+      <td>MQTT WebSocket TLS 入口</td>
+      <td>设备 / 现场系统</td>
+      <td>EMQX WebSocket TLS</td>
+      <td>可选</td>
+    </tr>
+    <tr>
+      <td><code>18083/TCP</code></td>
+      <td>EMQX Dashboard</td>
+      <td>运维白名单</td>
+      <td>EMQX 管理控制台</td>
+      <td>可选，必须限源</td>
+    </tr>
+    <tr>
+      <td><code>22/TCP</code></td>
+      <td>6 台 VM 管理 IP</td>
+      <td>运维网段</td>
+      <td>SSH 运维登录</td>
+      <td>是</td>
+    </tr>
+    <tr>
+      <td><code>5432/TCP</code></td>
+      <td><code>DB VIP 10.60.20.10</code></td>
+      <td>3 台 Swarm 节点、运维白名单</td>
+      <td>PostgreSQL 业务访问</td>
+      <td>是</td>
+    </tr>
+    <tr>
+      <td><code>2049/TCP</code></td>
+      <td><code>NFS/NAS 10.60.40.10</code></td>
+      <td>3 台 Swarm 节点</td>
+      <td>NFSv4 共享文件访问</td>
+      <td>按是否引入 NFS</td>
+    </tr>
+  </tbody>
+</table>
+
+### Docker Swarm 节点端口
+
+<table>
+  <thead>
+    <tr>
+      <th>端口/协议</th>
+      <th>监听节点</th>
+      <th>访问来源</th>
+      <th>用途</th>
+      <th>必须开放</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>2377/TCP</code></td>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td>Swarm 集群管理面</td>
+      <td>是</td>
+    </tr>
+    <tr>
+      <td><code>7946/TCP</code></td>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td>Swarm 节点发现 / gossip</td>
+      <td>是</td>
+    </tr>
+    <tr>
+      <td><code>7946/UDP</code></td>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td>Swarm 节点发现 / gossip</td>
+      <td>是</td>
+    </tr>
+    <tr>
+      <td><code>4789/UDP</code></td>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td>Swarm overlay VXLAN</td>
+      <td>是</td>
+    </tr>
+    <tr>
+      <td><code>80/TCP</code></td>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td><code>APP VIP</code> / 内部 LB</td>
+      <td>应用 HTTP 后端</td>
+      <td>按部署方式</td>
+    </tr>
+    <tr>
+      <td><code>443/TCP</code></td>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td><code>APP VIP</code> / 内部 LB</td>
+      <td>应用 HTTPS 后端</td>
+      <td>按部署方式</td>
+    </tr>
+    <tr>
+      <td><code>4369/TCP</code></td>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td>EMQX/Erlang EPMD，三节点集群模式</td>
+      <td>按 EMQX 模式</td>
+    </tr>
+    <tr>
+      <td><code>4370/TCP</code></td>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td>EMQX 节点间通信，三节点集群模式</td>
+      <td>按 EMQX 模式</td>
+    </tr>
+    <tr>
+      <td><code>5370/TCP</code></td>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td>EMQX 集群 RPC，按版本确认</td>
+      <td>按 EMQX 模式</td>
+    </tr>
+  </tbody>
+</table>
+
+### 数据库集群端口
+
+<table>
+  <thead>
+    <tr>
+      <th>端口/协议</th>
+      <th>监听节点</th>
+      <th>访问来源</th>
+      <th>用途</th>
+      <th>必须开放</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>5432/TCP</code></td>
+      <td><code>ent-db-01</code></td>
+      <td><code>ent-swarm-01/02/03</code>、<code>ent-db-02</code>、<code>ent-db-witness-01</code></td>
+      <td>主库业务访问、复制、repmgr metadata</td>
+      <td>是</td>
+    </tr>
+    <tr>
+      <td><code>5432/TCP</code></td>
+      <td><code>ent-db-02</code></td>
+      <td><code>ent-swarm-01/02/03</code>、<code>ent-db-01</code>、<code>ent-db-witness-01</code></td>
+      <td>备库提升后业务访问、复制、repmgr metadata</td>
+      <td>是</td>
+    </tr>
+    <tr>
+      <td><code>5432/TCP</code></td>
+      <td><code>ent-db-witness-01</code></td>
+      <td><code>ent-db-01/02</code></td>
+      <td>repmgr witness 通信</td>
+      <td>是</td>
+    </tr>
+    <tr>
+      <td><code>873/TCP</code></td>
+      <td><code>ent-db-01/02</code></td>
+      <td>运维备份节点</td>
+      <td>rsync 备份通道</td>
+      <td>可选</td>
+    </tr>
+    <tr>
+      <td><code>6432/TCP</code></td>
+      <td>PgBouncer 容器或数据库节点</td>
+      <td>Tier0 企业版容器</td>
+      <td>PostgreSQL 连接池入口</td>
+      <td>可选</td>
+    </tr>
+  </tbody>
+</table>
+
+### VIP 与监控端口
+
+<table>
+  <thead>
+    <tr>
+      <th>端口/协议</th>
+      <th>监听节点</th>
+      <th>访问来源</th>
+      <th>用途</th>
+      <th>必须开放</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>112/VRRP</code></td>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td>APP VIP 漂移</td>
+      <td>是，若使用 Keepalived</td>
+    </tr>
+    <tr>
+      <td><code>112/VRRP</code></td>
+      <td><code>ent-db-01/02</code></td>
+      <td><code>ent-db-01/02</code></td>
+      <td>DB VIP 漂移</td>
+      <td>是，若使用 Keepalived</td>
+    </tr>
+    <tr>
+      <td><code>9100/TCP</code></td>
+      <td>6 台 VM</td>
+      <td>监控系统</td>
+      <td>node exporter</td>
+      <td>建议</td>
+    </tr>
+    <tr>
+      <td><code>9187/TCP</code></td>
+      <td><code>ent-db-01/02</code></td>
+      <td>监控系统</td>
+      <td>postgres exporter</td>
+      <td>建议</td>
+    </tr>
+    <tr>
+      <td><code>9323/TCP</code></td>
+      <td><code>ent-swarm-01/02/03</code></td>
+      <td>监控系统</td>
+      <td>Docker metrics，需显式开启</td>
+      <td>可选</td>
+    </tr>
+    <tr>
+      <td>EMQX metrics 端口</td>
+      <td>EMQX 节点</td>
+      <td>监控系统</td>
+      <td>EMQX 指标，按版本和配置确认</td>
+      <td>建议</td>
+    </tr>
+  </tbody>
+</table>
+
+### 默认不开放端口
+
+<table>
+  <thead>
+    <tr>
+      <th>端口/协议</th>
+      <th>说明</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>2375/TCP</code></td>
+      <td>Docker 明文远程 API，禁止开放</td>
+    </tr>
+    <tr>
+      <td><code>2376/TCP</code></td>
+      <td>Docker TLS 远程 API，默认不开放；确需使用时只允许运维网段</td>
+    </tr>
+    <tr>
+      <td>数据库节点 <code>80/443</code></td>
+      <td>数据库节点不承载 Web 入口，默认关闭</td>
+    </tr>
+    <tr>
+      <td>Witness <code>5432</code> 对应用网段</td>
+      <td>Witness 不承载业务 SQL，禁止应用访问</td>
+    </tr>
+    <tr>
+      <td>EMQX Dashboard 对用户网段</td>
+      <td><code>18083/TCP</code> 只能对运维白名单开放</td>
+    </tr>
+    <tr>
+      <td>NFS 对非 Swarm 网段</td>
+      <td><code>2049/TCP</code> 只允许三台 Swarm 节点和备份/运维白名单访问</td>
+    </tr>
+  </tbody>
+</table>
+
+## 高可用能力与故障边界
+
+<table>
+  <thead>
+    <tr>
+      <th>故障场景</th>
+      <th>预期行为</th>
+      <th>业务影响</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>单台 Swarm 节点故障，影响 Tier0 企业版单副本</td>
+      <td>Swarm 将单副本重新调度到其他健康节点，APP VIP 继续指向健康入口</td>
+      <td>秒级到分钟级中断，取决于镜像拉取和健康检查</td>
+    </tr>
+    <tr>
+      <td>单节点固定模式下 EMQX 所在节点故障</td>
+      <td>优先恢复原节点；若无法恢复，从备份恢复到新节点</td>
+      <td>消息层中断，不能按无状态服务无损漂移</td>
+    </tr>
+    <tr>
+      <td>三节点 EMQX 集群中单节点故障</td>
+      <td>其余 EMQX 节点继续服务，故障节点恢复后重新加入</td>
+      <td>连接会重连，容量下降</td>
+    </tr>
+    <tr>
+      <td>NFS/NAS 故障</td>
+      <td>依赖共享文件的功能失败，数据库和已在内存中的业务流程不一定中断</td>
+      <td>上传、导入导出、报表等文件功能受影响</td>
+    </tr>
+    <tr>
+      <td>两台 Swarm 节点故障</td>
+      <td>Swarm manager 失去多数派，已运行容器可能继续，但无法可靠调度</td>
+      <td>高风险，需人工恢复</td>
+    </tr>
+    <tr>
+      <td>当前数据库主库故障</td>
+      <td>备库经 Witness 仲裁后提升，DB VIP 漂移</td>
+      <td>秒级到分钟级写入中断，应用需重连</td>
+    </tr>
+    <tr>
+      <td>数据库备库故障</td>
+      <td>主库继续服务，复制中断告警</td>
+      <td>无直接业务中断，但失去数据库热备</td>
+    </tr>
+    <tr>
+      <td>Witness 故障</td>
+      <td>当前主库继续服务，自动切换能力下降</td>
+      <td>无直接业务中断，需优先恢复</td>
+    </tr>
+    <tr>
+      <td>DB VIP 漂移失败</td>
+      <td>数据库实际已切主但入口不可达</td>
+      <td>业务中断，需手动绑定 VIP</td>
+    </tr>
+  </tbody>
+</table>
+
+## 备份、监控与巡检
+
+**最低交付要求：**
+
+- 数据库每日全量备份，至少保留 `7` 天
+- WAL 归档或增量备份，满足现场 RPO
+- 每月做一次恢复演练，验证备份可用
+- Swarm 服务健康检查、容器重启次数、节点磁盘、内存、CPU 纳入监控
+- EMQX 连接数、订阅数、消息吞吐、队列堆积、规则引擎失败、持久化目录使用率纳入监控
+- NFS 可用性、挂载状态、容量、inode、读写延迟纳入监控
+- PostgreSQL 主从延迟、复制槽、WAL 堆积、连接数、慢 SQL、数据库膨胀纳入监控
+- VIP 当前归属、repmgr 集群状态、Witness 状态纳入巡检
+
+**建议巡检命令：**
+
+```bash
+docker node ls
+docker service ls
+docker stack ps tier0-enterprise
+ssh ent-db-01 'repmgr cluster show'
+ssh ent-db-01 'psql -h 10.60.20.10 -p 5432 -c "select now();"'
+ssh ent-db-01 'ip addr show | grep 10.60.20.10'
+```
+
+## 上线前检查清单
+
+<table>
+  <thead>
+    <tr>
+      <th>检查项</th>
+      <th>通过标准</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>6 台 VM 主机名固定</td>
+      <td><code>hostnamectl</code> 与规划一致</td>
+    </tr>
+    <tr>
+      <td>统一 SSH 可用</td>
+      <td>运维终端可免密访问 6 台 VM</td>
+    </tr>
+    <tr>
+      <td>时间同步</td>
+      <td>6 台 VM 时间偏差小于 <code>1s</code></td>
+    </tr>
+    <tr>
+      <td>DNS/hosts 固定</td>
+      <td>节点名可稳定解析</td>
+    </tr>
+    <tr>
+      <td>防火墙放行</td>
+      <td>第 9 节端口按范围放行</td>
+    </tr>
+    <tr>
+      <td>Docker Swarm 正常</td>
+      <td><code>docker node ls</code> 三节点 <code>Ready</code></td>
+    </tr>
+    <tr>
+      <td>Swarm 磁盘水位正常</td>
+      <td>三台 Swarm 节点 <code>/</code> 使用率低于 <code>70%</code>，Docker 日志和镜像缓存清理策略已配置</td>
+    </tr>
+    <tr>
+      <td>Tier0 企业版单副本正常</td>
+      <td><code>docker service ls</code> 显示 <code>1/1</code>，并完成一次节点故障漂移验证</td>
+    </tr>
+    <tr>
+      <td>EMQX 状态确认</td>
+      <td>单节点固定模式确认持久化目录和备份；三节点集群模式确认集群健康</td>
+    </tr>
+    <tr>
+      <td>NFS 挂载确认</td>
+      <td>三台 Swarm 节点均可读写 <code>/mnt/tier0-shared</code>，重启后自动挂载</td>
+    </tr>
+    <tr>
+      <td>DB 主从正常</td>
+      <td><code>repmgr cluster show</code> 主备和 witness 正常</td>
+    </tr>
+    <tr>
+      <td>DB VIP 正常</td>
+      <td>应用节点连接 <code>10.60.20.10:5432</code> 成功</td>
+    </tr>
+    <tr>
+      <td>APP VIP 正常</td>
+      <td>用户网段访问 <code>https://10.60.10.10</code> 成功</td>
+    </tr>
+    <tr>
+      <td>主库故障演练</td>
+      <td>备库可提升，DB VIP 可漂移</td>
+    </tr>
+    <tr>
+      <td>应用节点故障演练</td>
+      <td>APP VIP 和 Swarm 副本可恢复</td>
+    </tr>
+    <tr>
+      <td>备份恢复演练</td>
+      <td>可从备份恢复到测试库</td>
+    </tr>
+  </tbody>
+</table>
+
+## 实施顺序
+
+1. 创建 6 台 VM，固定主机名、IP、时间同步和 SSH
+2. 初始化系统基线、防火墙、磁盘挂载和内核参数
+3. 如引入 NFS/NAS，先完成共享目录、权限、挂载和重启自恢复验证
+4. 部署三节点 Docker Swarm
+5. 部署 `APP VIP + HAProxy/Nginx`
+6. 按单节点固定或三节点集群模式部署 EMQX
+7. 部署 PostgreSQL + TimescaleDB 主备
+8. 部署 repmgr witness、repmgrd 和 DB VIP 漂移脚本
+9. 发布 Tier0 企业版单副本 stack
+10. 执行连通性、NFS 读写、EMQX 恢复、数据库故障切换、备份恢复和巡检验证
+11. 固化运行文档、账号凭据归档和日常巡检任务
+
+## 风险与待确认项
+
+- 现场真实网段、网关、DNS、NTP、证书和镜像仓库地址待确认
+- Tier0 企业版是否需要本地文件持久化尚未确认；若需要，应补共享存储或对象存储方案
+- NFS/NAS 是否由现场已有存储提供待确认；若 NFS 是单点，会成为共享文件功能单点
+- Swarm 节点仅 `100G` 单系统盘，必须控制镜像数量、容器日志和临时文件；不适合承载长期业务数据
+- `EMQX` 是有状态服务，需在实施前确认采用“单节点固定”还是“三节点集群”模式；单节点固定模式下消息层存在单点风险
+- 数据库 RPO/RTO 未确认，当前方案按主从自动切换设计，不能承诺零数据丢失
+- `DB VIP` 的漂移脚本需要在现场验证，特别是虚拟化平台是否允许 VRRP
+- 如果现场网络不允许 VRRP，需要改为负载均衡器、DNS 切换或虚拟化平台浮动 IP

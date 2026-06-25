@@ -28,7 +28,7 @@
     "description": "The label of footer link with label=LinkedIn linking to https://www.linkedin.com/uas/login?session_redirect=%2Fcompany%2F91136833"
   },
   "copyright": {
-    "message": "\n    版权所有：中控富瑞科技有限公司\n    <span>\n      <a href=\"https://beian.miit.gov.cn/\" target=\"_blank\">蜀ICP备2026005893号</a>\n      &nbsp;\n      <a href=\"http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=33011302001004\" target=\"_blank\">\n        <img src=\"http://communityimage2.oss-cn-hangzhou.aliyuncs.com/beian.png\"\n             style=\"width:14px;vertical-align:middle;margin-right:4px;\" />\n        浙公网安备 33011302001004号\n      </a>\n    </span>\n  ",
+    "message": "\n    版权所有：中控富瑞科技有限公司\n   ",
     "description": "The footer copyright"
   }
 }
