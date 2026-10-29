@@ -1,0 +1,202 @@
+---
+title: 标准私有化部署方案
+sidebar_label: 标准私有化部署方案
+slug: /getting-started/standard-private-deployment
+---
+
+## 方案目标
+
+简化版不使用 Docker Swarm，只部署单台 `enterprise` 应用节点，总计 `4` 台虚拟机：
+
+- `1` 台 `enterprise` 节点承载 `tier0-enterprise + EMQX`
+- `2` 台数据库节点组成 `PostgreSQL + TimescaleDB` 主从集群
+- `1` 台 `Witness` 节点参与数据库监督、仲裁和故障切换
+
+简化版目标是降低部署复杂度。代价是应用层和 EMQX 均为单点，只有数据库层保留 `DB VIP + Witness` 高可用。
+
+## 规划 IP
+
+以下 IP 为规划占位，实施前必须替换为现场真实网段。
+
+| 类型 | 名称 | 规划 IP | 说明 |
+|------|------|---------|------|
+| 应用节点 | `ent-enterprise-01` | `10.60.10.11` | 单台 enterprise，承载 `tier0-enterprise + EMQX` |
+| 逻辑入口 | `DB VIP` | `10.60.20.10` | 数据库统一入口，只指向当前主库 |
+| 数据库节点 | `ent-db-01` | `10.60.20.11` | PostgreSQL + TimescaleDB 主库候选 |
+| 数据库节点 | `ent-db-02` | `10.60.20.12` | PostgreSQL + TimescaleDB 备库候选 |
+| 仲裁节点 | `ent-db-witness-01` | `10.60.20.13` | `repmgr witness` / 仲裁监督节点 |
+
+## 总体拓扑
+
+<img width={650} src="http://enterpriseimage.oss-cn-hangzhou.aliyuncs.com/9-1.png" />
+
+核心链路：
+
+- 业务访问路径：用户 / 现场系统 -> `ent-enterprise-01` -> `DB VIP` -> 当前主库
+- `tier0-enterprise` 和 `EMQX` 均部署在 `ent-enterprise-01`
+- 数据库仍通过 `DB VIP` 访问，不直连 `ent-db-01/02`
+- `Witness` 只参与数据库仲裁、选主和健康检查，不进入业务访问链路
+
+## 数据库监督与故障切换
+
+| 阶段 | 链路 | 说明 |
+|------|------|------|
+| 正常访问 | `ent-enterprise-01 -> DB VIP -> 当前主库` | 应用始终只连接 `10.60.20.10:5432` |
+| 正常复制 | `当前主库 -> 当前备库` | PostgreSQL WAL 流复制 |
+| 正常监督 | `DB-01/DB-02 -> Witness` | repmgrd 上报状态，Witness 参与仲裁 |
+| 主库故障 | `备库 -> Witness` | 备库请求仲裁，避免脑裂 |
+| 备库提升 | `备库 promote` | Witness 确认后，备库提升为新主库 |
+| VIP 漂移 | `DB VIP -> 新主库` | `10.60.20.10` 绑定到新主库 |
+| 应用恢复 | `ent-enterprise-01 -> DB VIP -> 新主库` | 应用连接池重连后恢复读写 |
+
+## 节点配置清单
+
+| 节点 | 角色 | vCPU | 内存 | 存储 | 系统盘建议 | 数据盘建议 | 主要组件 |
+|------|------|------|------|------|------------|------------|----------|
+| `ent-enterprise-01` | 单节点 enterprise | `8` | `32G` | `100G` | 单块系统盘 `/` 100G | 不单独拆分 | tier0-enterprise、EMQX、Nginx/HAProxy 可选 |
+| `ent-db-01` | PostgreSQL/TSDB 主库候选 | `4` | `8G` | `500G` | `/` 80G | `/pgdata` 360G、`/pgwal` 40G、`/backup-staging` 20G | PostgreSQL、TimescaleDB、repmgr、keepalived |
+| `ent-db-02` | PostgreSQL/TSDB 备库候选 | `4` | `8G` | `500G` | `/` 80G | `/pgdata` 360G、`/pgwal` 40G、`/backup-staging` 20G | PostgreSQL、TimescaleDB、repmgr、keepalived |
+| `ent-db-witness-01` | Witness/仲裁监督 | `2` | `4G` | `40G` | `/` 40G | 不单独规划 | repmgr witness、监控 agent、审计日志 |
+
+## 配置汇总清单
+
+| 类别 | 数量 | 单台规格 | 小计 vCPU | 小计内存 | 小计存储 |
+|------|------|----------|-----------|----------|----------|
+| enterprise 应用节点 | `1` | `8C / 32G / 100G` | `8C` | `32G` | `100G` |
+| PostgreSQL + TimescaleDB 节点 | `2` | `4C / 8G / 500G` | `8C` | `16G` | `1000G` |
+| Witness 节点 | `1` | `2C / 4G / 40G` | `2C` | `4G` | `40G` |
+| 合计 | `4` | - | `18C` | `52G` | `1140G` |
+
+换算：
+
+- 总虚拟机：`4` 台
+- 总 vCPU：`18`
+- 总内存：`52G`
+- 总存储：`1.14T`
+
+## 连接方式清单
+
+### 运维访问
+
+| 目标 | 方式 | 端口 | 说明 |
+|------|------|------|------|
+| 所有虚拟机 | `ssh -i ~/.ssh/chen-rsa ops@<IP>` | `22/TCP` | 统一免密实施后使用；未实施前以现场账号为准 |
+| `ent-enterprise-01` | `https://10.60.10.11` | `443/TCP` | 业务入口 |
+| `DB VIP` | `psql -h 10.60.20.10 -p 5432` | `5432/TCP` | 只允许 enterprise 节点和运维白名单访问 |
+
+### 应用与 EMQX 端口
+
+| 源 | 目标 | 端口 | 用途 |
+|----|------|------|------|
+| 用户 / 现场系统 | `ent-enterprise-01` | `80/TCP` | HTTP 入口或跳转 HTTPS，可选 |
+| 用户 / 现场系统 | `ent-enterprise-01` | `443/TCP` | HTTPS 业务入口 |
+| 设备 / 现场系统 | `ent-enterprise-01` | `1883/TCP` | EMQX MQTT 明文，可选 |
+| 设备 / 现场系统 | `ent-enterprise-01` | `8883/TCP` | EMQX MQTT TLS，建议 |
+| 设备 / 现场系统 | `ent-enterprise-01` | `8083/TCP` | MQTT WebSocket，可选 |
+| 设备 / 现场系统 | `ent-enterprise-01` | `8084/TCP` | MQTT WebSocket TLS，可选 |
+| 运维网段 | `ent-enterprise-01` | `18083/TCP` | EMQX Dashboard，仅允许运维白名单 |
+| `ent-enterprise-01` | `DB VIP` | `5432/TCP` | PostgreSQL 业务访问 |
+
+### 数据库与监督通信
+
+| 源 | 目标 | 端口 | 用途 |
+|----|------|------|------|
+| `ent-db-01` | `ent-db-02` | `5432/TCP` | PostgreSQL WAL 流复制 |
+| `ent-db-02` | `ent-db-01` | `5432/TCP` | 故障恢复后反向复制 |
+| `ent-db-01/02` | `ent-db-witness-01` | `5432/TCP` | repmgr metadata / witness 通信 |
+| `ent-db-01` | `ent-db-02` | `VRRP` | DB VIP 漂移，需允许协议 `112` |
+
+## 服务部署建议
+
+### enterprise 应用节点
+
+- 不部署 Docker Swarm
+- `tier0-enterprise` 和 `EMQX` 部署在同一台 `ent-enterprise-01`
+- `ent-enterprise-01` 是应用层单点，故障时需要人工恢复或从备份重建
+- 节点只有 `100G` 单系统盘，不适合承载长期业务数据
+- `tier0-enterprise` 业务数据必须进入 PostgreSQL/TimescaleDB
+- 如有上传、导入导出、报表等文件，可保存在本机并纳入备份；如果后续要扩展为标准版，应迁移到 NFS/NAS 或对象存储
+
+### EMQX 单节点
+
+- EMQX 在简化版中为单节点有状态服务
+- 数据目录固定在 `ent-enterprise-01` 本地盘，例如 `/data/emqx`
+- 配置、证书、插件、规则引擎配置需要纳入备份
+- 不提供消息层高可用；如不能接受 EMQX 单点，应使用标准版三节点 EMQX 集群模式
+
+### PostgreSQL + TimescaleDB
+
+- PostgreSQL：`16` 或现场认证版本
+- TimescaleDB：选择与 PostgreSQL 主版本匹配的稳定版本
+- 主从复制：物理流复制
+- 故障切换：`repmgrd + witness`
+- 数据库入口：`DB VIP`
+- 连接池：可在 `ent-enterprise-01` 部署 PgBouncer，避免数据库连接数过高
+
+### Witness
+
+- Witness 只放 `repmgr witness` 元数据和监督逻辑
+- Witness 不承载业务 SQL
+- Witness 故障不影响当前主库继续服务，但会降低自动切换可信度
+
+## 端口与防火墙基线
+
+| 端口/协议 | 放行范围 | 用途 |
+|-----------|----------|------|
+| `22/TCP` | 运维网段到 4 台 VM | SSH |
+| `80/TCP` | 用户网段到 `ent-enterprise-01` | HTTP 跳转或内网明文入口 |
+| `443/TCP` | 用户网段到 `ent-enterprise-01` | HTTPS 业务入口 |
+| `1883/TCP` | 设备 / 现场系统到 `ent-enterprise-01` | EMQX MQTT 明文，可选 |
+| `8883/TCP` | 设备 / 现场系统到 `ent-enterprise-01` | EMQX MQTT TLS，建议 |
+| `8083/TCP` | 设备 / 现场系统到 `ent-enterprise-01` | EMQX WebSocket，可选 |
+| `8084/TCP` | 设备 / 现场系统到 `ent-enterprise-01` | EMQX WebSocket TLS，可选 |
+| `18083/TCP` | 运维网段到 `ent-enterprise-01` | EMQX Dashboard，仅白名单 |
+| `5432/TCP` | enterprise 到 `DB VIP`；DB/Witness 内部互通 | PostgreSQL / repmgr |
+| `112/VRRP` | DB 节点间 | DB VIP 漂移 |
+| `9100/TCP` | 监控系统到 4 台 VM | node exporter，可选 |
+
+## 高可用能力与故障边界
+
+| 故障场景 | 预期行为 | 业务影响 |
+|----------|----------|----------|
+| `ent-enterprise-01` 故障 | 应用和 EMQX 均中断，需要人工恢复或从备份重建 | 应用层整体中断 |
+| 当前数据库主库故障 | 备库经 Witness 仲裁后提升，DB VIP 漂移 | 秒级到分钟级写入中断，应用需重连 |
+| 数据库备库故障 | 主库继续服务，复制中断告警 | 无直接业务中断，但失去数据库热备 |
+| Witness 故障 | 当前主库继续服务，自动切换能力下降 | 无直接业务中断，需优先恢复 |
+| DB VIP 漂移失败 | 数据库实际已切主但入口不可达 | 业务中断，需手动绑定 VIP |
+
+## 上线前检查清单
+
+| 检查项 | 通过标准 |
+|--------|----------|
+| 4 台 VM 主机名固定 | `hostnamectl` 与规划一致 |
+| 统一 SSH 可用 | 运维终端可免密访问 4 台 VM |
+| 时间同步 | 4 台 VM 时间偏差小于 `1s` |
+| 防火墙放行 | 第 9 节端口按范围放行 |
+| enterprise 服务正常 | `tier0-enterprise` 健康检查通过 |
+| EMQX 状态确认 | EMQX 节点、监听端口和持久化目录正常 |
+| enterprise 磁盘水位正常 | `/` 使用率低于 `70%`，日志和缓存清理策略已配置 |
+| DB 主从正常 | `repmgr cluster show` 主备和 witness 正常 |
+| DB VIP 正常 | enterprise 节点连接 `10.60.20.10:5432` 成功 |
+| 主库故障演练 | 备库可提升，DB VIP 可漂移 |
+| 备份恢复演练 | 可从备份恢复到测试库 |
+
+## 实施顺序
+
+1. 创建 4 台 VM，固定主机名、IP、时间同步和 SSH
+2. 初始化系统基线、防火墙、磁盘挂载和内核参数
+3. 在 `ent-enterprise-01` 部署 `tier0-enterprise`
+4. 在 `ent-enterprise-01` 部署单节点 EMQX
+5. 部署 PostgreSQL + TimescaleDB 主备
+6. 部署 repmgr witness、repmgrd 和 DB VIP 漂移脚本
+7. 执行连通性、EMQX 恢复、数据库故障切换、备份恢复和巡检验证
+8. 固化运行文档、账号凭据归档和日常巡检任务
+
+## 风险与待确认项
+
+- 简化版应用层是单点，`ent-enterprise-01` 故障会导致业务整体不可用
+- 简化版 EMQX 是单点，不能提供消息层高可用
+- `ent-enterprise-01` 只有 `100G` 单系统盘，必须控制日志、缓存、附件和临时文件
+- 如后续需要应用层或 EMQX 高可用，应切换到标准版
+- 数据库 RPO/RTO 未确认，当前方案按主从自动切换设计，不能承诺零数据丢失
+- `DB VIP` 漂移脚本需要在现场验证，特别是虚拟化平台是否允许 VRRP

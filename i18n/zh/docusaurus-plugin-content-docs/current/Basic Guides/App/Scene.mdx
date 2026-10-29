@@ -1,0 +1,239 @@
+---
+sidebar_label: 构建 3D 场景（场景）
+title: 构建 3D 场景
+slug: /app/build-3d-scenes
+---
+
+Tier0 支持使用已映射实时 UNS 数据的 3D 模型构建场景，用于实时展示。
+
+## 其他参数说明
+
+- 场景说明。
+
+        <img width={550} src="http://tier0saas1.oss-cn-hangzhou.aliyuncs.com/92-1.png" />
+
+        <table>
+        <tr>
+            <th>编号</th>
+            <th>模块</th>
+            <th>项目</th>
+            <th>说明</th>
+        </tr>
+        <tr>
+            <td>1</td>
+            <td colspan="2">实例库</td>
+            <td>列出 <b>Model Library</b> 中所有已配置的模型。</td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>模型位置</td>
+            <td><img width={25} src="http://tier0saas1.oss-cn-hangzhou.aliyuncs.com/93.png" />/<img width={25} src="http://tier0saas1.oss-cn-hangzhou.aliyuncs.com/94.png" />/<img width={25} src="http://tier0saas1.oss-cn-hangzhou.aliyuncs.com/95.png" /></td>
+            <td>沿 X、Y、Z 轴移动、旋转或缩放模型。</td>
+        </tr>
+        <tr>
+            <td rowspan="2">3</td>
+            <td rowspan="2">坐标轴</td>
+            <td>本地/全局</td>
+            <td>决定模型坐标基于模型自身，还是基于整个屏幕。</td>
+        </tr>
+        <tr>
+        <td>中心/底部</td>
+            <td>设置坐标位置位于模型中心或底部。</td>
+        </tr>
+        <tr>
+            <td>4</td>
+            <td>通用操作</td>
+            <td><img width={25} src="http://tier0saas1.oss-cn-hangzhou.aliyuncs.com/68-2.png" />/<img width={25} src="http://tier0saas1.oss-cn-hangzhou.aliyuncs.com/68-3.png" /></td>
+            <td>将场景恢复到原始视角/全屏查看场景。</td>
+        </tr>
+        <tr>
+            <td>5</td>
+            <td colspan="2">场景集合</td>
+            <td>列出场景中的所有模型。</td>
+        </tr>
+        <tr>
+            <td>6</td>
+            <td colspan="2">画布</td>
+            <td>显示场景画布。</td>
+        </tr>
+            <tr>
+            <td rowspan="3">7</td>
+            <td rowspan="3">设置</td>
+            <td>视口</td>
+            <td>设置场景视口，包括背景、相机参数和网格布局。</td>
+        </tr>
+        <tr>
+        <td>灯光</td>
+            <td>在不同预设类型下设置场景中的光照条件。</td>
+        </tr>
+        <tr>
+        <td>对象</td>
+            <td>显示场景中所选模型的属性。你可以通过手动修改数值来编辑其位置。</td>
+        </tr>
+        </table>
+
+- **视口**
+
+        <img width={250} src="http://tier0saas1.oss-cn-hangzhou.aliyuncs.com/96-1.png" />
+        <table>
+        <thead>
+            <tr>
+            <th>参数</th>
+            <th>说明</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+            <td>背景</td>
+            <td>场景画布的背景样式。</td>
+            </tr>
+            <tr>
+            <td>地面倒影</td>
+            <td>控制模型下方是否显示反射效果，用于模拟反光地面。</td>
+            </tr>
+            <tr>
+            <td>启用倒影</td>
+            <td>开启或关闭地面反射效果。</td>
+            </tr>
+            <tr>
+            <td>清晰度</td>
+            <td>调整反射的清晰度或锐利程度。数值越高，反射越清晰。</td>
+            </tr>
+            <tr>
+            <td>倒影深度</td>
+            <td>调整反射的垂直范围或深度。数值越高，反射通常向下延伸得越远。</td>
+            </tr>
+        </tbody>
+        </table>
+
+    - **相机**
+
+        <img width={250} src="http://tier0saas1.oss-cn-hangzhou.aliyuncs.com/97-1.png" />
+        <table>
+        <thead>
+            <tr>
+            <th>参数</th>
+            <th>说明</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+            <td>焦距</td>
+            <td>设置相机焦距。数值越小，视野越宽。</td>
+            </tr>
+            <tr>
+            <td>镜头单位</td>
+            <td>指定镜头设置使用的单位。在该示例中，焦距以毫米为单位。</td>
+            </tr>
+            <tr>
+            <td>X/Y 偏移</td>
+            <td>在不旋转相机的情况下，水平/垂直移动相机视图。正值或负值会将画面向左、向右、向上或向下偏移。</td>
+            </tr>
+            <tr>
+            <td>裁剪模式</td>
+            <td>指定相机裁剪范围的控制方式。在 <b>Auto</b> 模式下，系统会根据场景自动计算可见范围。在 <b>Manual</b> 模式下，可以使用 <b>Clip Start</b> 和 <b>End</b> 设置近端和远端裁剪距离。</td>
+            </tr>
+            <tr>
+            <td>裁剪起点</td>
+            <td>定义距离相机最近的可见距离。比该距离更近的对象会被裁剪。</td>
+            </tr>
+            <tr>
+            <td>结束</td>
+            <td>定义距离相机最远的可见距离。超过该距离的对象会被裁剪。</td>
+            </tr>
+        </tbody>
+        </table>
+
+    - **网格**
+
+        <img width={250} src="http://tier0saas1.oss-cn-hangzhou.aliyuncs.com/98-1.png" />
+        <table>
+        <thead>
+            <tr>
+            <th>参数</th>
+            <th>说明</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+            <td>显示网格</td>
+            <td>是否在场景中显示网格。</td>
+            </tr>
+            <tr>
+            <td>显示坐标轴</td>
+            <td>是否在场景中显示坐标轴。</td>
+            </tr>
+            <tr>
+            <td>网格范围</td>
+            <td>定义网格区域整体可见大小。</td>
+            </tr>
+            <tr>
+            <td>最小网格尺寸</td>
+            <td>定义每个网格单元的最小尺寸。</td>
+            </tr>
+            <tr>
+            <td>无限网格</td>
+            <td>设置网格是否无限延伸，而不是限制在固定区域内。</td>
+            </tr>
+        </tbody>
+        </table>
+
+- **灯光**
+
+    <img width={250} src="http://tier0saas1.oss-cn-hangzhou.aliyuncs.com/99-1.png" />
+    <table>
+    <thead>
+        <tr>
+        <th>参数</th>
+        <th>说明</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+        <td>光照预设</td>
+        <td>选择预设光照方案。可选项包括 <b>Balanced</b>、<b>Soft</b> 和 <b>Contrast</b>。</td>
+        </tr>
+        <tr>
+        <td>IBL</td>
+        <td>启用基于图像的光照。该功能使用环境图像为场景提供更真实的环境光和反射效果。强度值用于控制 IBL 效果的强弱。</td>
+        </tr>
+        <tr>
+        <td>环境光</td>
+        <td>控制环境光强度。环境光为整个场景提供整体的非定向照明。</td>
+        </tr>
+        <tr>
+        <td>主光</td>
+        <td>控制主光源强度。主光源用于塑造对象的主要高光和阴影。</td>
+        </tr>
+        <tr>
+        <td>补光</td>
+        <td>控制补光强度。补光用于柔化主光源产生的阴影，并降低明暗对比。</td>
+        </tr>
+        <tr>
+        <td>背光</td>
+        <td>控制背光强度。背光从对象后方照亮对象，帮助对象与背景分离。</td>
+        </tr>
+    </tbody>
+    </table>
+
+
+
+## 如何构建数字孪生场景
+
+1. 登录 Tier0，选择 **Anchor** > **场景**。
+2. 单击右上角的 **新建场景**，输入场景信息，然后单击 **创建**。
+
+<img width={550} src="http://tier0saas1.oss-cn-hangzhou.aliyuncs.com/90-1.png" />
+
+3. 打开已创建的场景，从左侧 **实例库** 中选择实例。
+
+<img width={550} src="http://tier0saas1.oss-cn-hangzhou.aliyuncs.com/91-1.png" />
+
+4. 配置添加到场景中的模型。
+    1. 设置模型坐标。
+    2. 基于所选坐标调整模型的位置、旋转和缩放。
+    3. 在右侧根据需要编辑视口、相机和网格。
+    4. 编辑光照设置。
+    5. 可选：通过设置 **对象** > **变换** 下的数值来编辑模型位置。
+
+5. 单击右上角的 **保存场景**。

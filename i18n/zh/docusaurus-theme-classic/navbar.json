@@ -7,10 +7,6 @@
     "message": "文档",
     "description": "Navbar item with label Doc"
   },
-  "item.label.Use Case": {
-    "message": "用例",
-    "description": "Navbar item with label Use Case"
-  },
   "item.label.Open API": {
     "message": "Open API",
     "description": "Navbar item with label Open API"

@@ -27,6 +27,14 @@
     "message": "平台重点功能的详细操作指南。",
     "description": "The generated-index page description for category How-to Guide in sidebar tutorialSidebar"
   },
+  "sidebar.tutorialSidebar.category.Connect Data": {
+    "message": "连接数据",
+    "description": "The label for category Connect Data in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.Process Data": {
+    "message": "处理数据",
+    "description": "The label for category Process Data in sidebar tutorialSidebar"
+  },
   "sidebar.tutorialSidebar.category.Common Data Sources": {
     "message": "常规数据源",
     "description": "The label for category Common Data Sources in sidebar tutorialSidebar"
@@ -46,6 +54,18 @@
   "sidebar.tutorialSidebar.category.Advanced Guide": {
     "message": "高阶使用",
     "description": "The label for category Advanced Guide in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.Sync Data": {
+    "message": "同步数据",
+    "description": "The label for category Sync Data in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.Use Data": {
+    "message": "使用数据",
+    "description": "The label for category Use Data in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.Analyze Data": {
+    "message": "分析数据",
+    "description": "The label for category Analyze Data in sidebar tutorialSidebar"
   },
   "sidebar.tutorialSidebar.category.Advanced Guide.link.generated-index.description": {
     "message": "高阶使用指南。",

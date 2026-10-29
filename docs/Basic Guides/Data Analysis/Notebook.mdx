@@ -1,0 +1,364 @@
+---
+title: Analyze Data
+sidebar_label: Analyze Data (Notebook)
+slug: /database-management/analyze-data
+---
+
+Tier0 adopts Marimo Notebook for advanced data analysis with Python.
+
+## Creating Notebooks
+
+1. Log in to Tier0, and then select **Notebook**.
+
+<img width={550} src="https://tier0saas1.oss-cn-hangzhou.aliyuncs.com/34.png" />
+
+<table>
+  <thead>
+    <tr>
+      <th>No.</th>
+      <th>Item</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>Category</td>
+      <td>Displays notebooks by their status.</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>Notebook Treemap</td>
+      <td>Lists notebooks in a folder-file hierarchical manner, you can add notebooks, refresh lists and search for notebooks.</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>Notebook List</td>
+      <td>Displays all notebooks of the selected folder in details.</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>Import</td>
+      <td>Import notebooks.</td>
+    </tr>
+  </tbody>
+</table>
+
+2. Select <img src="https://tier0saas1.oss-cn-hangzhou.aliyuncs.com/6.png" /> > **New Folder**.
+
+<img width={350} src="https://tier0saas1.oss-cn-hangzhou.aliyuncs.com/35.png" />
+
+3. Enter a folder name and click **Create**.
+4. Click the created folder, and then select <img src="https://tier0saas1.oss-cn-hangzhou.aliyuncs.com/6.png" /> > **New Notebook**.
+
+<img width={350} src="https://tier0saas1.oss-cn-hangzhou.aliyuncs.com/36.png" />
+
+5. Enter the notebook information and click **Create**.
+6. Click the created notebook on the right side, and start editing.
+
+<img width={550} src="https://tier0saas1.oss-cn-hangzhou.aliyuncs.com/37.png" />
+
+<table>
+  <thead>
+    <tr>
+      <th>No.</th>
+      <th>Item</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr>
+      <td>1</td>
+      <td>Modules</td>
+      <td>Displays notebook modules, including data sources and variables, dependency packages and AI bot.</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>Files</td>
+      <td>Displays notebook hierarchy.</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>Canvas</td>
+      <td>Displays cells and the corresponding results. You can select to create different types of cells, shutdown the notebook and change its settings.</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>Tool Bar</td>
+      <td>Refresh cells and save the notebook to different versions.</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>Notebook Operations</td>
+      <td>Save the notebook. Switch the current viewer style between cells & result, and pure result. Stop/run all cells.</td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td>Developer Mode</td>
+      <td>Enter developer panel, and set runtime activity.</td>
+    </tr>
+    <tr>
+      <td>7</td>
+      <td>Status</td>
+      <td>Displays the memory, CPU and AI status.</td>
+    </tr>
+  </tbody>
+</table>
+
+## Using Notebook to Run SQL Queries
+:::info Know Before you start
+Data stored in database from UNS acts as an existing data source in notebook.
+:::
+
+1. Log in to Tier0, and then select **Notebook**.
+2. Create a notebook and access it, Click **VARIABLES** on the left side.
+3. Find the table you need on the left, click <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/170.png" /> next to the table name to generate SQL statements automatically.
+
+<img width={550} src="https://tier0saas1.oss-cn-hangzhou.aliyuncs.com/37-5.png" />
+
+4. Click <img width={20} src="http://tier0saas1.oss-cn-hangzhou.aliyuncs.com/129.png" /> at the lower-right corner to run all cells and view the query result.
+
+<img width={450} src="https://tier0saas1.oss-cn-hangzhou.aliyuncs.com/130.png" />
+
+:::tip
+- You can click <img src="http://tier0saas1.oss-cn-hangzhou.aliyuncs.com/37-4.png" /> under **DATA SOURCES** on the left to add sources as needed.
+- Certain packages might be missing while working with notebook. In this case, click **Manage packages** on the left to install.
+:::
+
+5. (optional) Click **SQL** to add a new cell, and then select a connected database to run SQL statements.
+
+<img width={550} src="https://tier0saas1.oss-cn-hangzhou.aliyuncs.com/37-3.png" />
+
+
+## Using Notebook to Analyze Data
+
+### Example Background
+- Data source is temperature and humidity data of a device collected from a factory and sent to Tier0 UNS.
+- Analysis on the data includes set risk thresholds, recognize risks according to combined temperature and humidity data, and generate tables, charts for easy view.
+
+### Steps
+1. Log in to Tier0, and then select **Notebook**.
+2. Create a notebook, inside it add the following cells.
+- Cell 1: Import libraries.
+```python
+import marimo as mo
+import pandas as pd
+import altair as alt
+```
+- Cell 2: Query data from the database
+```sql
+SELECT * FROM "uns"."device_15d9d69fd5eb" LIMIT 100
+```
+- Cell 3: Clean data
+```python
+
+# Convert SQL result to pandas DataFrame
+if hasattr(device_df, "to_pandas"):
+    df = device_df.to_pandas()
+elif hasattr(device_df, "to_dicts"):
+    df = pd.DataFrame(device_df.to_dicts())
+else:
+    df = pd.DataFrame(device_df)
+
+# Clean and normalize data
+df["_timestamp"] = pd.to_datetime(df["_timestamp"])
+df = df.sort_values("_timestamp").reset_index(drop=True)
+
+df["temp"] = pd.to_numeric(df["temp"], errors="coerce")
+df["humidity"] = pd.to_numeric(df["humidity"], errors="coerce")
+
+df = df.dropna(subset=["temp", "humidity"])
+
+df.head()
+```
+- Cell 4: Set risk thresholds and generate risk status fields.
+```python
+temp_warning = mo.ui.slider(
+    start=0,
+    stop=100,
+    value=70,
+    label="Temperature warning threshold",
+)
+
+temp_critical = mo.ui.slider(
+    start=0,
+    stop=100,
+    value=85,
+    label="Temperature critical threshold",
+)
+
+humidity_warning = mo.ui.slider(
+    start=0,
+    stop=100,
+    value=70,
+    label="Humidity warning threshold",
+)
+
+humidity_critical = mo.ui.slider(
+    start=0,
+    stop=100,
+    value=85,
+    label="Humidity critical threshold",
+)
+
+mo.vstack([
+    mo.md("## Threshold Settings"),
+    mo.hstack([temp_warning, temp_critical]),
+    mo.hstack([humidity_warning, humidity_critical]),
+])
+```
+- Cell 5: Generates a table with risk status and anomaly status based on the thresholds set in Cell 4.
+```python
+analyzed_df = df.copy()
+
+def classify_risk(row):
+    temp = row["temp"]
+    humidity = row["humidity"]
+
+    temp_high = temp >= temp_warning.value
+    temp_critical_high = temp >= temp_critical.value
+
+    humidity_high = humidity >= humidity_warning.value
+    humidity_critical_high = humidity >= humidity_critical.value
+
+    if temp_critical_high and humidity_critical_high:
+        return "Critical: High temp + high humidity"
+    elif temp_critical_high:
+        return "Critical: High temperature"
+    elif humidity_critical_high:
+        return "Critical: High humidity"
+    elif temp_high and humidity_high:
+        return "Warning: Combined risk"
+    elif temp_high:
+        return "Warning: Temperature risk"
+    elif humidity_high:
+        return "Warning: Humidity risk"
+    else:
+        return "Normal"
+
+analyzed_df["risk_status"] = analyzed_df.apply(classify_risk, axis=1)
+
+analyzed_df["is_anomaly"] = analyzed_df["risk_status"] != "Normal"
+
+analyzed_df.head()
+```
+- Cell 6: Generates anomaly summary statistics
+```python
+total_count = len(analyzed_df)
+anomaly_count = analyzed_df["is_anomaly"].sum()
+normal_count = total_count - anomaly_count
+anomaly_rate = anomaly_count / total_count * 100 if total_count > 0 else 0
+
+critical_count = analyzed_df["risk_status"].str.startswith("Critical").sum()
+warning_count = analyzed_df["risk_status"].str.startswith("Warning").sum()
+
+mo.vstack([
+    mo.md("## Joint Anomaly Detection Summary"),
+    mo.hstack([
+        mo.stat(label="Total Records", value=f"{total_count}"),
+        mo.stat(label="Normal Records", value=f"{normal_count}"),
+        mo.stat(label="Warning Records", value=f"{warning_count}"),
+        mo.stat(label="Critical Records", value=f"{critical_count}"),
+        mo.stat(label="Anomaly Rate", value=f"{anomaly_rate:.1f}%"),
+    ])
+])
+```
+- Cell 7: Generates a bar chart to show the distribution of different risk statuses.
+```python
+risk_summary = (
+    analyzed_df
+    .groupby("risk_status")
+    .size()
+    .reset_index(name="count")
+    .sort_values("count", ascending=False)
+)
+
+risk_bar_chart = alt.Chart(risk_summary).mark_bar().encode(
+    x=alt.X("count:Q", title="Record Count"),
+    y=alt.Y("risk_status:N", sort="-x", title="Risk Status"),
+    tooltip=["risk_status", "count"]
+).properties(
+    title="Risk Status Distribution",
+    width=700,
+    height=300
+)
+
+risk_bar_chart
+```
+- Cell 8: Generates a scatter chart to show the relationship between temperature and humidity, with points colored by risk status.
+```python
+scatter_chart = alt.Chart(analyzed_df).mark_circle(size=80, opacity=0.75).encode(
+    x=alt.X("temp:Q", title="Temperature"),
+    y=alt.Y("humidity:Q", title="Humidity"),
+    color=alt.Color("risk_status:N", title="Risk Status"),
+    tooltip=[
+        alt.Tooltip("_timestamp:T", title="Timestamp"),
+        alt.Tooltip("temp:Q", title="Temperature"),
+        alt.Tooltip("humidity:Q", title="Humidity"),
+        alt.Tooltip("risk_status:N", title="Risk Status"),
+    ],
+).properties(
+    title="Temperature and Humidity Joint Anomaly Detection",
+    width=700,
+    height=420,
+)
+
+temp_warning_line = alt.Chart(pd.DataFrame({"x": [temp_warning.value]})).mark_rule(
+    strokeDash=[6, 4]
+).encode(
+    x="x:Q"
+)
+
+humidity_warning_line = alt.Chart(pd.DataFrame({"y": [humidity_warning.value]})).mark_rule(
+    strokeDash=[6, 4]
+).encode(
+    y="y:Q"
+)
+
+scatter_chart + temp_warning_line + humidity_warning_line
+```
+- Cell 9: Generates a table to show the details of anomaly records.
+```python
+anomaly_df = analyzed_df[analyzed_df["is_anomaly"]].copy()
+
+anomaly_df = anomaly_df[
+    ["_timestamp", "temp", "humidity", "risk_status"]
+].sort_values("_timestamp")
+
+mo.vstack([
+    mo.md("## Anomaly Details"),
+    mo.md(f"Detected **{len(anomaly_df)}** abnormal records based on the current thresholds."),
+    mo.ui.table(anomaly_df, page_size=10),
+])
+```
+- Cell 10: Generates a summary of the analysis conclusion.
+```python
+most_common_risk = (
+    risk_summary.iloc[0]["risk_status"]
+    if len(risk_summary) > 0
+    else "N/A"
+)
+
+mo.md(f"""
+## Analysis Conclusion
+
+Based on the current threshold settings:
+
+- Total records analyzed: **{total_count}**
+- Abnormal records detected: **{anomaly_count}**
+- Overall anomaly rate: **{anomaly_rate:.1f}%**
+- Warning records: **{warning_count}**
+- Critical records: **{critical_count}**
+- Most common status: **{most_common_risk}**
+
+This analysis uses both temperature and humidity to identify equipment environment risks.
+Compared with single-threshold monitoring, joint anomaly detection can better identify combined environmental risks, such as high temperature and high humidity occurring at the same time.
+""")
+```
+3. Click <img width={20} src="http://tier0saas1.oss-cn-hangzhou.aliyuncs.com/129.png" /> at the lower-right corner to run all cells and view the results.
+
+<img width={650} src="http://tier0saas1.oss-cn-hangzhou.aliyuncs.com/173.png" />
+
+:::tip
+Change the view style at the upper-right corner among **Vertical**, **Grid** and **Slides**.
+:::

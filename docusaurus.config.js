@@ -55,8 +55,8 @@ const config = {
   organizationName: '2Emma-zhou', // Usually your GitHub org/user name.
   projectName: 'community', // Usually your repo name.
 
-  onBrokenLinks: 'ignore',
-  onBrokenMarkdownLinks: 'ignore',
+  onBrokenLinks: 'throw',
+  onBrokenMarkdownLinks: 'throw',
 
   // Even if you don't use internationalization, you can use this field to set
   // useful metadata like html lang. For example, if your site is Chinese, you
@@ -157,13 +157,8 @@ const config = {
             position: 'left',
             label: 'Doc',
           },
-          {
-            type: 'docSidebar',
-            sidebarId: 'usecase',
-            position: 'left',
-            label: 'Use Case',
-          },
           {to: '/openapi', label: 'Open API', position: 'left'},
+          {to: '/download', label: 'Export PDF', position: 'right'},
           // {to: '/blog', label: 'Blog', position: 'left'},
           {
           type: 'localeDropdown',

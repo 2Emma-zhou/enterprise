@@ -1,0 +1,49 @@
+---
+title: Sync Data between Center and Edge
+sidebar_label: Sync Data
+slug: /data-analysis/data-synchronization
+---
+
+Tier0 Enterprise is classified into 2 versions based on the license type.
+- **Center Node**: When the license type is **Cluster**, the corresponding Tier0 is the center node, which can sync data from edge nodes and assign users to manage edge nodes.
+- **Edge Node**: When the license type is **Base** and **Plus**, the corresponding Tier0 is the edge node, which can sync data to the center node.
+
+## Connecting Edge to Center
+:::info
+An edge node can be connected with both Tier0 Enterprise (center node) and Tier0 Cloud.
+:::
+1. In a center node, select **Edge** > **Fleet Management**.
+2. Click **Create Fleet Node**, enter the name and click **OK**.
+
+<img width={350} src="https://enterpriseimage.oss-cn-hangzhou.aliyuncs.com/22.png" />
+
+3. Copy the access token, and then go to the **Edge** > **Fleet Connection** page on an edge node.
+4. Click **Connect**, enter the access token, and click **Connect**.
+:::note
+Once connected, information like resources, containers, UNS, operations of the edge node will be displayed on the center node.
+:::
+
+<img width={550} src="https://enterpriseimage.oss-cn-hangzhou.aliyuncs.com/23.png" />
+
+## Syncing Data from Edge to Center
+1. On the **Fleet Connection** page on the edge node, click **Select UNS**.
+
+<img width={550} src="https://enterpriseimage.oss-cn-hangzhou.aliyuncs.com/24.png" />
+
+2. Select UNS paths to sync to the center node, and click **Save**.
+:::info
+Select **Store data on the center node**, and all the data under the selected UNS paths will be synced to the center node. Otherwise, only the UNS structure is synced.
+:::
+3. Go back to the center node and check the synced UNS.
+
+<img width={550} src="https://enterpriseimage.oss-cn-hangzhou.aliyuncs.com/25.png" />
+
+## Assigning Users to Manage Edge
+1. On the center node, select the connected edge node in **Fleet Management**.
+2. Under **User Sync**, click **User Sync** to select users to manage the edge node.
+
+<img width={550} src="https://enterpriseimage.oss-cn-hangzhou.aliyuncs.com/26.png" />
+
+3. Click **OK**, and go to the edge node.
+4. Under **Fleet Connection**, click **Sync User** to sync the assigned users.
+5. Once the synchronization is complete, the assigned users can log in to the edge node and manage it.

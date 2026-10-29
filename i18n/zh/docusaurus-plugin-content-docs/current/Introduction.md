@@ -5,8 +5,6 @@ title: Tier0 是什么?
 sidebar_label: Tier0 是什么?
 ---
 
-## 什么是 Tier0？
-
 Tier0 是一个基于统一命名空间（UNS）的工业数据平台。
 
 它通过 Node-RED 连接数据，将其组织为统一结构，并提供给上层应用和业务分析使用。

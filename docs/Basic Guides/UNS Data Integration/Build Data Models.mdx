@@ -1,10 +1,49 @@
 ---
-sidebar_label: Build Data Models (Namespace)
+sidebar_label: Build Data Models (UNS)
 slug: /uns-data-integration/build-data-models
 ---
 
 
 Tier0 uses UNS (Unified Namespace) to organize data into a clear tree structure. Each path and topic in the model automatically generates an MQTT topic, making it easy to get real-time data.
+
+## Things to Notice before Start
+
+### Page Overview
+Select **Unified Namespace** > **UNS** after logging in to Tier0, you will see the main page of this module.
+
+<img width={550} src="https://enterpriseimage.oss-cn-hangzhou.aliyuncs.com/17.png" />
+
+<table>
+  <thead>
+    <tr>
+      <th>No.</th>
+      <th>Item</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>Namespace</td>
+      <td>Displays data model list. You can add models, refresh the list and recover models from recycle bin.</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>Canvas</td>
+      <td>Displays selected UNS information or cards generated through chats on the right.</td>
+      </tr>
+    <tr>
+      <td>3</td>
+      <td>Import/Export</td>
+      <td>Import/export namespace models in JSON text or file.</td>
+    </tr>
+      <tr>
+      <td>4</td>
+      <td>Chat</td>
+      <td>Use natural language to interact with UNS topics, and cards generated from the chat can be dragged to and displayed on the canvas.</td>
+      </tr>
+  </tbody>
+</table>
 
 ## Additional Parameter Definition
 - **Path-Additional Settings**
@@ -20,14 +59,6 @@ Tier0 uses UNS (Unified Namespace) to organize data into a clear tree structure.
 <tr>
 <td><strong>Extended Attribute</strong></td>
 <td>Add extended attributes for the path. Eg. unit.</td>
-</tr>
-<tr>
-<td><strong>Template</strong></td>
-<td>Select a template to inherit attributes from it. See <a href="#building-template">Building Template</a>.</td>
-</tr>
-<tr>
-<td><strong>Generate Template</strong></td>
-<td>Click <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/35.png" alt="icon" /> to add an attribute to the path, at the same time you can select to generate a same template for future use.</td>
 </tr>
 </tbody>
 </table>
@@ -70,17 +101,34 @@ Tier0 uses UNS (Unified Namespace) to organize data into a clear tree structure.
 <td>Customize attributes.</td>
 </tr>
 <tr>
-<td><strong>Template</strong></td>
-<td>Inherit attributes from the selected template.</td>
-</tr>
-<tr>
 <td><strong>Auto Parsing</strong></td>
 <td>Use JSON text to generate attributes with the same structure.</td>
 </tr>
 </tbody>
 </table>
 
-- **Topic-Linked Operation**
+- **Topic-Data Quality**
+
+<table>
+<thead>
+<tr>
+<th>Data Quality</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Value range check</strong></td>
+<td>Check if the values of attributes fall within the specified range.</td>
+</tr>
+<tr>
+<td><strong>Collection interruption check</strong></td>
+<td>Check if the data collection for the topic has been interrupted based on the set interval and delay.</td>
+</tr>
+</tbody>
+</table>
+
+- **Topic-Optional Behaviors**
 
 <table>
   <thead>
@@ -104,36 +152,31 @@ Tier0 uses UNS (Unified Namespace) to organize data into a clear tree structure.
 
 ## How to Build a Data Model
 Based on simple folder-file structure, you can define the data hierarchy to a tree map.
+
 ### Building Models Manually
 
-:::note
-**factory/equipment/CNC** will be used as an example, in which `factory` and `equipment` are paths and `CNC` is a topic.
-:::
-1. Log in to Tier0, landed on the **Namespace** page.
-2. Under **Topic**, click <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/75.png" /> > **New Path** to add a path (e.g. `factory`).
+1. Log in to Tier0, and select **Unified Namespace** > **UNS**.
+2. Click <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/75.png" /> > **New Path** to add a path (e.g. `factory`).
 
 <img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/34.png" />
 
 3. Enter the path information, set the alias as needed, and then click **Save**.
 
-4. Select **equipment**, and then click <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/75.png" /> > **New Topic** to add a topic (e.g.`CNC`) under it.
+4. Select **factory**, and then click <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/75.png" /> > **New Topic** to add a topic (e.g.`CNC`) under it.
 
 <img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/36.png" />
 
 5. Enter the information of the topic, and then click **Save**.
 
 
-
-
-
 ### Importing Models
 1. Log in to Tier0, landed on the **Namespace** page.
 2. Click **Import** at the upper-right corner.
-
-<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/69.png" />
-
 3. Import JSON to create models.
 - Click **UNS**, and directly enter JSON.
+:::tip[How to get model JSON fast]
+Click **Copy for Agent**, send it to an agent, get the result and paste it back.
+:::
 
 <img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/69-1.png" />
 
@@ -150,33 +193,9 @@ You can manually add a path and topic, export it and use it as an example for im
 
 4. Click **Save**.
 
-
-
-## Optional Features
-### Building Template
-1. On the **Namespace** page, click **Template**.
-2. Click <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/38.png" />, and then enter the information of the template.
-:::tip
-Click **Source** to select added models and inherit their attributes.
-:::
-
-<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/39.png" />
-
-3. Click **Save**.
-
-### Creating Label
-Labels are used for categorizing data models.
-1. On the **Namespace** page, click **Label**.
-2. Click <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/77.png" />, and then enter the label name.
-3. Click **Save**, and then click <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/78.png" /> to add topics under the label.
-
-<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/79.png" />
-
-4. Click **Save**.
-
 ### Exporting Data
 Tier0 can export UNS models and other data, such as source flows, event flows, and data dashboards.
-1. On the **Namespace** page, click **Export** at the upper-right corner.
+1. On the **UNS** page, click **Export** at the upper-right corner.
 2. Click the **Others** tab and select the corresponding data type.
 
 <img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/190-1.png" />

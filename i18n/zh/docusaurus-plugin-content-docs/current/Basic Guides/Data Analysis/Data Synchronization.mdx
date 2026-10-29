@@ -1,0 +1,48 @@
+---
+title: 数据同步
+slug: /data-analysis/data-synchronization
+---
+
+Tier0 企业版根据许可证类型分为两种版本。
+- **中心节点**：许可证类型为 **Cluster** 时，对应的 Tier0 为中心节点。中心节点可以同步边缘节点的数据，并分配用户管理边缘节点。
+- **边缘节点**：许可证类型为 **Base** 或 **Plus** 时，对应的 Tier0 为边缘节点。边缘节点可以向中心节点同步数据。
+
+## 将边缘节点连接到中心节点
+:::info
+边缘节点既可以连接 Tier0 Enterprise（中心节点），也可以连接 Tier0 Cloud。
+:::
+1. 在中心节点中，选择 **边缘** > **集群管理**。
+2. 点击 **创建集群节点**，输入名称，然后点击 **确定**。
+
+<img width={350} src="https://enterpriseimage.oss-cn-hangzhou.aliyuncs.com/22-1.png" />
+
+3. 复制访问令牌，然后在边缘节点中打开 **边缘** > **集群连接** 页面。
+4. 点击 **连接**，输入访问令牌，然后再次点击 **连接**。
+:::note
+连接后，中心节点会显示边缘节点的资源、容器、UNS 和运行情况等信息。
+:::
+
+<img width={550} src="https://enterpriseimage.oss-cn-hangzhou.aliyuncs.com/23-1.png" />
+
+## 从边缘节点向中心节点同步数据
+1. 在边缘节点的 **集群连接** 页面，点击 **选择 UNS**。
+
+<img width={550} src="https://enterpriseimage.oss-cn-hangzhou.aliyuncs.com/24-1.png" />
+
+2. 选择要同步到中心节点的 UNS 路径，然后点击 **保存**。
+:::info
+选择 **在中心节点存储数据** 后，所选 UNS 路径下的所有数据都会同步到中心节点；否则只同步 UNS 结构。
+:::
+3. 返回中心节点，检查已同步的 UNS。
+
+<img width={550} src="https://enterpriseimage.oss-cn-hangzhou.aliyuncs.com/25-1.png" />
+
+## 分配用户管理边缘节点
+1. 在中心节点的 **集群管理** 页面，选择已连接的边缘节点。
+2. 在 **用户同步** 下，点击 **用户同步**，选择要分配来管理该边缘节点的用户。
+
+<img width={550} src="https://enterpriseimage.oss-cn-hangzhou.aliyuncs.com/26-1.png" />
+
+3. 点击 **确定**，然后前往边缘节点。
+4. 在 **集群连接** 下，点击 **同步用户**，同步已分配的用户。
+5. 同步完成后，已分配的用户即可登录并管理边缘节点。

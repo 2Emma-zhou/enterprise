@@ -10,8 +10,8 @@ Data can be collected to Tier0 through various protocols, it can also be obtaine
 :::info
 This method is only suitable for third parties who have experience in MQTT protocol.
 :::
-1. Log in to Tier0, and then select **UNS** > **Event Flow**.
-2. Click **New Event Flow**, enter a name and click **Save**.
+1. Log in to Tier0, and then select **Flows** > **Event Flow**.
+2. Click **New Flow**, select **Event Flow** as the flow type, enter a name, and click **Save**.
 3. Click the flow you just added, drag an `mqtt in` node, and enter the configurations.
     - Tier0 MQTT broker address: `emqx:1883`
     - Topic: The topic to obtain data from, for example, `factory/workshop/order`.
@@ -28,8 +28,8 @@ This method is only suitable for third parties who have experience in MQTT proto
 :::info
 This method is suitable for third parties who do not support MQTT and need event-driven data.
 :::
-1. Log in to Tier0, and then select **UNS** > **Event Flow**.
-2. Click **New Event Flow**, enter a name and click **Save**.
+1. Log in to Tier0, and then select **Flows** > **Event Flow**.
+2. Click **New Flow**, select **Event Flow** as the flow type, enter a name, and click **Save**.
 3. Click the flow you just added, drag an `mqtt in` node, and enter the configurations.
     - Tier0 MQTT broker address: `emqx:1883`
     - Topic: The topic to obtain data from, for example, `factory/workshop/order`.
@@ -58,8 +58,8 @@ return msg;
 :::info
 This method is suitable for requests on history data.
 :::
-1. Log in to Tier0, and then select **UNS** > **Event Flow**.
-2. Click **New Event Flow**, enter a name and click **Save**.
+1. Log in to Tier0, and then select **Flows** > **Event Flow**.
+2. Click **New Flow**, select **Event Flow** as the flow type, enter a name, and click **Save**.
 3. Click the flow you just added, drag an `inject` node.
 4. Drag a `postgres` node to the canvas, and connect to Tier0 PostgreSQL database.
     - **Connection**

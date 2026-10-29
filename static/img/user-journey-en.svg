@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="520" viewBox="0 0 1440 520">
+  <rect width="1440" height="520" fill="#fff"/>
+  <rect x="490" y="28" width="460" height="275" rx="12" fill="#f4f8fb" stroke="#a9bfcd" stroke-width="1.5"/>
+  <g font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif" text-anchor="middle" fill="#263238">
+    <text x="720" y="60" font-size="20" font-weight="600" fill="#426b83">Required foundation</text>
+    <rect x="535" y="70" width="370" height="76" rx="6" fill="#fff" stroke="#9aa9b4" stroke-width="2"/>
+    <text x="720" y="119" font-size="27">Build Data Models</text>
+    <path d="M720 146V203" fill="none" stroke="#798994" stroke-width="2"/>
+    <path d="m712 193 8 10 8-10" fill="none" stroke="#798994" stroke-width="2"/>
+    <rect x="535" y="205" width="370" height="76" rx="6" fill="#fff" stroke="#9aa9b4" stroke-width="2"/>
+    <text x="720" y="254" font-size="27">Connect Data</text>
+    <text x="70" y="341" text-anchor="start" font-size="20" font-weight="600" fill="#607783">Choose as needed</text>
+    <path d="M720 303V346M195 346H1245M195 346V380M545 346V380M895 346V380M1245 346V380" fill="none" stroke="#798994" stroke-width="2"/>
+    <path d="m187 370 8 10 8-10m334 0 8 10 8-10m334 0 8 10 8-10m334 0 8 10 8-10" fill="none" stroke="#798994" stroke-width="2"/>
+    <rect x="70" y="382" width="250" height="76" rx="6" fill="#fff" stroke="#9aa9b4" stroke-width="2"/>
+    <rect x="420" y="382" width="250" height="76" rx="6" fill="#fff" stroke="#9aa9b4" stroke-width="2"/>
+    <rect x="770" y="382" width="250" height="76" rx="6" fill="#fff" stroke="#9aa9b4" stroke-width="2"/>
+    <rect x="1120" y="382" width="250" height="76" rx="6" fill="#fff" stroke="#9aa9b4" stroke-width="2"/>
+    <text x="195" y="431" font-size="26">Process Data</text>
+    <text x="545" y="431" font-size="26">Sync Data</text>
+    <text x="895" y="431" font-size="26">Use Data</text>
+    <text x="1245" y="431" font-size="26">Analyze Data</text>
+  </g>
+</svg>

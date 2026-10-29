@@ -4,7 +4,7 @@ sidebar_label: Feature List
 slug: /feature-list
 ---
 
-<img width={750} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/4.png" />
+<img width={750} src="http://enterpriseimage.oss-cn-hangzhou.aliyuncs.com/37.png" />
 
 <table>
         <caption>Homepage</caption>
@@ -24,57 +24,17 @@ slug: /feature-list
             <tr>
                 <td>2</td>
                 <td>Tool Bar</td>
-                <td>Common operations on the platform, including search and user information.</td>
+                <td>Common operations on the platform, including search, notifications, and system settings.</td>
             </tr>
             <tr>
-                <td rowspan="2">3</td>
-                <td>Import/Export</td>
-                <td>Integrate the data import/export function from <b>Namespace/Source Flow/Event Flow/Dashboard</b> together.</td>
+                <td>3</td>
+                <td>Node Resources</td>
+                <td>Displays the resources of the current Tier0 node. <b>Local Runtime</b> shows the runtime of all installed applications.</td>
             </tr>
             <tr>
-                <td><img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/4-2.png" /></td>
-                <td>Go back to the homepage.</td>
-            </tr>
-            <tr>
-      <td rowspan="3">4</td>
-      <td>Topic</td>
-      <td>Tree view of data models already built in UNS</td>
-    </tr>
-    <tr>
-      <td>Template</td>
-      <td>Tree view of data model templates already built in UNS</td>
-    </tr>
-    <tr>
-      <td>Label</td>
-      <td>Displays labels, and models under each label</td>
-    </tr>
-    <tr>
-      <td rowspan="3">5</td>
-      <td><img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/103.png" /></td>
-      <td>Displays data models by category: <b>Text/Template/Label</b>.</td>
-    </tr>
-    <tr>
-      <td><img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/104.png" />/<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/105.png" /></td>
-      <td>Search data models / Refresh data model list.</td>
-    </tr>
-    <tr>
-      <td><img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/75.png" /></td>
-      <td>Create folder-file structured data models based on data hierarchy.</td>
-    </tr>
-            <tr>
-      <td>6</td>
-      <td>Overview</td>
-      <td>Number of connections between data sources and the internal MQTT broker and messages in/out.</td>
-    </tr>
-    <tr>
-      <td>7</td>
-      <td>Functions</td>
-      <td>Lists all function modules of the platform.</td>
-    </tr>
-    <tr>
-      <td>8</td>
-      <td>MQTT Access</td>
-      <td>Detailed information of the internal MQTT broker. Select existing topics to see detailed payload.</td>
+      <td>4</td>
+      <td>Recent Work</td>
+      <td>List of recent actions, providing quick accesses to recent work.</td>
     </tr>
         </tbody>
     </table>
@@ -90,60 +50,44 @@ slug: /feature-list
         </thead>
         <tbody>
             <tr>
-                <td rowspan="4">UNS</td>
-                <td><a href="Basic Guides/UNS Data Integration/Build Data Models">Namespace (homepage)</a></td>
+                <td rowspan="3">Unified Namespace</td>
+                <td><a href="/uns-data-integration/build-data-models/">UNS</a></td>
                 <td>Models industrial data into a hierarchical structure (folder-file) for clarity.</td>
             </tr>
             <tr>
-                <td><a href="Basic Guides/UNS Data Integration/Connect Data Sources">Source Flow</a></td>
+                <td><a href="/uns-data-integration/connect-data-via-flow/">Flows</a></td>
                 <td>Uses Node-RED to define the data source of the created model.</td>
             </tr>
             <tr>
-                <td><a href="Basic Guides/UNS Data Integration/Process Data">Event Flow</a></td>
-                <td>Process Namespace data and configure data events via Node-RED.</td>
+                <td>Edge</td>
+                <td><a href="/uns-data-integration/connect-data-via-mqtt/">Connect MQTT clients</a> or <a href="/data-analysis/data-synchronization/">Tier0 edge nodes</a> for data management.</td>
             </tr>
             <tr>
-                <td><a href="Basic Guides/UNS Data Integration/Display Data on Dashboards">Dashboards</a></td>
-                <td>Displays data from <b>Namespace</b> on dashboards according to specific design.</td>
+                <td rowspan="2"><a href="/app/industrial-apps/">App</a></td>
+                <td>Project</td>
+                <td>Categorizes and manages imported applications built on Tier0 Cloud.</td>
             </tr>
             <tr>
-                <td rowspan="3">Dev Tools</td>
-                <td><a href="Basic Guides/Database Management/Container Management">Containers</a></td>
-                <td>Integrates Portainer to manage docker containers.</td>
+                <td>Launchpad</td>
+                <td>Displays all launched applications you have access to.</td>
             </tr>
             <tr>
-                <td><a href="Basic Guides/Database Management/Notebook">Notebook</a></td>
-                <td>Adopts Marimo for easy python script usage. For example, train models, run SQL queries and others.</td>
+                <td rowspan="2">Anchor</td>
+                <td><a href="/app/configure-3d-models/">Model Library</a></td>
+                <td>Digital twin models that connect with UNS data.</td>
             </tr>
             <tr>
-                <td><a href="Basic Guides/Database Management/Advanced Use">Advanced Use</a></td>
-                <td>Provides account and password of integrated application for deeper exploration.</td>
+                <td><a href="/app/build-3d-scenes/">Scenes</a></td>
+                <td>Visualizes equipment and production scenarios in your plant.</td>
             </tr>
-
             <tr>
-                <td rowspan="10">System</td>
-                <td><a href="Basic Guides/System Management/Routing Management">Routing Management</a></td>
-                <td>Customizes Tier0 function module routing.</td>
+                <td rowspan="2">Analysis</td>
+                <td><a href="/data-analysis/vision/">Vision</a></td>
+                <td>Apply visual analytics to your live camera images.</td>
             </tr>
-
             <tr>
-                <td><a href="Basic Guides/System Management/User Management">User Management</a></td>
-                <td>Manage access control via users and roles.</td>
-            </tr>
-
-            <tr>
-                <td><a href="Basic Guides/System Management/Open Data">Open Data</a></td>
-                <td>Provide different types of data subscription, including API, MQTT and MCP.</td>
-            </tr>
-
-            <tr>
-                <td><a href="Basic Guides/System Management/Menu Config">Menu Config</a></td>
-                <td>Supports menu changes on all existing function modules.</td>
+                <td><a href="/database-management/analyze-data/">Notebook</a></td>
+                <td>Adopts Marimo Notebook for easy python script usage. For example, train models, run SQL queries, interactive data reporting and others.</td>
             </tr>
         </tbody>
     </table>
-
-:::info
-- Private deployment. For detailed specifications and steps, see <a href="Getting Started/Deploy Tier0">Deploy Tier0</a>.
-- Applications built through natural language in **App Builder** is generated on cloud, and a package is available for local installation.
-:::

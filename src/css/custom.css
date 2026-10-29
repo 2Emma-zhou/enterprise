@@ -47,6 +47,64 @@
 
 }
 
+.pdf-navbar-trigger {
+  border: 0;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+
+.pdf-navbar-trigger:focus-visible,
+.pdf-download-dialog button:focus-visible,
+.pdf-download-dialog a:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 3px;
+}
+
+.pdf-download-dialog {
+  width: min(440px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  margin: auto;
+  padding: 0;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: var(--ifm-global-radius);
+  background: var(--ifm-background-surface-color);
+  color: var(--ifm-font-color-base);
+  box-shadow: var(--ifm-global-shadow-md);
+}
+
+.pdf-download-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.pdf-download-dialog__content {
+  position: relative;
+  padding: 32px;
+}
+
+.pdf-download-dialog__content h2 {
+  margin-right: 32px;
+}
+
+.pdf-download-dialog__close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.pdf-download-dialog__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}
+
 /* 默认隐藏备案（英文） */
 /* .footer-beian {
   display: none;

@@ -1,0 +1,202 @@
+---
+title: Standard Deployment Plan
+sidebar_label: Standard Deployment Plan
+slug: /getting-started/standard-private-deployment
+---
+
+## Objective
+
+The simplified edition does not use Docker Swarm. It deploys one `enterprise` application node with a total of `4` virtual machines:
+
+- `1` enterprise node hosts `tier0-enterprise + EMQX`.
+- `2` database nodes form a PostgreSQL + TimescaleDB primary/standby cluster.
+- `1` Witness node participates in database supervision, quorum, and failover.
+
+The simplified edition reduces deployment complexity. The tradeoff is that the application layer and EMQX are single points of failure. Only the database layer keeps `DB VIP + Witness` high availability.
+
+## Planned IP Addresses
+
+The following IP addresses are placeholders. Replace them with the real site network before implementation.
+
+| Type | Name | Planned IP | Description |
+|------|------|------------|-------------|
+| Application node | `ent-enterprise-01` | `10.60.10.11` | Single enterprise node hosting `tier0-enterprise + EMQX` |
+| Logical entry | `DB VIP` | `10.60.20.10` | Unified database endpoint, points only to the current primary |
+| Database node | `ent-db-01` | `10.60.20.11` | PostgreSQL + TimescaleDB primary candidate |
+| Database node | `ent-db-02` | `10.60.20.12` | PostgreSQL + TimescaleDB standby candidate |
+| Quorum node | `ent-db-witness-01` | `10.60.20.13` | `repmgr witness` / database quorum supervisor |
+
+## Overall Topology
+
+<img width={650} src="http://enterpriseimage.oss-cn-hangzhou.aliyuncs.com/9.png" />
+
+Core paths:
+
+- Business path: clients / site systems -> `ent-enterprise-01` -> `DB VIP` -> current primary DB.
+- `tier0-enterprise` and `EMQX` both run on `ent-enterprise-01`.
+- Database access still goes through `DB VIP`; direct application access to `ent-db-01/02` is prohibited.
+- `Witness` participates only in database quorum, promotion, and health checks. It is not on the business path.
+
+## Database Supervision and Failover
+
+| Phase | Path | Description |
+|-------|------|-------------|
+| Normal access | `ent-enterprise-01 -> DB VIP -> current primary` | Application always connects to `10.60.20.10:5432` |
+| Normal replication | `current primary -> current standby` | PostgreSQL WAL streaming replication |
+| Normal supervision | `DB-01/DB-02 -> Witness` | `repmgrd` reports status; Witness participates in quorum |
+| Primary failure | `standby -> Witness` | Standby requests quorum confirmation to avoid split-brain |
+| Standby promotion | `standby promote` | Standby is promoted after Witness confirmation |
+| VIP floating | `DB VIP -> new primary` | `10.60.20.10` binds to the new primary |
+| Application recovery | `ent-enterprise-01 -> DB VIP -> new primary` | Application recovers after connection-pool reconnect |
+
+## Node Configuration
+
+| Node | Role | vCPU | Memory | Storage | System disk recommendation | Data disk recommendation | Main components |
+|------|------|------|--------|---------|----------------------------|--------------------------|-----------------|
+| `ent-enterprise-01` | Single enterprise node | `8` | `32G` | `100G` | Single `/` system disk, 100G | No separate data disk | tier0-enterprise, EMQX, optional Nginx/HAProxy |
+| `ent-db-01` | PostgreSQL/TSDB primary candidate | `4` | `8G` | `500G` | `/` 80G | `/pgdata` 360G, `/pgwal` 40G, `/backup-staging` 20G | PostgreSQL, TimescaleDB, repmgr, keepalived |
+| `ent-db-02` | PostgreSQL/TSDB standby candidate | `4` | `8G` | `500G` | `/` 80G | `/pgdata` 360G, `/pgwal` 40G, `/backup-staging` 20G | PostgreSQL, TimescaleDB, repmgr, keepalived |
+| `ent-db-witness-01` | Witness / quorum supervisor | `2` | `4G` | `40G` | `/` 40G | Not planned separately | repmgr witness, monitoring agent, audit logs |
+
+## Configuration Summary
+
+| Category | Count | Per-node spec | vCPU subtotal | Memory subtotal | Storage subtotal |
+|----------|-------|---------------|---------------|-----------------|------------------|
+| enterprise application node | `1` | `8C / 32G / 100G` | `8C` | `32G` | `100G` |
+| PostgreSQL + TimescaleDB nodes | `2` | `4C / 8G / 500G` | `8C` | `16G` | `1000G` |
+| Witness node | `1` | `2C / 4G / 40G` | `2C` | `4G` | `40G` |
+| Total | `4` | - | `18C` | `52G` | `1140G` |
+
+Converted total:
+
+- Total VMs: `4`
+- Total vCPU: `18`
+- Total memory: `52G`
+- Total storage: `1.14T`
+
+## Connectivity Matrix
+
+### Operations Access
+
+| Target | Method | Port | Description |
+|--------|--------|------|-------------|
+| All VMs | `ssh -i ~/.ssh/chen-rsa ops@<IP>` | `22/TCP` | Use after unified key-based SSH is implemented; use site account before that |
+| `ent-enterprise-01` | `https://10.60.10.11` | `443/TCP` | Business entry |
+| `DB VIP` | `psql -h 10.60.20.10 -p 5432` | `5432/TCP` | Allow only enterprise node and operations whitelist |
+
+### Application and EMQX Ports
+
+| Source | Target | Port | Purpose |
+|--------|--------|------|---------|
+| Users / site systems | `ent-enterprise-01` | `80/TCP` | HTTP entry or HTTPS redirect, optional |
+| Users / site systems | `ent-enterprise-01` | `443/TCP` | HTTPS business entry |
+| Devices / site systems | `ent-enterprise-01` | `1883/TCP` | EMQX MQTT plaintext, optional |
+| Devices / site systems | `ent-enterprise-01` | `8883/TCP` | EMQX MQTT TLS, recommended |
+| Devices / site systems | `ent-enterprise-01` | `8083/TCP` | MQTT WebSocket, optional |
+| Devices / site systems | `ent-enterprise-01` | `8084/TCP` | MQTT WebSocket TLS, optional |
+| Operations network | `ent-enterprise-01` | `18083/TCP` | EMQX Dashboard, operations whitelist only |
+| `ent-enterprise-01` | `DB VIP` | `5432/TCP` | PostgreSQL business access |
+
+### Database and Supervision Communication
+
+| Source | Target | Port | Purpose |
+|--------|--------|------|---------|
+| `ent-db-01` | `ent-db-02` | `5432/TCP` | PostgreSQL WAL streaming replication |
+| `ent-db-02` | `ent-db-01` | `5432/TCP` | Reverse replication after recovery |
+| `ent-db-01/02` | `ent-db-witness-01` | `5432/TCP` | repmgr metadata / witness communication |
+| `ent-db-01` | `ent-db-02` | `VRRP` | DB VIP floating; allow protocol `112` |
+
+## Deployment Recommendations
+
+### enterprise Application Node
+
+- Do not deploy Docker Swarm.
+- Deploy `tier0-enterprise` and `EMQX` on the same `ent-enterprise-01` node.
+- `ent-enterprise-01` is an application-layer single point of failure. If it fails, recover manually or rebuild from backup.
+- The node has only one `100G` system disk and is not suitable for long-term business data.
+- `tier0-enterprise` business data must be stored in PostgreSQL/TimescaleDB.
+- Uploads, imports/exports, and reports may be stored locally and backed up. If later upgraded to the standard edition, migrate these files to NFS/NAS or object storage.
+
+### Single-node EMQX
+
+- EMQX is a single-node stateful service in the simplified edition.
+- Pin its data directory on `ent-enterprise-01`, for example `/data/emqx`.
+- Back up configuration, certificates, plugins, and rule-engine configuration.
+- No message-layer HA is provided. Use the standard edition with a three-node EMQX cluster if this is unacceptable.
+
+### PostgreSQL + TimescaleDB
+
+- PostgreSQL: `16` or the site-certified version.
+- TimescaleDB: stable version compatible with the selected PostgreSQL major version.
+- Replication: physical streaming replication.
+- Failover: `repmgrd + witness`.
+- Database entry: `DB VIP`.
+- Connection pool: PgBouncer can run on `ent-enterprise-01` to reduce database connection pressure.
+
+### Witness
+
+- Witness stores only `repmgr witness` metadata and supervision logic.
+- Witness does not host business SQL.
+- Witness failure does not stop the current primary, but reduces trusted automatic failover capability.
+
+## Port and Firewall Baseline
+
+| Port / protocol | Allowed scope | Purpose |
+|-----------------|---------------|---------|
+| `22/TCP` | Operations network to 4 VMs | SSH |
+| `80/TCP` | User network to `ent-enterprise-01` | HTTP redirect or internal plaintext entry |
+| `443/TCP` | User network to `ent-enterprise-01` | HTTPS business entry |
+| `1883/TCP` | Devices / site systems to `ent-enterprise-01` | EMQX MQTT plaintext, optional |
+| `8883/TCP` | Devices / site systems to `ent-enterprise-01` | EMQX MQTT TLS, recommended |
+| `8083/TCP` | Devices / site systems to `ent-enterprise-01` | EMQX WebSocket, optional |
+| `8084/TCP` | Devices / site systems to `ent-enterprise-01` | EMQX WebSocket TLS, optional |
+| `18083/TCP` | Operations network to `ent-enterprise-01` | EMQX Dashboard, whitelist only |
+| `5432/TCP` | enterprise to `DB VIP`; DB/Witness internal | PostgreSQL / repmgr |
+| `112/VRRP` | Between DB nodes | DB VIP floating |
+| `9100/TCP` | Monitoring system to 4 VMs | node exporter, optional |
+
+## HA Capabilities and Failure Boundaries
+
+| Failure scenario | Expected behavior | Business impact |
+|------------------|-------------------|-----------------|
+| `ent-enterprise-01` fails | Application and EMQX both stop; manual recovery or rebuild from backup is required | Full application-layer outage |
+| Current DB primary fails | Standby is promoted after Witness quorum; DB VIP floats | Write interruption for seconds to minutes; application must reconnect |
+| DB standby fails | Primary continues serving, replication alert is raised | No direct business outage, but DB hot standby is lost |
+| Witness fails | Current primary continues serving, but automatic failover confidence is reduced | No direct business outage, restore Witness first |
+| DB VIP floating fails | Database may have a new primary, but unified entry is unreachable | Business outage; manual VIP binding required |
+
+## Pre-Go-Live Checklist
+
+| Check item | Pass criteria |
+|------------|---------------|
+| 4 VM hostnames are fixed | `hostnamectl` matches the plan |
+| Unified SSH works | Operations terminal can access all 4 VMs with key-based SSH |
+| Time synchronization | Time drift across 4 VMs is below `1s` |
+| Firewall is open | Ports from section 9 are allowed by scope |
+| enterprise service is healthy | `tier0-enterprise` health check passes |
+| EMQX state is verified | EMQX node, listening ports, and persistent directory are healthy |
+| enterprise disk usage is safe | `/` usage is below `70%`; log and cache cleanup is configured |
+| DB primary/standby is healthy | `repmgr cluster show` shows primary, standby, and witness healthy |
+| DB VIP works | enterprise node can connect to `10.60.20.10:5432` |
+| Primary DB failover drill | Standby can be promoted and DB VIP can float |
+| Backup restore drill | Backup can be restored to a test database |
+
+## Implementation Order
+
+1. Create 4 VMs and fix hostnames, IPs, time synchronization, and SSH.
+2. Initialize OS baseline, firewall, mounts, and kernel parameters.
+3. Deploy `tier0-enterprise` on `ent-enterprise-01`.
+4. Deploy single-node EMQX on `ent-enterprise-01`.
+5. Deploy PostgreSQL + TimescaleDB primary/standby.
+6. Deploy repmgr witness, repmgrd, and DB VIP floating scripts.
+7. Verify connectivity, EMQX recovery, database failover, backup restore, and routine checks.
+8. Finalize runbooks, credential archives, and routine check tasks.
+
+## Risks and Open Items
+
+- The simplified edition has an application-layer single point. If `ent-enterprise-01` fails, the whole business service is unavailable.
+- EMQX is single-node and does not provide message-layer HA.
+- `ent-enterprise-01` has only a single `100G` system disk. Logs, cache, attachments, and temporary files must be controlled.
+- If application-layer or EMQX HA is required later, switch to the standard edition.
+- Database RPO/RTO is not confirmed. This primary/standby design cannot guarantee zero data loss.
+- DB VIP floating scripts must be verified on site, especially whether the virtualization/network platform allows VRRP.

@@ -3,20 +3,16 @@ title: 用户旅程
 sidebar_label: 用户旅程
 slug: /uns-data-integration/user-journey
 ---
+先完成图中的两个必做步骤：
 
+<img width={650} src="/img/user-journey-zh.svg" alt="先构建数据模型，再连接数据；随后按需处理、同步、使用或分析数据" />
 
-## 用户操作流程
-按照图片所示顺序操作，即可完成数据流配置。
+- **必做**
+    1. **构建数据模型**，组织资产并确定数据的归属位置。
+    2. **连接数据**，将数据源中的数据接入模型。
 
-<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/48-1.png" />
-
-- 平台采用**文件夹-文件**结构构建数据模型，便于追踪和理解数据层级；
-- 在**数据连接**中采集来自不同数据源的各类数据；
-- 采集到平台的数据可在**事件流程**中进行处理；
-- 处理后的数据可通过**事件流程**或**数据看板**模块，在可视化面板中展示，更直观地呈现数据价值；
-- 采集到平台并经过处理的数据，第三方可通过 <a href="../../../openapi/#/">OpenAPI</a> 或 MQTT 订阅获取。
-
-:::note
-- **数据连接**和**事件流程**基于Node-RED工具开发，详细使用说明请参考 <a href="https://Node-RED.org/docs/tutorials/first-flow">NodeRed 官方文档</a>；
-- **数据看板**模块基于Grafana平台开发，详细配置指南请参考 <a href="https://grafana.com/docs/grafana/latest/dashboards/build-dashboards/create-dashboard/">Grafana 官方文档</a>。
-:::
+- **可选**
+    - **处理数据**，通过**事件流程**转换和准备数据。
+    - **同步数据**，与其他 Tier0 同步数据，或通过 OpenAPI 和 MQTT 对外提供数据。
+    - **使用数据**，将数据用于应用和业务场景。
+    - **分析数据**，探索并可视化数据，从中获得洞察。

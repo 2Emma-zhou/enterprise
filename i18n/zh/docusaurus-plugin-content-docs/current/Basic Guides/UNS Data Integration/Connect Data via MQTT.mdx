@@ -1,0 +1,77 @@
+---
+sidebar_label: 连接 MQTT 客户端（Edge）
+title: 连接 MQTT 客户端
+hide_title: true
+slug: /uns-data-integration/connect-data-via-mqtt
+---
+
+:::info 什么是 MQTT？
+- MQTT 是一种轻量级实时消息协议，支持已连接的设备（客户端）向中央服务器（Broker）发送数据，并立即接收更新。
+- 出于安全考虑，可以在中央服务器（Broker）上添加访问控制，因此设备（客户端）在连接前必须完成身份认证。
+- 关于 MQTT 的更多信息，请参见 [MQTT Protocol](https://mqtt.org/)。
+
+<img width={450} src="https://tier0saas1.oss-cn-hangzhou.aliyuncs.com/112.png" />
+
+:::
+
+## 生成 MQTT 凭据
+
+Tier0 提供内置 MQTT Broker，支持第三方客户端连接，并向 **UNS** 发布数据或订阅 **UNS** 中的数据。
+
+1. 登录 Tier0，选择 **Edge** > **MQTT 接入**。
+2. 单击 **生成凭据**，输入名称，然后单击 **保存**。
+
+<img width={350} src="https://enterpriseimage.oss-cn-hangzhou.aliyuncs.com/21-1.png" />
+
+:::info
+- 开启**允许随机客户端 ID 后缀**后，生成的 **客户端 ID** 本身及附加不同后缀的 ID 均可与该用户名和密码匹配，用于建立连接。
+- 请记录生成的凭据，配置 MQTT 客户端时需要使用。
+:::
+
+## 使用凭据连接 MQTT 客户端
+
+:::note
+以下客户端仅作为示例，用于说明如何使用凭据连接内部 MQTT Broker。
+:::
+
+1. 安装 MQTT 客户端，例如 MQTTX、MQTT Explorer 等。
+2. 使用 Tier0 中生成的凭据连接客户端。
+
+<div className="doc-indent">
+
+- **<a href="https://mqttx.app/" target="_blank" rel="noopener noreferrer">MQTTX</a>**
+
+1. 在 MQTTX 中使用生成的认证凭据添加新连接。
+
+<img width={450} src="https://tier0saas1.oss-cn-hangzhou.aliyuncs.com/20.png" />
+
+2. 单击 **Connect**。
+
+- **<a href="https://mqtt-explorer.com/" target="_blank" rel="noopener noreferrer">MQTT Explorer</a>**
+
+1. 在 MQTT Explorer 中使用生成的认证凭据添加新连接。
+
+<img width={450} src="https://tier0saas1.oss-cn-hangzhou.aliyuncs.com/20-1.png" />
+
+2. 单击 **ADVANCED**，修改 Client ID。
+
+<img width={450} src="https://tier0saas1.oss-cn-hangzhou.aliyuncs.com/20-2.png" />
+
+3. 单击 **BACK**，然后单击 **CONNECT**。
+
+- **Node-RED**
+
+1. 打开 Node-RED 实例，拖拽一个 `mqtt in` 节点并双击配置。
+2. 使用 Tier0 中生成的认证凭据添加新的 MQTT Broker。
+
+<img width={350} src="https://tier0saas1.oss-cn-hangzhou.aliyuncs.com/20-3.png" />
+<img width={350} src="https://tier0saas1.oss-cn-hangzhou.aliyuncs.com/20-4.png" />
+
+</div>
+
+3. 返回 Tier0 的 **Edge** 页面，单击 **客户端** 页签，检查客户端是否已连接。
+4. 复制 **UNS** 下数据模型的 Topic，并通过客户端向该 Topic 发布消息。
+
+  <img width={450} src="https://tier0saas1.oss-cn-hangzhou.aliyuncs.com/21.png" />
+
+5. 返回 **UNS**，检查目标 Topic 是否已接收到数据。

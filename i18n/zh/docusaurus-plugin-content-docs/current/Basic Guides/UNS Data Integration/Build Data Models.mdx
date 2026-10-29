@@ -4,145 +4,108 @@ sidebar_label: 建立数据模型（数据建模）
 slug: /uns-data-integration/build-data-models
 ---
 
-Tier0 采用统一命名空间（UNS）将数据组织成清晰的树形结构，模型中的每个节点都会按照树形图自动生成 MQTT 主题，方便获取实时数据。
+Tier0 基于统一命名空间（UNS）将数据组织成清晰的树形结构。在这棵树中，每个主题都会自动生成对应的 MQTT 主题，便于获取实时数据。
 
-## 补充参数说明
+## 开始前须知
 
-- **文件夹-更多设置**
+### 页面概览
+登录 Tier0 后，选择**统一命名空间** > **UNS**，进入该模块的主页面。
 
-<table>
-<thead>
-<tr>
-<th>项目</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>扩展属性</strong></td>
-<td>为文件夹添加扩展属性（例如：单位）。</td>
-</tr>
-<tr>
-<td><strong>模板</strong></td>
-<td>选择模板并继承其属性，详见 <a href="#创建模板">创建模板</a>。</td>
-</tr>
-<tr>
-<td><strong>生成模板</strong></td>
-<td>单击 <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/35.png" alt="icon" /> 为文件夹添加属性，同时可选择生成相同模板供后续使用。</td>
-</tr>
-</tbody>
-</table>
-
-- **文件-文件类型**
+<img width={550} src="https://enterpriseimage.oss-cn-hangzhou.aliyuncs.com/17.png" />
 
 <table>
-<tr>
-<th>类型</th>
-<th>说明</th>
-</tr>
-<tr>
-<td><strong>状态</strong></td>
-<td>作为 API 接收系统状态数据。</td>
-</tr>
-<tr>
-<td><strong>操作</strong></td>
-<td>作为 API 执行增删改查（CRUD）命令。</td>
-</tr>
-<tr>
-<td><strong>指标</strong></td>
-<td>实时数据（例如：设备温度）。</td>
-</tr>
-</table>
-
-
-
-- **文件-属性生成方式**
-
-<table>
-<thead>
-<tr>
-<th>属性生成方式</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>自定义</strong></td>
-<td>自定义属性。</td>
-</tr>
-<tr>
-<td><strong>模板</strong></td>
-<td>从选中的模板继承属性。</td>
-</tr>
-<tr>
-<td><strong>自动解析</strong></td>
-<td>通过 JSON 文本生成相同结构的属性。</td>
-</tr>
-</tbody>
-</table>
-
-- **文件-可选行为**
-
-<table>
-  <thead>
-    <tr>
-      <th>行为</th>
-      <th>说明</th>
-    </tr>
-  </thead>
+  <thead><tr><th>序号</th><th>区域</th><th>说明</th></tr></thead>
   <tbody>
-<tr>
-      <td><strong>模拟数据</strong></td>
-      <td>为选中文件在<b>数据连接</b>中自动创建模拟数据流。</td>
-    </tr>
-    <tr>
-      <td><strong>启用历史数据</strong></td>
-      <td>为选中文件开启历史数据存储功能。</td>
-    </tr>
+    <tr><td>1</td><td>命名空间</td><td>显示数据模型列表，可新增模型、刷新列表，以及从回收站恢复模型。</td></tr>
+    <tr><td>2</td><td>画布</td><td>显示选中的 UNS 信息，或右侧对话生成的卡片。</td></tr>
+    <tr><td>3</td><td>导入/导出</td><td>通过 JSON 文本或文件导入、导出命名空间模型。</td></tr>
+    <tr><td>4</td><td>对话</td><td>使用自然语言与 UNS 主题交互，并将对话生成的卡片拖放到画布上展示。</td></tr>
   </tbody>
 </table>
 
+## 补充参数说明
+
+- **路径-更多设置**
+
+<table>
+<thead><tr><th>项目</th><th>说明</th></tr></thead>
+<tbody><tr><td><strong>扩展属性</strong></td><td>为路径添加扩展属性，例如单位。</td></tr></tbody>
+</table>
+
+- **主题-主题类型**
+
+<table>
+<tr><th>类型</th><th>说明</th></tr>
+<tr><td>状态</td><td>作为 API 接收系统状态数据。</td></tr>
+<tr><td>操作</td><td>作为 API 执行增删改查（CRUD）命令。</td></tr>
+<tr><td>指标</td><td>实时数据，例如设备温度。</td></tr>
+</table>
+
+- **主题-属性生成方式**
+
+<table>
+<thead><tr><th>属性生成方式</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td><strong>自定义</strong></td><td>自定义属性。</td></tr>
+<tr><td><strong>自动解析</strong></td><td>通过 JSON 文本生成相同结构的属性。</td></tr>
+</tbody>
+</table>
+
+- **主题-数据质量**
+
+<table>
+<thead><tr><th>数据质量</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td><strong>数值范围检查</strong></td><td>检查属性值是否处于指定范围内。</td></tr>
+<tr><td><strong>采集中断检查</strong></td><td>根据设置的采集间隔和延迟时间，检查该主题的数据采集是否中断。</td></tr>
+</tbody>
+</table>
+
+- **主题-可选行为**
+
+<table>
+<thead><tr><th>项目</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td><strong>模拟数据</strong></td><td>在<b>数据连接</b>中为该主题自动创建数据流，用于发送生成的模拟数据。</td></tr>
+<tr><td><strong>启用历史数据</strong></td><td>为该主题开启历史数据存储功能。</td></tr>
+</tbody>
+</table>
+
 ## 如何创建数据模型
-基于简单的**文件夹-文件**结构，可将数据层级定义为树形视图。
+基于简单的路径和主题结构，可将数据层级定义为树形视图。
+
 ### 手动创建模型
 
-:::note
-**factory/equipment/CNC** 将作为示例，其中 `factory` 和 `equipment` 为文件夹，`CNC` 为文件。
-:::
-1. 登录 Tier0，即进入**数据建模**。
-2. 在**工厂模型**栏，单击 <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/75.png" /> > **新建文件夹**（例如：`factory`）。
+1. 登录 Tier0，选择**统一命名空间** > **UNS**。
+2. 单击 <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/75.png" /> > **新建路径**，添加路径（例如 `factory`）。
 
 <img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/34-1.png" />
 
-3. 根据需求填写文件夹名称，别名等信息，单击**保存**。
-
-4. 选中**equipment**，单击 <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/75.png" /> > **新建文件**，在其下添加文件（例如：`CNC`）。
+3. 填写路径信息，按需设置别名，然后单击**保存**。
+4. 选中 **factory**，单击 <img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/75.png" /> > **新建主题**，在其下添加主题（例如 `CNC`）。
 
 <img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/36-1.png" />
 
-5. 输入文件相关信息，单击**保存**。
-
-
-
-
+5. 填写主题信息，然后单击**保存**。
 
 ### 导入模型
-1. 登录 Tier0，即进入**数据建模**。
+1. 登录 Tier0，进入 **UNS** 页面。
 2. 单击右上角的**导入**。
-
-<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/69-4.png" />
-
 3. 导入 JSON 创建模型：
-- 切换到**UNS**栏，直接输入 JSON 文本。
+- 在 **UNS** 选项卡中直接输入 JSON。
+
+:::tip[如何快速获取模型 JSON]
+单击**复制给 Agent**，将复制的内容发送给智能体，再将其生成的结果粘贴回来。
+:::
 
 <img width={350} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/69-5.png" />
 
-- 在**UNS**栏，单击**下载模板**，按模板规则填写模型内容后切换到**全部**栏上传。
+- 在 **UNS** 选项卡中单击**下载模板**，填写模型内容后，在**全部**选项卡上传文件。
 
 <img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/69-2.png" />
 
 :::tip
-可手动添加文件夹和文件后导出，将其作为导入示例参考。
+也可以手动添加路径和主题，再将其导出，作为导入模型的示例。
 
 <img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/69-6.png" />
 
@@ -150,34 +113,10 @@ Tier0 采用统一命名空间（UNS）将数据组织成清晰的树形结构�
 
 4. 单击**保存**。
 
-
-
-## 可选功能
-### 创建模板
-1. 在**数据建模**页面单击**模板**栏。
-2. 单击<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/38.png" />，输入模板信息。
-:::tip
-单击**来源**可选择已添加的模型并继承其属性。
-:::
-
-<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/39-1.png" />
-
-3. 单击**保存**。
-
-### 创建标签
-标签用于对数据模型进行分类管理。
-1. 在**数据建模**页面单击**标签**栏。
-2. 单击<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/77.png" />，输入标签名称。
-3. 单击**保存**，再单击<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/78.png" />为标签添加文件。
-
-<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/79-1.png" />
-
-4. 单击**保存**。
-
 ### 导出数据
-Tier0 支持导出UNS模型以及其他数据，如数据连接，事件流程及数据看板。
-1. 在**数据建模**页面单击右上角**导出**。
-2. 单击**其他**栏，选择对应的数据类型。
+Tier0 支持导出 UNS 模型及其他数据，例如数据连接、事件流程和数据看板。
+1. 在 **UNS** 页面，单击右上角的**导出**。
+2. 单击**其他**选项卡，选择对应的数据类型。
 
 <img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/190.png" />
 

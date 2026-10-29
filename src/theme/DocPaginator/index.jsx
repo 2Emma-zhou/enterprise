@@ -4,7 +4,7 @@ import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import PaginatorNavLink from '@theme/PaginatorNavLink';
 import zhDocTranslations from '@site/i18n/zh/docusaurus-plugin-content-docs/current.json';
 
-const SIDEBAR_IDS = ['tutorialSidebar', 'usecase'];
+const SIDEBAR_IDS = ['tutorialSidebar'];
 
 function translateCategoryTitle(title, currentLocale) {
   if (currentLocale !== 'zh') {

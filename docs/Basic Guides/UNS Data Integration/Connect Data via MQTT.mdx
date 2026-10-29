@@ -1,0 +1,73 @@
+---
+sidebar_label: Connect MQTT Clients (Edge)
+hide_title: true
+slug: /uns-data-integration/connect-data-via-mqtt
+---
+
+:::info What is MQTT?
+- MQTT is a lightweight real-time messaging protocol that lets connected devices (clients) send data to a central server (broker) and receive updates immediately.
+- Access control can be added on the central server (broker) for security reasons, so devices (clients) must be authenticated before they can connect.
+- For more details about MQTT, please refer to [MQTT Protocol](https://mqtt.org/).
+
+<img width={450} src="https://tier0saas1.oss-cn-hangzhou.aliyuncs.com/111.png" />
+
+:::
+## Generating MQTT Credentials
+Tier0 offers an embedded MQTT broker that allows third-party clients to connect and publish data to/subscribe to data from **UNS**.
+
+1. Log in to Tier0, select **Edge** > **MQTT Access**.
+2. Click **Generate Credentials**, enter the name, and then click **Save**.
+
+<img width={350} src="https://enterpriseimage.oss-cn-hangzhou.aliyuncs.com/21.png" />
+
+:::info
+- Once you **Enable Random Client ID Suffix**, the generated **Client ID** itself and with different suffix can match the username and password for connections.
+- Make a note of the generated credentials. You will need them to configure the MQTT client.
+:::
+
+## Connecting MQTT Clients with Credentials
+
+:::note
+The following clients are used as examples to show how to use the credentials to connect to the internal MQTT broker.
+:::
+1. Install an MQTT client, such as MQTTX, MQTT Explorer and others.
+2. Use the credentials from Tier0 to connect the client.
+
+<div className="doc-indent">
+
+- **<a href="https://mqttx.app/" target="_blank" rel="noopener noreferrer">MQTTX</a>**
+
+1. Add a new connection in MQTTX with the generated credentials.
+
+<img width={450} src="https://tier0saas1.oss-cn-hangzhou.aliyuncs.com/20.png" />
+
+2. Click **Connect**.
+
+- **<a href="https://mqtt-explorer.com/" target="_blank" rel="noopener noreferrer">MQTT Explorer</a>**
+
+1. Add a new connection in MQTT Explorer with the generated credentials.
+
+<img width={450} src="https://tier0saas1.oss-cn-hangzhou.aliyuncs.com/20-1.png" />
+
+2. Click **ADVANCED**, change the client ID.
+
+<img width={450} src="https://tier0saas1.oss-cn-hangzhou.aliyuncs.com/20-2.png" />
+
+3. Click **BACK** and then **CONNECT**.
+
+- **Node-RED**
+
+1. Open your Node-RED instance, double-click the `mqtt in` node.
+2. Add a new MQTT broker with the generated credentials from Tier0.
+
+<img width={350} src="https://tier0saas1.oss-cn-hangzhou.aliyuncs.com/20-3.png" />
+<img width={350} src="https://tier0saas1.oss-cn-hangzhou.aliyuncs.com/20-4.png" />
+
+</div>
+
+3. Go back to the **Edge** page on Tier0, click the **Clients** tab and check whether the client is connected.
+4. Copy the topic of the data model under **UNS**, and publish a message to it through the client.
+
+  <img width={450} src="https://tier0saas1.oss-cn-hangzhou.aliyuncs.com/21.png" />
+
+5. Go back to **UNS**, check whether the data has been received under the target topic.

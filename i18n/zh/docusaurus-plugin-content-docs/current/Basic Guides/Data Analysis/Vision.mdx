@@ -1,0 +1,49 @@
+---
+title: 视觉分析
+sidebar_label: 视觉分析（Vision）
+slug: /data-analysis/vision
+---
+
+你可以将摄像头视频流接入 Tier0，对实时画面进行视觉分析。
+
+## 连接摄像头
+
+1. 在 Tier0 企业版中，进入 **分析** > **视觉**。
+2. 在 **摄像头** 页签中，单击 **添加摄像头**。
+
+<img width={450} src="https://enterpriseimage.oss-cn-hangzhou.aliyuncs.com/12-1.png" />
+
+3. 输入摄像头信息和视频流地址，测试连接，然后单击 **确定**。
+
+## 编辑算法
+
+1. 在 **算法** 页签中查看算法列表，找到需要使用的算法。
+2. 单击 **详情** 查看算法信息；如需更新模型或添加可识别对象，单击 **编辑**。
+
+<img width={450} src="https://enterpriseimage.oss-cn-hangzhou.aliyuncs.com/13-1.png" />
+
+3. 单击 **确定**。
+
+## 分析摄像头画面
+
+1. 在 **分析任务** 页签中，单击 **创建任务**。
+:::tip
+也可以在 **算法** 页签中，单击所选算法的 **使用算法** 来创建任务。
+:::
+2. 在 **识别配置** 页签中，输入任务名称，选择摄像头和算法。
+
+<img width={450} src="https://enterpriseimage.oss-cn-hangzhou.aliyuncs.com/14-1.png" />
+
+3. 切换到 **检测区域** 页签，单击图像右下角的加号，再单击图像绘制检测区域。
+4. 单击 **完成**，结束区域绘制。
+
+<img width={450} src="https://enterpriseimage.oss-cn-hangzhou.aliyuncs.com/15-1.png" />
+
+5. 在 **运行与输出** 页签中，配置分析任务的运行计划和输出设置。
+:::tip
+将鼠标悬停在参数上可查看其说明。
+:::
+
+<img width={450} src="https://enterpriseimage.oss-cn-hangzhou.aliyuncs.com/16-1.png" />
+
+6. 单击 **创建**，可在 **分析结果** 页签查看结果。

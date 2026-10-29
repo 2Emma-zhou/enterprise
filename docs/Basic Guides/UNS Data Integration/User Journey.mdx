@@ -3,21 +3,17 @@ sidebar_label: User Journey
 slug: /uns-data-integration/user-journey
 ---
 
+Start with the two required steps shown in the diagram:
 
-## User Journey
-Follow the order displayed in the image, you will complete your first data flow in Tier0.
+<img width={650} src="/img/user-journey-en.svg" alt="Build Data Models, then Connect Data; choose to Process, Sync, Use, or Analyze Data" />
 
-<img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/48.png" />
+- **Necessary**
+    1. **Build Data Models** to organize your assets and define where data belongs.
+    2. **Connect Data** to bring data from your sources into those models.
 
-
-- Tier0 builds data models in a folder-file structure, making it easy to track and understand;
-- It collects various types of data from diverse sources in **Source Flow**;
-- Data collected to Tier0 can be processed in many ways in **Event Flow**;
-- Processed data can be displayed on dashboards for better understanding through both **Event Flow** and **Dashboards**.
-- Data collected to and processed in Tier0 can be obtained by third parties through <a href="../../../openapi/#/">Open API</a> or MQTT subscription.
-
-:::note
-- **Source Flow** and **Event Flow** are based on **Node-RED**. For detailed instructions, please see <a href="https://nodered.org/docs/tutorials/first-flow">NodeRed</a>.
-- **Dashboards** is based on **Grafana**. For detailed instructions, please see <a href="https://grafana.com/docs/grafana/latest/dashboards/build-dashboards/create-dashboard/">Grafana</a>.
-:::
+- **Optional**
+    - **Process Data** to transform and prepare data with **Event Flow**.
+    - **Sync Data** to share data with other Tier0 or make it available through OpenAPI and MQTT.
+    - **Use Data** in applications and business scenarios.
+    - **Analyze Data** to explore and visualize what the data reveals.
 

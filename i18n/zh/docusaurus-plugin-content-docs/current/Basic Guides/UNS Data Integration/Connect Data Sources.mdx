@@ -1,95 +1,106 @@
 ---
-title: 连接数据源
-sidebar_label: 连接数据源（数据连接）
-slug: /uns-data-integration/connect-data-sources
+sidebar_label: 通过数据流连接数据（流程）
+title: 通过数据流连接数据
+hide_title: true
+slug: /uns-data-integration/connect-data-via-flow
 ---
 
-## 如何添加数据源
-在**数据建模**下完成数据模型构建后，需为模型连接真实数据，以便后续处理和使用。
+## 如何通过数据连接添加数据源
+
+在 **UNS** 中构建数据模型后，需要将真实数据连接到模型，用于后续处理和使用。
 
 ### 手动添加数据流
-1. 登录平台，进入**数据管理** > **数据连接**。
 
-<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/108-1.png" />
+1. 登录 Tier0，选择 **流程**。
+
+<img src="https://enterpriseimage.oss-cn-hangzhou.aliyuncs.com/19-1.png" />
 
 <table>
   <thead>
     <tr>
-      <th>序号</th>
+      <th>编号</th>
       <th>项目</th>
       <th>说明</th>
     </tr>
   </thead>
   <tbody>
   <tr>
-      <td rowspan="2">1</td>
-      <td>搜索</td>
-      <td>搜索现有数据流。</td>
-    </tr>
-    <tr>
-      <td>新建数据连接</td>
-      <td>添加一条新的数据流。</td>
-    </tr>
-    <tr>
-      <td rowspan="1">2</td>
+      <td>1</td>
       <td>数据流列表</td>
-      <td>显示数据流信息，单击流名称可进入数据流编辑页面。</td>
+      <td>选择查看全部数据流，或仅查看某一分类下的流。</td>
     </tr>
     <tr>
-      <td>3</td>
-      <td>显示方式</td>
-      <td>切换数据流的卡片式/列表式显示。</td>
+      <td>2</td>
+      <td>数据流信息</td>
+      <td>显示数据流基础信息。单击流名称可开始编辑数据流。</td>
+    </tr>
+  <tr>
+      <td rowspan="3">3</td>
+      <td>搜索/筛选</td>
+      <td>搜索或筛选已有数据流。</td>
     </tr>
     <tr>
-      <td>4</td>
-      <td>流操作</td>
-      <td>对数据流进行复制/编辑/删除操作。</td>
+      <td>新建文件夹</td>
+      <td>添加文件夹，用于对数据流进行分类。</td>
+    </tr>
+    <tr>
+      <td>新建流程</td>
+      <td>添加新的数据流。</td>
     </tr>
   </tbody>
 </table>
 
-2. 单击**新建数据连接**，输入名称后单击**保存**。
-3. 单击刚创建的数据流，进入配置页面，根据数据源类型拖拽对应节点（例如`modbus`节点）至画布。
-4. 拖拽一个 `MQTT输出` 节点，并完成配置：
+
+2. 单击 **新建流程**，在弹窗中输入名称和说明，将 **流程类型** 选择为 **数据连接**，然后单击 **保存**。
+- **数据连接**：用于从数据源采集数据，并发送到 UNS。
+- **事件流程**：用于处理来自 UNS 的数据。
+
+<img width={350} src="https://enterpriseimage.oss-cn-hangzhou.aliyuncs.com/20-1.png" />
+
+3. 单击刚添加的流程，进入配置页面，并根据数据源类型拖入对应节点，例如 `modbus`。
+4. 配置数据源节点，然后拖入 `mqtt out` 节点，并完成相关配置。
 
 <ol>
 <ol>
 <li>
-添加内置代理：<code>emqx:1883</code>。
+添加内部 Broker：<code>emqx:1883</code>。
 <img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/106.png" />
 </li>
 <li>
-设置订阅主题为 **数据建模** 中的数据模型路径。
+将其订阅 Topic 设置为 <b>Namespace</b> 中的数据模型。
 
-例如：数据模型结构为 <code>factory/equipment/cnc</code>，则主题设置为 <code>factory/equipment/cnc</code>。
+例如，数据模型结构为 <code>factory/equipment/cnc</code>，则 Topic 为 <code>factory/equipment/cnc</code>。
 <img width={450} src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/107.png" />
 </li>
 </ol>
 </ol>
 
-5. 单击右上角**部署**，触发数据流后，数据将发送至**数据建模**中对应的模型。
+5. 单击右上角的 **Deploy**，触发流程后，数据会发送到 **命名空间** 下对应的模型中。
 
-### 通过生成的流配置数据源
+:::tip
+你可以单击 **Save Version** 将流程保存为不同版本，并在需要时切换到历史版本。
+:::
+
+### 通过生成的流程配置数据源
+
 :::note
-创建文件时选择**模拟数据**，系统才会自动生成数据流。
-:::
-1. 登录平台，进入**数据管理** > **数据建模**，选择目标文件。
-2. 向下滚动至**拓扑图**区域，单击**数据连接**右侧的图标，跳转至**数据连接**下自动生成的数据流页面。
-
-<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/49-1.png" />
-
-3. 修改数据源。
-:::info
-确保源节点返回的数据格式为 **JSON对象**，目前平台仅支持解析该数据类型。
+只有在创建文件时启用了 **模拟数据**，系统才会自动生成数据流。
 :::
 
-<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/50.png" />
+1. 登录 Tier0，进入 **UNS**。
+2. 查看已创建文件的详情，向下滚动到 **拓扑**，然后单击 **数据连接** 图标进入生成的流程。
 
-4. 删除**模拟数据**的函数节点，将源节点与后续流程连接。
+<img width={450} src="https://tier0saas1.oss-cn-hangzhou.aliyuncs.com/128-1.png" />
 
-<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/51.png" />
+3. 删除流程中的模拟数据源。
 
-5. 单击右上角**部署**，然后触发数据流。
-6. 返回**数据建模**，检查数据是否已回传至该文件。
+<img width={450} src="https://tier0saas1.oss-cn-hangzhou.aliyuncs.com/72.png" />
 
-<img src="http://communityimage2.oss-cn-hangzhou.aliyuncs.com/52-1.png" />
+4. 将真实数据源节点连接到流程，并完成配置。
+
+<img width={450} src="https://tier0saas1.oss-cn-hangzhou.aliyuncs.com/73.png" />
+
+5. 单击右上角的 **Deploy**，然后触发流程。
+6. 返回 **UNS**，检查是否已接收到数据。
+
+<img src="https://tier0saas1.oss-cn-hangzhou.aliyuncs.com/25-1.png" />

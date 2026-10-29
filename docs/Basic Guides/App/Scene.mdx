@@ -1,0 +1,235 @@
+---
+sidebar_label: Build 3D Scenes (Scene)
+title: Build 3D Scenes
+slug: /app/build-3d-scenes
+---
+
+Tier0 enables you to build a scene using 3D models that have been mapped with real-time UNS data for live display.
+
+## Additional Parameter Description
+- Scene Description.
+
+        <img width={550} src="http://tier0saas1.oss-cn-hangzhou.aliyuncs.com/92.png" />
+
+        <table>
+        <tr>
+            <th>No.</th>
+            <th>Module</th>
+            <th>Item</th>
+            <th>Description</th>
+        </tr>
+        <tr>
+            <td>1</td>
+            <td colspan="2">Instance Library</td>
+            <td>Lists all configured models from <b>Model Library</b>.</td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>Model Position</td>
+            <td><img width={25} src="http://tier0saas1.oss-cn-hangzhou.aliyuncs.com/93.png" />/<img width={25} src="http://tier0saas1.oss-cn-hangzhou.aliyuncs.com/94.png" />/<img width={25} src="http://tier0saas1.oss-cn-hangzhou.aliyuncs.com/95.png" /></td>
+            <td>Moves/rotates/scales the model along the X, Y and Z axes.</td>
+        </tr>
+        <tr>
+            <td rowspan="2">3</td>
+            <td rowspan="2">Axis</td>
+            <td>Local/Global</td>
+            <td>Decides whether the model coordinates is based on the model itself, or the entire screen.</td>
+        </tr>
+        <tr>
+        <td>Center/Bottom</td>
+            <td>Sets the coordinates position to be at the center or bottom of the model.</td>
+        </tr>
+        <tr>
+            <td>4</td>
+            <td>General Operations</td>
+            <td><img width={25} src="http://tier0saas1.oss-cn-hangzhou.aliyuncs.com/68-2.png" />/<img width={25} src="http://tier0saas1.oss-cn-hangzhou.aliyuncs.com/68-3.png" /></td>
+            <td>Restores the scene to the original viewport/Views the scene in full screen.</td>
+        </tr>
+        <tr>
+            <td>5</td>
+            <td colspan="2">Scene Collection</td>
+            <td>Lists all models in the scene.</td>
+        </tr>
+        <tr>
+            <td>6</td>
+            <td colspan="2">Canvas</td>
+            <td>Displays the scene canvas.</td>
+        </tr>
+            <tr>
+            <td rowspan="3">7</td>
+            <td rowspan="3">Settings</td>
+            <td>Viewport</td>
+            <td>Sets the scene viewport, including background, camera parameters and grid layout.</td>
+        </tr>
+        <tr>
+        <td>Light</td>
+            <td>Sets the lighting conditions in the scene under different types of presets.</td>
+        </tr>
+        <tr>
+        <td>Object</td>
+            <td>Displays the attributes of the selected model in the scene. You can edit its position by manually changing the values.</td>
+        </tr>
+        </table>
+
+- **Viewport**
+
+        <img width={250} src="http://tier0saas1.oss-cn-hangzhou.aliyuncs.com/96.png" />
+        <table>
+        <thead>
+            <tr>
+            <th>Parameter</th>
+            <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+            <td>Background</td>
+            <td>Background style of the scene canvas.</td>
+            </tr>
+            <tr>
+            <td>Ground Reflection</td>
+            <td>Controls whether a reflection effect appears beneath the models, simulating a reflective ground surface.</td>
+            </tr>
+            <tr>
+            <td>Enable Reflection</td>
+            <td>Turns the ground reflection effect on or off.</td>
+            </tr>
+            <tr>
+            <td>Clarity</td>
+            <td>Adjusts how clear or sharp the reflection looks. Higher values produce a clearer reflection.</td>
+            </tr>
+            <tr>
+            <td>Reflection Depth</td>
+            <td>Adjusts the vertical range or depth of the reflection. A higher value usually makes the reflection extend farther downward.</td>
+            </tr>
+        </tbody>
+        </table>
+
+    - **Camera**
+
+        <img width={250} src="http://tier0saas1.oss-cn-hangzhou.aliyuncs.com/97.png" />
+        <table>
+        <thead>
+            <tr>
+            <th>Parameter</th>
+            <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+            <td>Focal Length</td>
+            <td>Sets the camera focal length. A smaller value gives a wider view.</td>
+            </tr>
+            <tr>
+            <td>Lens Unit</td>
+            <td>Specifies the unit used for the lens setting. In this example, the focal length is measured in millimeters.</td>
+            </tr>
+            <tr>
+            <td>Shift X/Y</td>
+            <td>Moves the camera view horizontally/vertically without rotating the camera. Positive or negative values shift the framing left or right/up or down.</td>
+            </tr>
+            <tr>
+            <td>Clip Mode</td>
+            <td>Specifies how the camera clipping range is controlled. In <b>Auto</b> mode, the system automatically calculates the visible range based on the scene. In <b>Manual</b> mode, you can set the near and far clipping distances using <b>Clip Start</b> and <b>End</b>.</td>
+            </tr>
+            <tr>
+            <td>Clip Start</td>
+            <td>Defines the nearest distance from the camera at which objects start to be visible. Objects closer than this distance will be clipped.</td>
+            </tr>
+            <tr>
+            <td>End</td>
+            <td>Defines the farthest distance from the camera at which objects remain visible. Objects beyond this distance will be clipped.</td>
+            </tr>
+        </tbody>
+        </table>
+    - **Grid**
+
+        <img width={250} src="http://tier0saas1.oss-cn-hangzhou.aliyuncs.com/98.png" />
+        <table>
+        <thead>
+            <tr>
+            <th>Parameter</th>
+            <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+            <td>Show Grid</td>
+            <td>Whether the grid is visible in the scene.</td>
+            </tr>
+            <tr>
+            <td>Show Axis</td>
+            <td>Whether the coordinate axes are displayed in the scene.</td>
+            </tr>
+            <tr>
+            <td>Grid Range</td>
+            <td>Defines the overall visible size of the grid area.</td>
+            </tr>
+            <tr>
+            <td>Min. Cell Size</td>
+            <td>Defines the minimum size of each grid cell.</td>
+            </tr>
+            <tr>
+            <td>Infinite Grid</td>
+            <td>Whether the grid extends infinitely instead of being limited to a fixed area.</td>
+            </tr>
+        </tbody>
+        </table>
+- **Light**
+
+    <img width={250} src="http://tier0saas1.oss-cn-hangzhou.aliyuncs.com/99.png" />
+    <table>
+    <thead>
+        <tr>
+        <th>Parameter</th>
+        <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+        <td>Light Preset</td>
+        <td>Selects a predefined lighting setup. Available options include <b>Balanced</b>, <b>Soft</b>, and <b>Contrast</b>.</td>
+        </tr>
+        <tr>
+        <td>IBL</td>
+        <td>Enables image-based lighting, which uses an environment image to provide realistic ambient illumination and reflections for the scene. The intensity value controls the strength of the IBL effect.</td>
+        </tr>
+        <tr>
+        <td>Ambient Light</td>
+        <td>Controls the intensity of ambient light, which provides overall non-directional illumination to the entire scene.</td>
+        </tr>
+        <tr>
+        <td>Key Light</td>
+        <td>Controls the intensity of the main light source, which is the primary light shaping the object and creating the main highlights and shadows.</td>
+        </tr>
+        <tr>
+        <td>Fill Light</td>
+        <td>Controls the intensity of the fill light, which softens shadows created by the key light and reduces contrast.</td>
+        </tr>
+        <tr>
+        <td>Back Light</td>
+        <td>Controls the intensity of the back light, which illuminates the object from behind to help separate it from the background.</td>
+        </tr>
+    </tbody>
+    </table>
+
+
+
+## How to Build a Digital Twin Scene
+1. Log in to Tier0, select **Anchor** > **Scene**.
+2. Click **New Scene** at the upper-right corner, enter the scene information, and click **Create**.
+
+<img width={550} src="http://tier0saas1.oss-cn-hangzhou.aliyuncs.com/90.png" />
+
+3. Open the created scene, select instances from **Instance Library** on the left.
+
+<img width={550} src="http://tier0saas1.oss-cn-hangzhou.aliyuncs.com/91.png" />
+
+4. Configure the models added to the scene.
+    1. Set the model coordinates.
+    2. Adjust the model position, rotation and scale based on the selected coordinates.
+    3. On the right side, edit the viewport, camera and grid as needed.
+    4. Edit lighting settings.
+    5. (optional) Edit the model position by setting the numbers under **Object** > **Transform**.
+
+5. Click **Save Scene** at the upper-right corner.
